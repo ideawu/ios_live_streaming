@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="PlayerController">
+            <connections>
+                <outlet property="playBtn" destination="BjH-20-XuE" id="AHY-Ew-edF"/>
+                <outlet property="previewView" destination="5tK-2o-7mn" id="XQK-d7-nKt"/>
+                <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <window title="Player" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" frameAutosaveName="Player" animationBehavior="default" id="F0z-JX-Cv5">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="196" y="240" width="602" height="381"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <view key="contentView" id="se5-gp-TjO">
+                <rect key="frame" x="0.0" y="0.0" width="602" height="381"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <customView id="dbx-TY-ve0">
+                        <rect key="frame" x="0.0" y="0.0" width="606" height="61"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <button verticalHuggingPriority="750" id="BjH-20-XuE">
+                                <rect key="frame" x="14" y="13" width="67" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES"/>
+                                <buttonCell key="cell" type="push" title="Play" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="FH0-gU-nyP">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="onPlay:" target="-2" id="n3c-g5-g2P"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" id="IxP-uw-Qyv">
+                                <rect key="frame" x="266" y="13" width="71" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES"/>
+                                <buttonCell key="cell" type="push" title="Load" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="AbZ-WF-EvE">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="onLoad:" target="-2" id="lff-bJ-A9N"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" id="RxE-4r-1HR">
+                                <rect key="frame" x="344" y="13" width="61" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES"/>
+                                <buttonCell key="cell" type="push" title="-10" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="JbX-0I-EHk">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="onPrevSkip:" target="-2" id="b1A-5a-NNb"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" id="uCl-6K-DU1">
+                                <rect key="frame" x="401" y="13" width="54" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES"/>
+                                <buttonCell key="cell" type="push" title="-1" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="kZi-fv-XS0">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="prevFrame:" target="-2" id="Rmq-hs-OKy"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" id="dvy-Am-0Dt">
+                                <rect key="frame" x="476" y="13" width="56" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES"/>
+                                <buttonCell key="cell" type="push" title="+1" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="iAU-Oh-E2h">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="onNextFrame:" target="-2" id="HYs-zI-ppE"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" id="9ug-6u-so4">
+                                <rect key="frame" x="528" y="13" width="64" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES"/>
+                                <buttonCell key="cell" type="push" title="+10" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="FEK-IS-Joq">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="onNextSkip:" target="-2" id="Anp-iL-2fK"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                    </customView>
+                    <customView wantsLayer="YES" id="5tK-2o-7mn">
+                        <rect key="frame" x="20" y="61" width="562" height="300"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    </customView>
+                </subviews>
+            </view>
+            <connections>
+                <outlet property="delegate" destination="-2" id="0bl-1N-AYu"/>
+            </connections>
+            <point key="canvasLocation" x="374" y="336.5"/>
+        </window>
+    </objects>
+</document>

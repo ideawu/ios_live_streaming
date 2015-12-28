@@ -1,0 +1,9 @@
+.DS_Store
+*.swp
+*.xcuserstate
+build
+VideoTest/VideoTest.xcodeproj/project.xcworkspace/xcshareddata/VideoTest.xccheckout
+VideoTest/VideoTest.xcodeproj/project.xcworkspace/xcuserdata/
+VideoTest/VideoTest.xcodeproj/xcuserdata/
+UserInterfaceState.xcuserstate
+
