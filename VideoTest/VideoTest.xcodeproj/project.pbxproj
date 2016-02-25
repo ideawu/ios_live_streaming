@@ -23,6 +23,7 @@
 		3143BE9A1C21190000C7ACB1 /* RecorderController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3143BE981C21190000C7ACB1 /* RecorderController.xib */; };
 		3143BE9D1C240FA700C7ACB1 /* LiveClipWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 3143BE9C1C240FA700C7ACB1 /* LiveClipWriter.m */; };
 		3143BEA01C26C6CC00C7ACB1 /* LiveClipReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 3143BE9F1C26C6CC00C7ACB1 /* LiveClipReader.m */; };
+		31624BFA1C7EE01700BD588D /* Http.m in Sources */ = {isa = PBXBuildFile; fileRef = 31624BF91C7EE01700BD588D /* Http.m */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,6 +51,8 @@
 		3143BE9C1C240FA700C7ACB1 /* LiveClipWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveClipWriter.m; sourceTree = "<group>"; };
 		3143BE9E1C26C6CC00C7ACB1 /* LiveClipReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveClipReader.h; sourceTree = "<group>"; };
 		3143BE9F1C26C6CC00C7ACB1 /* LiveClipReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveClipReader.m; sourceTree = "<group>"; };
+		31624BF81C7EE01700BD588D /* Http.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Http.h; sourceTree = "<group>"; };
+		31624BF91C7EE01700BD588D /* Http.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Http.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +101,8 @@
 				3143BE9F1C26C6CC00C7ACB1 /* LiveClipReader.m */,
 				3143BE6F1C1EFF7900C7ACB1 /* LivePlayer.h */,
 				3143BE701C1EFF7900C7ACB1 /* LivePlayer.m */,
+				31624BF81C7EE01700BD588D /* Http.h */,
+				31624BF91C7EE01700BD588D /* Http.m */,
 				3143BE2B1C1AAAF500C7ACB1 /* Supporting Files */,
 			);
 			path = VideoTest;
@@ -199,6 +204,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3143BE2D1C1AAAF500C7ACB1 /* main.m in Sources */,
+				31624BFA1C7EE01700BD588D /* Http.m in Sources */,
 				3143BEA01C26C6CC00C7ACB1 /* LiveClipReader.m in Sources */,
 				3143BE491C1AEA0F00C7ACB1 /* PlayerController.m in Sources */,
 				3143BE711C1EFF7900C7ACB1 /* LivePlayer.m in Sources */,

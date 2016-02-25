@@ -10,6 +10,7 @@
 #import "RecorderController.h"
 #import "LiveClipWriter.h"
 #import "LivePlayer.h"
+#import "Http.h"
 
 typedef enum{
 	RecordNone,
@@ -178,7 +179,31 @@ typedef enum{
 	[self createRecorder];
 	
 	// TODO:
+	[self uploadClip:rec];
 	NSLog(@"processed %@", rec.writer.outputURL.lastPathComponent);
+}
+
+static NSString *base64_encode_data(NSData *data){
+	data = [data base64EncodedDataWithOptions:0];
+	NSString *ret = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+	return ret;
+}
+
+- (void)uploadClip:(LiveClipWriter *)rec{
+	NSString *url = @"http://127.0.0.1:8000/pub"; // icomet
+	NSData *data = [NSData dataWithContentsOfURL:rec.writer.outputURL];
+	if(data == nil){
+		NSLog(@"nil data");
+		return;
+	}
+	NSString *data_str = base64_encode_data(data);
+	NSDictionary *params = @{
+							 @"content" : data_str,
+							 };
+	http_post(url, params, ^(NSData *data) {
+		NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+		NSLog(@"uploaded %@, resp: %@", rec.writer.outputURL.lastPathComponent, str);
+	});
 }
 
 - (void)switchClip{
