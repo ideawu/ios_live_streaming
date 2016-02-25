@@ -2,8 +2,13 @@
 *.swp
 *.xcuserstate
 build
+UserInterfaceState.xcuserstate
+xcuserdata
+*VideoTest.xccheckout
 VideoTest/VideoTest.xcodeproj/project.xcworkspace/xcshareddata/VideoTest.xccheckout
 VideoTest/VideoTest.xcodeproj/project.xcworkspace/xcuserdata/
 VideoTest/VideoTest.xcodeproj/xcuserdata/
-UserInterfaceState.xcuserstate
+player/player.xcodeproj/project.xcworkspace/xcshareddata/player.xccheckout
+player/player.xcodeproj/project.xcworkspace/xcuserdata/
+player/player.xcodeproj/xcuserdata/
 
