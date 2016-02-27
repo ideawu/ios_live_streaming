@@ -99,9 +99,9 @@ typedef enum{
 
 	_videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
 	[_videoDataOutput setSampleBufferDelegate:self queue:_captureQueue];
-	NSDictionary* setcapSettings = [NSDictionary dictionaryWithObjectsAndKeys:
-									[NSNumber numberWithInt:kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange], kCVPixelBufferPixelFormatTypeKey,
-									nil];
+	NSDictionary* setcapSettings = @{
+		(id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange),
+	};
 	_videoDataOutput.videoSettings = setcapSettings;
 
 	audioPreviewOutput = [[AVCaptureAudioPreviewOutput alloc] init];

@@ -31,11 +31,25 @@
 	}
 	NSURL *url = [NSURL fileURLWithPath:filename];
 	_writer = [AVAssetWriter assetWriterWithURL:url fileType:AVFileTypeMPEG4 error:nil];
-	NSDictionary* settings = [NSDictionary dictionaryWithObjectsAndKeys:
-							  AVVideoCodecH264, AVVideoCodecKey,
-							  @(_width), AVVideoWidthKey,
-							  @(_height), AVVideoHeightKey,
-							  nil];
+	NSDictionary* settings = @{
+							AVVideoCodecKey: AVVideoCodecH264,
+							AVVideoWidthKey: @(_width),
+							AVVideoHeightKey: @(_height),
+							// belows require OS X 10.10+
+							//AVVideoH264EntropyModeKey: AVVideoH264EntropyModeCAVLC,
+							//AVVideoExpectedSourceFrameRateKey: @(30),
+							//AVVideoAllowFrameReorderingKey: @NO,
+							};
+#if TARGET_OS_MAC
+#ifdef NSFoundationVersionNumber10_9_2
+	if(NSFoundationVersionNumber <= NSFoundationVersionNumber10_9_2){
+		NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:settings];
+		// AVVideoCodecH264 not working right with OS X 10.9-
+		[dict setObject:AVVideoCodecJPEG forKey:AVVideoCodecKey];
+		settings = dict;
+	}
+#endif
+#endif
 	_videoInput = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:settings];
 	_videoInput.expectsMediaDataInRealTime = YES;
 	[_writer addInput:_videoInput];
