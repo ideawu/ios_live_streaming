@@ -137,9 +137,6 @@
 		LiveClipReader *reader = _items.firstObject;
 		if(!reader){
 			_nextTick = time;
-			if(last_clip_end_time > 0){
-				NSLog(@"no reader");
-			}
 			return;
 		}
 		if(!reader.isReading){
