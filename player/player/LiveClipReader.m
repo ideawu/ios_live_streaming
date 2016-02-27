@@ -8,6 +8,7 @@
 
 #import <AVFoundation/AVFoundation.h>
 #import "LiveClipReader.h"
+#import <UIKit/UIKit.h>
 
 typedef enum{
 	LiveClipReaderStatusNone = 0,
@@ -118,6 +119,12 @@ typedef enum{
 	_sessionStartTime = time;
 	_nextIndex = 0;
 	_status = LiveClipReaderStatusReading;
+	// 似乎 mp4 的第一帧是黑屏
+	// drop first frame
+	CGImageRef first = [self copyNextFrame];
+	if(first){
+		CFRelease(first);
+	}
 }
 
 - (BOOL)hasNextFrameForTime:(double)time{
@@ -127,8 +134,10 @@ typedef enum{
 	if(time < _startTime || time > _endTime){
 		return NO;
 	}
+	double maxDelay = MIN(0.01, _frameDuration/10);
 	double mayDelay = time - (_startTime + _nextIndex * _frameDuration);
-	if(mayDelay > MAX(-0.01, -_frameDuration/10)){
+	// TODO: 根据下一个 dayDelay 与当前 dayDelay 对比 
+	if(mayDelay > -maxDelay || (mayDelay < 0 && mayDelay > -maxDelay)){
 		return YES;
 	}
 	return NO;
@@ -139,19 +148,21 @@ typedef enum{
 		_sessionStartTime = time;
 		_status = LiveClipReaderStatusReading;
 	}
+	//double s = time;
 	time = [self convertToHostTime:time];
 	if(!self.isReading){
 		return nil;
 	}
-	if(time > _endTime || _nextIndex > _frameCount){
-		NSLog(@"complete %d frames", _nextIndex);
+	if(time > _endTime || time < _startTime - 3){ // 如果时间已经过, 或者太超前, 都结束
+		//NSLog(@"time: %.3f, s: %.3f e: %.3f, tick: %f", time, _startTime, _endTime, s);
+		NSLog(@"complete %d of %d frames", _nextIndex, _frameCount);
 		_status = LiveClipReaderStatusCompleted;
 	}
 	if(![self hasNextFrameForTime:time]){
 		return nil;
 	}
 	
-	CMSampleBufferRef buffer = [_assetReaderOutput copyNextSampleBuffer];
+	CGImageRef image = [self copyNextFrame];
 	if(_assetReader.status == AVAssetReaderStatusFailed){
 		_status = LiveClipReaderStatusCompleted;
 	}else if(_assetReader.status == AVAssetReaderStatusCancelled){
@@ -159,11 +170,21 @@ typedef enum{
 	}else if(_assetReader.status == AVAssetReaderStatusCompleted){
 		_status = LiveClipReaderStatusCompleted;
 	}
+	
+	_delay = time - (_startTime + _nextIndex * _frameDuration);
+	if(_delay > _frameDuration){
+		NSLog(@"frame: %d/%d, delay: %.3f, now: %.3f, end: %.3f", _nextIndex+1, _frameCount, _delay, time, _endTime);
+	}
+	_nextIndex ++;
+	return image;
+}
+
+- (CGImageRef)copyNextFrame{
+	CMSampleBufferRef buffer = [_assetReaderOutput copyNextSampleBuffer];
 	if(!buffer){
+		//NSLog(@"nil buffer");
 		return nil;
 	}
-	_delay = time - (_startTime + _nextIndex * _frameDuration);
-	
 	CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(buffer);
 	CVPixelBufferLockBaseAddress(imageBuffer, 0);
 	uint8_t *baseAddress = (uint8_t *)CVPixelBufferGetBaseAddress(imageBuffer);
@@ -180,10 +201,7 @@ typedef enum{
 	CGImageRef image = CGBitmapContextCreateImage(context);
 	CGColorSpaceRelease(colorSpace);
 	CGContextRelease(context);
-	//CFRelease(buffer);
-
-	//NSLog(@"frame: %d/%d, delay: %.3f, time: %.3f, endTime: %.3f", _nextIndex+1, _frameCount, _delay, time, _endTime);
-	_nextIndex ++;
+	//CFRelease(buffer); // 由调用者负责释放
 	return image;
 }
 

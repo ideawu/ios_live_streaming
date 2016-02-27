@@ -106,7 +106,7 @@ size_t icomet_callback(char *ptr, size_t size, size_t nmemb, void *userdata){
 	IObj *obj = [[IObj alloc] initWithJSONData:data];
 	NSString *type = obj.get(@"type").strval;
 	NSString *content = obj.get(@"content").strval;
-	NSLog(@"%7d byte(s), type: %@, content.len: %d", (int)data.length, type, (int)content.length);
+	//NSLog(@"%7d byte(s), type: %@, content.len: %d", (int)data.length, type, (int)content.length);
 	if([type isEqualToString:@"data"]){
 		NSData *content_data = base64_decode(content);
 		if(content_data){

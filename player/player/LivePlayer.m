@@ -5,22 +5,20 @@
 @interface LivePlayer (){
 	dispatch_queue_t _queue;
 	NSMutableArray *_items;
-	
-	AVAssetReader *_assetReader;
-	BOOL _animating;
 	int seq;
-	int currentItemIndex;
 	
 #if TARGET_OS_IPHONE
 	CADisplayLink *_displayLink;
 #else
 	CVDisplayLinkRef _displayLink;
 #endif
-	double _nextTime;
+	
+	double last_clip_end_time;
+	double _nextTick;
+	double _start_tick;
 }
 @property CALayer *layer;
 @property NSInteger readIdx;
-- (void)displayFrameForTime:(double)time;
 @end
 
 @implementation LivePlayer
@@ -45,7 +43,6 @@
 	CVReturn ret;
 	ret = CVDisplayLinkCreateWithActiveCGDisplays(&_displayLink);
 	ret = CVDisplayLinkSetOutputCallback(_displayLink, displayLinkCallback, (__bridge void *)(self));
-	ret = CVDisplayLinkStart(_displayLink);
 #endif
 
 	return self;
@@ -61,6 +58,7 @@
 #if TARGET_OS_IPHONE
 	[_displayLink setPaused:NO];
 #else
+	ret = CVDisplayLinkStart(_displayLink);
 #endif
 }
 
@@ -88,7 +86,9 @@
 
 - (void)addMovieFile:(NSString *)localFilePath{
 	dispatch_async(_queue, ^{
+		//NSLog(@"add movie file: %@", localFilePath.lastPathComponent);
 		LiveClipReader *item = [LiveClipReader clipReaderWithURL:[NSURL fileURLWithPath:localFilePath]];
+		//NSLog(@"%@", localFilePath.lastPathComponent);
 		dispatch_async(dispatch_get_main_queue(), ^{
 			[_items addObject:item];
 		});
@@ -97,9 +97,6 @@
 
 - (void)removeAllItems{
 	[_items removeAllObjects];
-	dispatch_async(_queue, ^{
-		_animating = NO;
-	});
 }
 
 #pragma mark - CADisplayLink/CVDisplayLinkRef Callback
@@ -107,10 +104,7 @@
 #if TARGET_OS_IPHONE
 	- (void)displayLinkCallback:(CADisplayLink *)sender{
 		double time = _displayLink.timestamp;
-		LivePlayer *player = self;
-		dispatch_async(dispatch_get_main_queue(), ^{
-			[player displayFrameForTime:time];
-		});
+		[self tickCallback:time];
 	}
 #else
 	static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *now,
@@ -119,24 +113,48 @@
 	{
 		double time = outputTime->hostTime/1000.0/1000.0/1000.0;
 		LivePlayer *player = (__bridge LivePlayer *)displayLinkContext;
-		dispatch_async(dispatch_get_main_queue(), ^{
-			[player displayFrameForTime:time];
-		});
+		[player tickCallback:time];
 		return kCVReturnSuccess;
 	}
 #endif
 
+- (void)tickCallback:(double)time{
+	if(_start_tick <= 0){
+		_start_tick = time;
+	}
+	time = time - _start_tick;
+	
+	double speed = 1;
+	time *= speed;
+	LivePlayer *player = self;
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[player displayFrameForTickTime:time];
+	});
+}
 
-- (void)displayFrameForTime:(double)time{
+- (void)displayFrameForTickTime:(double)time{
 	while(1){
 		LiveClipReader *reader = _items.firstObject;
 		if(!reader){
+			_nextTick = time;
+			if(last_clip_end_time > 0){
+				NSLog(@"no reader");
+			}
 			return;
 		}
 		if(!reader.isReading){
-			// TODO: TESTING
-			//NSLog(@"start reader");
-			[reader startSessionAtSourceTime:_nextTime];
+			double diff = reader.startTime - last_clip_end_time;
+			double diff2 = time - _nextTick;
+			//NSLog(@"diff: %.3f, %.3f %.3f %.3f", diff, diff2, reader.startTime, last_clip_end_time);
+			double buffer_time = 0.1;
+			if(diff > buffer_time || diff < -buffer_time || diff2 > buffer_time || diff2 < -buffer_time){
+				NSLog(@"reset tick %.3f => %.3f", _nextTick, time+buffer_time);
+				_nextTick = time + buffer_time;
+			}
+			last_clip_end_time = reader.endTime;
+			
+			NSLog(@"start session at %.3f, tick: %.3f", _nextTick, time);
+			[reader startSessionAtSourceTime:_nextTick];
 		}
 		
 		CGImageRef frame;
@@ -146,17 +164,18 @@
 				return;
 			}else{
 				// switch reader
-				//NSLog(@"switch reader");
+				NSLog(@"stop session at %.3f", time);
 				[_items removeObjectAtIndex:0];
 				continue;
 			}
 		}
 		
-		// TODO: if delay too much, skip frame?
+		// TODO: 当delay过大时, 应丢弃一些
 
-		_nextTime = time + reader.frameDuration;
+		_nextTick = time + reader.frameDuration;
 		self.layer.contents = (__bridge id)(frame);
 		CFRelease(frame);
+		
 		return;
 	}
 }

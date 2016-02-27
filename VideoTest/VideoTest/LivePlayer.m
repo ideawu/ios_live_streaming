@@ -99,6 +99,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 									CVOptionFlags *flagsOut, void *displayLinkContext)
 {
 	double time = outputTime->hostTime/1000.0/1000.0/1000.0;
+	time /= 2;
 	LivePlayer *player = (__bridge LivePlayer *)displayLinkContext;
 	dispatch_async(dispatch_get_main_queue(), ^{
 		[player displayFrameForTime:time];
