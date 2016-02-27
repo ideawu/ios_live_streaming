@@ -279,7 +279,7 @@ static NSString *base64_encode_data(NSData *data){
 		}
 		[rec encodeVideoSampleBuffer:sampleBuffer];
 		
-		float chunk_duration = 0.7;
+		float chunk_duration = 0.5;
 		if(rec.duration >= chunk_duration){
 			[self switchClip];
 			// TODO: TEST
