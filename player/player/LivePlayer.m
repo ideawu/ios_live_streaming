@@ -1,4 +1,3 @@
-
 #import <AVFoundation/AVFoundation.h>
 #import "LivePlayer.h"
 #import "LiveClipReader.h"
@@ -12,7 +11,9 @@
 	int seq;
 	int currentItemIndex;
 	
-#if !TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE
+	CADisplayLink *_displayLink;
+#else
 	CVDisplayLinkRef _displayLink;
 #endif
 	double _nextTime;
@@ -36,14 +37,16 @@
 	_items = [[NSMutableArray alloc] init];
 	_readIdx = 0;
 
+#if TARGET_OS_IPHONE
+	_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkCallback:)];
+	[_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+	[_displayLink setPaused:YES];
+#else
 	CVReturn ret;
 	ret = CVDisplayLinkCreateWithActiveCGDisplays(&_displayLink);
 	ret = CVDisplayLinkSetOutputCallback(_displayLink, displayLinkCallback, (__bridge void *)(self));
 	ret = CVDisplayLinkStart(_displayLink);
-	
-//	_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkCallback:)];
-//	[_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-//	[_displayLink setPaused:YES];
+#endif
 
 	return self;
 }
@@ -52,6 +55,13 @@
 	self = [self init];
 	_layer = layer;
 	return self;
+}
+
+- (void)play{
+#if TARGET_OS_IPHONE
+	[_displayLink setPaused:NO];
+#else
+#endif
 }
 
 - (void)addMovieData:(NSData *)data{
@@ -92,24 +102,30 @@
 	});
 }
 
-#pragma mark - CADisplayLink Callback
+#pragma mark - CADisplayLink/CVDisplayLinkRef Callback
 
-static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *now,
-									const CVTimeStamp *outputTime, CVOptionFlags flagsIn,
-									CVOptionFlags *flagsOut, void *displayLinkContext)
-{
-	double time = outputTime->hostTime/1000.0/1000.0/1000.0;
-	LivePlayer *player = (__bridge LivePlayer *)displayLinkContext;
-	dispatch_async(dispatch_get_main_queue(), ^{
-		[player displayFrameForTime:time];
-	});
-	return kCVReturnSuccess;
-}
+#if TARGET_OS_IPHONE
+	- (void)displayLinkCallback:(CADisplayLink *)sender{
+		double time = _displayLink.timestamp;
+		LivePlayer *player = self;
+		dispatch_async(dispatch_get_main_queue(), ^{
+			[player displayFrameForTime:time];
+		});
+	}
+#else
+	static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *now,
+										const CVTimeStamp *outputTime, CVOptionFlags flagsIn,
+										CVOptionFlags *flagsOut, void *displayLinkContext)
+	{
+		double time = outputTime->hostTime/1000.0/1000.0/1000.0;
+		LivePlayer *player = (__bridge LivePlayer *)displayLinkContext;
+		dispatch_async(dispatch_get_main_queue(), ^{
+			[player displayFrameForTime:time];
+		});
+		return kCVReturnSuccess;
+	}
+#endif
 
-//
-//- (void)displayLinkCallback:(CADisplayLink *)sender{
-//	
-//}
 
 - (void)displayFrameForTime:(double)time{
 	while(1){
@@ -119,7 +135,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 		}
 		if(!reader.isReading){
 			// TODO: TESTING
-			NSLog(@"start reader");
+			//NSLog(@"start reader");
 			[reader startSessionAtSourceTime:_nextTime];
 		}
 		
@@ -130,7 +146,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 				return;
 			}else{
 				// switch reader
-				NSLog(@"switch reader");
+				//NSLog(@"switch reader");
 				[_items removeObjectAtIndex:0];
 				continue;
 			}

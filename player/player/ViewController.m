@@ -6,16 +6,23 @@
 //  Copyright © 2015 ideawu. All rights reserved.
 //
 
+#import <AVFoundation/AVFoundation.h>
 #import "ViewController.h"
 #include "curl/curl.h"
 #import "IKit/IKit.h"
 #import "IObj/IObj.h"
 #import "IObj/Text.h"
+#import "LivePlayer.h"
 
 @interface ViewController (){
 	CURL *_curl;
 }
 @property IView *mainView;
+@property IView *playerView;
+
+@property CALayer *playerLayer;
+@property LivePlayer *livePlayer;
+
 - (void)streamCallback:(NSData *)data;
 @end
 
@@ -60,14 +67,24 @@ size_t icomet_callback(char *ptr, size_t size, size_t nmemb, void *userdata){
 	self.navigationController.navigationBar.translucent = NO;
 	
 	NSString *xml = @""
-	"<div style=\"width: 100%;\">"
-	"	<div style=\"width: 100%; height: 100; background: #9cf; border-radius: 10; margin: 50;\">"
-	"		<div style=\"width: 100; height: 50; float: center; background: #f66; margin-top: 10;\"></div>"
+	"<div style=\"width: 100%; height: 100%; background: #fff;\">"
+	"	<div id=\"player\" style=\"width: 340; height: 300; background: #ff3;\">"
 	"	</div>"
-	"	<span style=\"float: center; color: #ccc;\">Hello World!</span>"
+	"	<p style=\"float: center; color: #333;\">Hello World!</p>"
 	"</div>";
 	_mainView = [IView viewFromXml:xml];
+	_playerView = [_mainView getViewById:@"player"];
 	[self.view addSubview:_mainView];
+	
+	[_mainView layoutIfNeeded];
+
+	_playerLayer = [CALayer layer];
+	[_playerLayer setFrame:[_playerView bounds]];
+	[_playerLayer setBackgroundColor:[UIColor blackColor].CGColor];
+	[_playerView.layer addSublayer:_playerLayer];
+	
+	_livePlayer = [LivePlayer playerWithCALayer:_playerLayer];
+	[_livePlayer play];
 	
 	///////////////////////////
 	[self performSelectorInBackground:@selector(startStreaming) withObject:nil];
@@ -94,6 +111,8 @@ size_t icomet_callback(char *ptr, size_t size, size_t nmemb, void *userdata){
 		NSData *content_data = base64_decode(content);
 		if(content_data){
 			[self onStreamData:content_data];
+		}else{
+			NSLog(@"bad content");
 		}
 	}else{
 		// TODO:
@@ -101,7 +120,7 @@ size_t icomet_callback(char *ptr, size_t size, size_t nmemb, void *userdata){
 }
 
 - (void)onStreamData:(NSData *)data{
-	
+	[_livePlayer addMovieData:data originalPath:nil];
 }
 
 @end

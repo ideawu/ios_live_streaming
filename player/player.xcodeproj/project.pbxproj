@@ -17,6 +17,8 @@
 		31624C231C7EFC7900BD588D /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 31624C221C7EFC7900BD588D /* libxml2.dylib */; };
 		31624C251C7EFCDB00BD588D /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 31624C241C7EFCDB00BD588D /* libz.dylib */; };
 		31624C271C8153B800BD588D /* libIObj.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 31624C261C8153B800BD588D /* libIObj.a */; };
+		31624C2C1C815E1300BD588D /* LiveClipReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 31624C291C815E1300BD588D /* LiveClipReader.m */; settings = {ASSET_TAGS = (); }; };
+		31624C2D1C815E1300BD588D /* LivePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 31624C2B1C815E1300BD588D /* LivePlayer.m */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +36,10 @@
 		31624C221C7EFC7900BD588D /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		31624C241C7EFCDB00BD588D /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		31624C261C8153B800BD588D /* libIObj.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libIObj.a; path = ../deps/libIObj.a; sourceTree = "<group>"; };
+		31624C281C815E1300BD588D /* LiveClipReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveClipReader.h; sourceTree = "<group>"; };
+		31624C291C815E1300BD588D /* LiveClipReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveClipReader.m; sourceTree = "<group>"; };
+		31624C2A1C815E1300BD588D /* LivePlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LivePlayer.h; sourceTree = "<group>"; };
+		31624C2B1C815E1300BD588D /* LivePlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LivePlayer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +81,10 @@
 				31624C0B1C7EFAA900BD588D /* AppDelegate.m */,
 				31624C0D1C7EFAA900BD588D /* ViewController.h */,
 				31624C0E1C7EFAA900BD588D /* ViewController.m */,
+				31624C281C815E1300BD588D /* LiveClipReader.h */,
+				31624C291C815E1300BD588D /* LiveClipReader.m */,
+				31624C2A1C815E1300BD588D /* LivePlayer.h */,
+				31624C2B1C815E1300BD588D /* LivePlayer.m */,
 				31624C071C7EFAA900BD588D /* Supporting Files */,
 			);
 			path = player;
@@ -167,7 +177,9 @@
 			files = (
 				31624C0F1C7EFAA900BD588D /* ViewController.m in Sources */,
 				31624C0C1C7EFAA900BD588D /* AppDelegate.m in Sources */,
+				31624C2C1C815E1300BD588D /* LiveClipReader.m in Sources */,
 				31624C091C7EFAA900BD588D /* main.m in Sources */,
+				31624C2D1C815E1300BD588D /* LivePlayer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

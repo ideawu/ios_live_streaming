@@ -190,7 +190,7 @@ static NSString *base64_encode_data(NSData *data){
 }
 
 - (void)uploadClip:(LiveClipWriter *)rec{
-	NSString *url = @"http://127.0.0.1:8000/pub"; // icomet
+	NSString *url = @"http://127.0.0.1:8000/push"; // icomet
 	NSData *data = [NSData dataWithContentsOfURL:rec.writer.outputURL];
 	if(data == nil){
 		NSLog(@"nil data");
@@ -282,6 +282,8 @@ static NSString *base64_encode_data(NSData *data){
 		float chunk_duration = 1;
 		if(rec.duration >= chunk_duration){
 			[self switchClip];
+			// TODO: TEST
+			//_status = RecordNone;
 		}
 	}
 }

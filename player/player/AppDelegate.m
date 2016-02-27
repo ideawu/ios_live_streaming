@@ -17,6 +17,8 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+	NSLog(@"NSTemporaryDirectory: %@", NSTemporaryDirectory());
+
 	self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 	UINavigationController *nav = [[UINavigationController alloc] init];
 	nav.navigationBar.tintColor = [UIColor whiteColor];
