@@ -7,21 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		08BA04111C81E10E00650A44 /* Launch Screen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 08BA04101C81E10E00650A44 /* Launch Screen.xib */; };
 		31624C091C7EFAA900BD588D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 31624C081C7EFAA900BD588D /* main.m */; };
 		31624C0C1C7EFAA900BD588D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 31624C0B1C7EFAA900BD588D /* AppDelegate.m */; };
 		31624C0F1C7EFAA900BD588D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 31624C0E1C7EFAA900BD588D /* ViewController.m */; };
 		31624C141C7EFAA900BD588D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 31624C131C7EFAA900BD588D /* Assets.xcassets */; };
-		31624C171C7EFAA900BD588D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 31624C151C7EFAA900BD588D /* LaunchScreen.storyboard */; };
 		31624C201C7EFBA800BD588D /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 31624C1E1C7EFBA800BD588D /* libcurl.a */; };
 		31624C211C7EFBA800BD588D /* libIKit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 31624C1F1C7EFBA800BD588D /* libIKit.a */; };
 		31624C231C7EFC7900BD588D /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 31624C221C7EFC7900BD588D /* libxml2.dylib */; };
 		31624C251C7EFCDB00BD588D /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 31624C241C7EFCDB00BD588D /* libz.dylib */; };
 		31624C271C8153B800BD588D /* libIObj.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 31624C261C8153B800BD588D /* libIObj.a */; };
-		31624C2C1C815E1300BD588D /* LiveClipReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 31624C291C815E1300BD588D /* LiveClipReader.m */; settings = {ASSET_TAGS = (); }; };
-		31624C2D1C815E1300BD588D /* LivePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 31624C2B1C815E1300BD588D /* LivePlayer.m */; settings = {ASSET_TAGS = (); }; };
+		31624C2C1C815E1300BD588D /* LiveClipReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 31624C291C815E1300BD588D /* LiveClipReader.m */; };
+		31624C2D1C815E1300BD588D /* LivePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 31624C2B1C815E1300BD588D /* LivePlayer.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		08BA04101C81E10E00650A44 /* Launch Screen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "Launch Screen.xib"; sourceTree = "<group>"; };
 		31624C041C7EFAA900BD588D /* player.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = player.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		31624C081C7EFAA900BD588D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		31624C0A1C7EFAA900BD588D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -29,7 +30,6 @@
 		31624C0D1C7EFAA900BD588D /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		31624C0E1C7EFAA900BD588D /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		31624C131C7EFAA900BD588D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		31624C161C7EFAA900BD588D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		31624C181C7EFAA900BD588D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		31624C1E1C7EFBA800BD588D /* libcurl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcurl.a; path = ../deps/libcurl.a; sourceTree = "<group>"; };
 		31624C1F1C7EFBA800BD588D /* libIKit.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libIKit.a; path = ../deps/libIKit.a; sourceTree = "<group>"; };
@@ -93,8 +93,8 @@
 		31624C071C7EFAA900BD588D /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				08BA04101C81E10E00650A44 /* Launch Screen.xib */,
 				31624C131C7EFAA900BD588D /* Assets.xcassets */,
-				31624C151C7EFAA900BD588D /* LaunchScreen.storyboard */,
 				31624C181C7EFAA900BD588D /* Info.plist */,
 				31624C081C7EFAA900BD588D /* main.m */,
 				31624C241C7EFCDB00BD588D /* libz.dylib */,
@@ -163,8 +163,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				31624C171C7EFAA900BD588D /* LaunchScreen.storyboard in Resources */,
 				31624C141C7EFAA900BD588D /* Assets.xcassets in Resources */,
+				08BA04111C81E10E00650A44 /* Launch Screen.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -184,17 +184,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXVariantGroup section */
-		31624C151C7EFAA900BD588D /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				31624C161C7EFAA900BD588D /* Base */,
-			);
-			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		31624C191C7EFAA900BD588D /* Debug */ = {

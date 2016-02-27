@@ -91,7 +91,7 @@ typedef enum{
 		return;
 	}
 	_startTime = [ps[1] doubleValue];
-	_endTime = [ps[2] doubleValue] + 10;
+	_endTime = [ps[2] doubleValue];
 	_frameCount = [ps[3] intValue];
 	_duration = _endTime - _startTime;
 	_frameDuration = _duration / _frameCount;
