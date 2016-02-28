@@ -217,8 +217,8 @@ static NSString *base64_encode_data(NSData *data){
 				// retain tmp first, because removeObject will invalid iterator
 				LiveClipWriter *rec = tmp;
 				if(rec.writer.status == AVAssetWriterStatusCompleted){
-					[_completedWriters addObject:rec];
 					[_finishingWriters removeObject:rec];
+					[_completedWriters addObject:rec];
 					dispatch_async(_processQueue, ^{
 						[self processCompletedClip];
 					});

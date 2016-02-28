@@ -13,6 +13,11 @@
 		08BA042A1C82DABF00650A44 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 08BA04281C82DABF00650A44 /* Main.storyboard */; };
 		08BA042C1C82DABF00650A44 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 08BA042B1C82DABF00650A44 /* Images.xcassets */; };
 		08BA042F1C82DABF00650A44 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 08BA042D1C82DABF00650A44 /* LaunchScreen.xib */; };
+		08E5BEB91C82DC4F00578C50 /* libIKit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 08E5BEB71C82DC4F00578C50 /* libIKit.a */; };
+		08E5BEBA1C82DC4F00578C50 /* libIObj.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 08E5BEB81C82DC4F00578C50 /* libIObj.a */; };
+		08E5BEBC1C82DC5D00578C50 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 08E5BEBB1C82DC5D00578C50 /* libxml2.dylib */; };
+		08E5BEBF1C82DE4100578C50 /* LiveClipWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 08E5BEBE1C82DE4100578C50 /* LiveClipWriter.m */; };
+		08E5BEC21C82DEA200578C50 /* LiveRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 08E5BEC11C82DEA200578C50 /* LiveRecorder.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +31,13 @@
 		08BA04291C82DABF00650A44 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		08BA042B1C82DABF00650A44 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		08BA042E1C82DABF00650A44 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		08E5BEB71C82DC4F00578C50 /* libIKit.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libIKit.a; path = ../deps/libIKit.a; sourceTree = "<group>"; };
+		08E5BEB81C82DC4F00578C50 /* libIObj.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libIObj.a; path = ../deps/libIObj.a; sourceTree = "<group>"; };
+		08E5BEBB1C82DC5D00578C50 /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
+		08E5BEBD1C82DE4100578C50 /* LiveClipWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveClipWriter.h; sourceTree = "<group>"; };
+		08E5BEBE1C82DE4100578C50 /* LiveClipWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveClipWriter.m; sourceTree = "<group>"; };
+		08E5BEC01C82DEA200578C50 /* LiveRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveRecorder.h; sourceTree = "<group>"; };
+		08E5BEC11C82DEA200578C50 /* LiveRecorder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveRecorder.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -33,6 +45,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				08E5BEBC1C82DC5D00578C50 /* libxml2.dylib in Frameworks */,
+				08E5BEB91C82DC4F00578C50 /* libIKit.a in Frameworks */,
+				08E5BEBA1C82DC4F00578C50 /* libIObj.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -62,6 +77,10 @@
 				08BA04231C82DABF00650A44 /* AppDelegate.m */,
 				08BA04251C82DABF00650A44 /* ViewController.h */,
 				08BA04261C82DABF00650A44 /* ViewController.m */,
+				08E5BEBD1C82DE4100578C50 /* LiveClipWriter.h */,
+				08E5BEBE1C82DE4100578C50 /* LiveClipWriter.m */,
+				08E5BEC01C82DEA200578C50 /* LiveRecorder.h */,
+				08E5BEC11C82DEA200578C50 /* LiveRecorder.m */,
 				08BA041E1C82DABF00650A44 /* Supporting Files */,
 			);
 			path = recorder;
@@ -70,6 +89,9 @@
 		08BA041E1C82DABF00650A44 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				08E5BEB71C82DC4F00578C50 /* libIKit.a */,
+				08E5BEB81C82DC4F00578C50 /* libIObj.a */,
+				08E5BEBB1C82DC5D00578C50 /* libxml2.dylib */,
 				08BA04281C82DABF00650A44 /* Main.storyboard */,
 				08BA042D1C82DABF00650A44 /* LaunchScreen.xib */,
 				08BA042B1C82DABF00650A44 /* Images.xcassets */,
@@ -149,6 +171,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				08E5BEC21C82DEA200578C50 /* LiveRecorder.m in Sources */,
+				08E5BEBF1C82DE4100578C50 /* LiveClipWriter.m in Sources */,
 				08BA04271C82DABF00650A44 /* ViewController.m in Sources */,
 				08BA04241C82DABF00650A44 /* AppDelegate.m in Sources */,
 				08BA04211C82DABF00650A44 /* main.m in Sources */,
@@ -259,6 +283,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -267,6 +292,10 @@
 				INFOPLIST_FILE = recorder/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/deps",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -275,6 +304,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -283,6 +313,10 @@
 				INFOPLIST_FILE = recorder/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/deps",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

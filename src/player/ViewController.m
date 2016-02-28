@@ -18,7 +18,7 @@
 	CURL *_curl;
 }
 @property IView *mainView;
-@property IView *playerView;
+@property IView *videoView;
 
 @property CALayer *playerLayer;
 @property LivePlayer *livePlayer;
@@ -64,24 +64,22 @@ size_t icomet_callback(char *ptr, size_t size, size_t nmemb, void *userdata){
 
 - (void)viewDidLoad {
 	[super viewDidLoad];
-	self.navigationController.navigationBar.translucent = NO;
-	
+	self.navigationItem.title = @"Player";
+
 	NSString *xml = @""
 	"<div style=\"width: 100%; height: 100%; background: #fff;\">"
-	"	<div id=\"player\" style=\"width: 340; height: 300; background: #ff3;\">"
+	"	<div id=\"video\" style=\"width: 240; height: 320; background: #333;\">"
 	"	</div>"
-	"	<p style=\"float: center; color: #333;\">Hello World!</p>"
+	"	<span style=\"width: 100%; color: #333;\">Hello World!</span>"
 	"</div>";
 	_mainView = [IView viewFromXml:xml];
-	_playerView = [_mainView getViewById:@"player"];
+	_videoView = [_mainView getViewById:@"video"];
 	[self.view addSubview:_mainView];
-	
 	[_mainView layoutIfNeeded];
 
 	_playerLayer = [CALayer layer];
-	[_playerLayer setFrame:[_playerView bounds]];
-	[_playerLayer setBackgroundColor:[UIColor blackColor].CGColor];
-	[_playerView.layer addSublayer:_playerLayer];
+	[_playerLayer setFrame:[_videoView bounds]];
+	[_videoView.layer addSublayer:_playerLayer];
 	
 	_livePlayer = [LivePlayer playerWithCALayer:_playerLayer];
 	[_livePlayer play];
@@ -99,6 +97,7 @@ size_t icomet_callback(char *ptr, size_t size, size_t nmemb, void *userdata){
 	curl_easy_setopt(_curl, CURLOPT_WRITEDATA, self);
 	curl_easy_perform(_curl);
 	curl_easy_cleanup(_curl);
+	// TODO: reconnect
 }
 
 // run in different thread(the curl thread)

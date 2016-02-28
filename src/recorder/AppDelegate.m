@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "ViewController.h"
 
 @interface AppDelegate ()
 
@@ -16,7 +17,21 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-	// Override point for customization after application launch.
+	NSLog(@"NSTemporaryDirectory: %@", NSTemporaryDirectory());
+
+	self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+	UINavigationController *nav = [[UINavigationController alloc] init];
+	nav.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName: [UIColor blackColor]};
+	nav.navigationBar.barTintColor = [UIColor whiteColor];
+	nav.navigationBar.tintColor = [UIColor whiteColor];
+	nav.navigationBar.translucent = NO;
+	nav.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
+	[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+
+	self.window.rootViewController = nav;
+	[self.window makeKeyAndVisible];
+	UIViewController *controller = [[ViewController alloc] init];
+	[nav pushViewController:controller animated:YES];
 	return YES;
 }
 

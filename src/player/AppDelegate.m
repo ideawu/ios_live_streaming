@@ -21,10 +21,11 @@
 
 	self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 	UINavigationController *nav = [[UINavigationController alloc] init];
-	nav.navigationBar.tintColor = [UIColor whiteColor];
-	nav.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName: [UIColor whiteColor]};
+	nav.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName: [UIColor blackColor]};
 	nav.navigationBar.barTintColor = [UIColor whiteColor];
+	nav.navigationBar.tintColor = [UIColor whiteColor];
 	nav.navigationBar.translucent = NO;
+	nav.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
 	[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 
 	self.window.rootViewController = nav;
