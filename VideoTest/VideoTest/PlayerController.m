@@ -315,7 +315,7 @@ static int num = 0;
 	[_livePlayer addMovieFile:@"/Users/ideawu/htdocs/tmp/fileSequence1.ts"];
 	[_livePlayer addMovieFile:@"/Users/ideawu/htdocs/tmp/fileSequence3.ts"];
 #else
-	[_livePlayer addMovieFile:[NSTemporaryDirectory() stringByAppendingPathComponent:@"m000.mp4"]];
+	[_livePlayer addMovieFile:[NSTemporaryDirectory() stringByAppendingPathComponent:@"a.mp4"]];
 	[_livePlayer addMovieFile:[NSTemporaryDirectory() stringByAppendingPathComponent:@"m001.mp4"]];
 	[_livePlayer addMovieFile:[NSTemporaryDirectory() stringByAppendingPathComponent:@"m002.mp4"]];
 	[_livePlayer addMovieFile:[NSTemporaryDirectory() stringByAppendingPathComponent:@"m003.mp4"]];

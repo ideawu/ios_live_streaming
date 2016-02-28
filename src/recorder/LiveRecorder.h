@@ -7,13 +7,18 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 @interface LiveRecorder : NSObject
 
 @property (nonatomic, readonly) AVCaptureSession *session;
 @property (nonatomic) double chunkDuration;
 
-- (void)start:(void (^)(NSData *))chunkCallback;
++ (LiveRecorder *)recorderForWidth:(int)width height:(int)height;
+
+- (void)setVideoOrientation:(UIInterfaceOrientation)orientation;
+
+- (void)start:(void (^)(NSData *data))chunkCallback;
 - (void)stop;
 
 @end

@@ -17,7 +17,7 @@
 @property (nonatomic, readonly) double startTime;
 @property (nonatomic, readonly) double endTime;
 
-- (id)initWithFilename:(NSString *)filename;
+- (id)initWithFilename:(NSString *)filename videoWidth:(int)width videoHeight:(int)height;
 
 - (void)encodeVideoSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 - (void)finishWritingWithCompletionHandler:(void (^)(NSData *))handler;

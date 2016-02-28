@@ -100,7 +100,7 @@ typedef enum{
 	_duration = _endTime - _startTime;
 	_frameDuration = _duration / _frameCount;
 	double fps = (_duration == 0.0)? 0 : _frameCount / _duration;
-	NSLog(@"stime: %.3f, etime: %.3f, fps: %.3f, frames: %d, duration: %.3f", _startTime, _endTime, fps, _frameCount, _duration);
+	NSLog(@"fps: %.3f, frames: %d, duration: %.3f", fps, _frameCount, _duration);
 }
 
 - (BOOL)isReading{
@@ -173,7 +173,7 @@ typedef enum{
 	
 	_delay = time - (_startTime + _nextIndex * _frameDuration);
 	if(_delay > _frameDuration){
-		NSLog(@"frame: %d/%d, delay: %.3f, now: %.3f, end: %.3f", _nextIndex+1, _frameCount, _delay, time, _endTime);
+		//NSLog(@"frame: %d/%d, delay: %.3f, now: %.3f, end: %.3f", _nextIndex+1, _frameCount, _delay, time, _endTime);
 	}
 	_nextIndex ++;
 	return image;

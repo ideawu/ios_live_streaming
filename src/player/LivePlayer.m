@@ -13,9 +13,13 @@
 	CVDisplayLinkRef _displayLink;
 #endif
 	
-	double last_clip_end_time;
-	double _nextTick;
 	double _start_tick;
+
+	double first_time;
+	double first_tick;
+	double last_time_s;
+	double last_time_e;
+	double last_tick;
 }
 @property CALayer *layer;
 @property NSInteger readIdx;
@@ -132,44 +136,71 @@
 	});
 }
 
-- (void)displayFrameForTickTime:(double)time{
+- (void)displayFrameForTickTime:(double)tick{
 	while(1){
 		LiveClipReader *reader = _items.firstObject;
 		if(!reader){
-			_nextTick = time;
 			return;
 		}
-		if(!reader.isReading){
-			double diff = reader.startTime - last_clip_end_time;
-			double diff2 = time - _nextTick;
-			//NSLog(@"diff: %.3f, %.3f %.3f %.3f", diff, diff2, reader.startTime, last_clip_end_time);
-			double buffer_time = 0.1;
-			if(diff > buffer_time || diff < -buffer_time || diff2 > buffer_time || diff2 < -buffer_time){
-				NSLog(@"reset tick %.3f => %.3f", _nextTick, time+buffer_time);
-				_nextTick = time + buffer_time;
-			}
-			last_clip_end_time = reader.endTime;
-			
-			NSLog(@"start session at %.3f, tick: %.3f", _nextTick, time);
-			[reader startSessionAtSourceTime:_nextTick];
+
+		if(first_time == 0){
+			NSLog(@"reset tick %.3f => %.3f", first_tick, tick);
+			first_tick = tick;
+			first_time = reader.startTime;
+			last_time_s = reader.startTime;
+			last_time_e = reader.startTime;
 		}
-		
+		// 相对于时钟零点
+		double now_tick = tick - first_tick;
+
+		if(!reader.isReading){
+			// 相对于影片零点
+			double clip_s = reader.startTime - first_time;
+			double clip_e = reader.endTime - first_time;
+
+			double time_gap = reader.startTime - last_time_e;
+			if(time_gap > 5 || time_gap < -5){
+				// reset timers
+				first_time = 0;
+				continue;
+			}
+			if(time_gap >= -5 && time_gap < 0){
+				// drop mis-order clip
+				NSLog(@"drop mis-order clip[%.3f~%.3f]", clip_s, clip_e);
+				[_items removeObjectAtIndex:0];
+				continue;
+			}
+
+			double delay = now_tick - clip_s;
+			if(delay > reader.duration/2){
+				// drop delayed clip
+				NSLog(@"drop delayed %.3f s clip[%.3f~%.3f]", delay, clip_s, clip_e);
+				last_time_s = reader.startTime;
+				last_time_e = reader.startTime;
+				[_items removeObjectAtIndex:0];
+				continue;
+			}
+
+			NSLog(@"start session at %.3f, clip[%.3f~%.3f], delay: %.3f", now_tick, clip_s, clip_e, delay);
+			[reader startSessionAtSourceTime:clip_s];
+			last_time_s = reader.startTime;
+			last_time_e = reader.endTime;
+		}
+		last_tick = now_tick;
+
 		CGImageRef frame;
-		frame = [reader copyNextFrameForTime:time];
+		frame = [reader copyNextFrameForTime:now_tick];
 		if(!frame){
 			if(reader.isReading){
 				return;
 			}else{
 				// switch reader
-				NSLog(@"stop session at %.3f", time);
+				NSLog(@"stop session at %.3f", now_tick);
 				[_items removeObjectAtIndex:0];
 				continue;
 			}
 		}
-		
-		// TODO: 当delay过大时, 应丢弃一些
 
-		_nextTick = time + reader.frameDuration;
 		self.layer.contents = (__bridge id)(frame);
 		CFRelease(frame);
 		

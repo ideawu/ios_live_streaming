@@ -1,6 +1,6 @@
 <?php  
-unlink('a.data');
-unlink('a.json');
+@unlink('a.mp4');
+@unlink('a.json');
 
 $url = "http://127.0.0.1:8100/stream?cname=";
 
@@ -39,7 +39,8 @@ function myfunc($ch, $data){
 			$content = ord($content) . "\n";
 			*/
 			file_put_contents('a.json', $data, FILE_APPEND);
-			file_put_contents('a.data', $content, FILE_APPEND);
+			file_put_contents('a.mp4', $content, FILE_APPEND);
+			die();
 		}else if(in_array($resp['type'], array('noop', 'next_seq'))){
 		}else{
 			echo "bad resp\n";

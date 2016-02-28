@@ -33,6 +33,8 @@ typedef enum{
 
 	void (^_chunkCallback)(NSData *);
 }
+@property (nonatomic) int width;
+@property (nonatomic) int height;
 @end
 
 @implementation LiveRecorder
@@ -40,11 +42,21 @@ typedef enum{
 - (id)init{
 	self = [super init];
 	_status = RecordNone;
-	_chunkDuration = 0.5;
+	_chunkDuration = 1;
 	_chunkCallback = nil;
+	_width = 360;
+	_height = 480;
 	[self setupDevices];
 	return self;
 }
+
++ (LiveRecorder *)recorderForWidth:(int)width height:(int)height{
+	LiveRecorder *ret = [[LiveRecorder alloc] init];
+	ret.width = width;
+	ret.height = height;
+	return ret;
+}
+
 
 - (void)setupDevices{
 	_captureQueue = dispatch_queue_create("capture", DISPATCH_QUEUE_SERIAL);
@@ -95,6 +107,15 @@ typedef enum{
 	[_session addInput:videoInput];
 	[_session addInput:audioInput];
 	[_session commitConfiguration];
+
+	[self setVideoOrientation:[UIApplication sharedApplication].statusBarOrientation];
+}
+
+- (void)setVideoOrientation:(UIInterfaceOrientation)orientation{
+	AVCaptureConnection *connection =[_videoDataOutput connectionWithMediaType:AVMediaTypeVideo];
+	if([connection videoOrientation ]) {
+		[connection setVideoOrientation:(AVCaptureVideoOrientation)orientation];
+	}
 }
 
 - (void)start:(void (^)(NSData *))chunkCallback{
@@ -185,7 +206,7 @@ typedef enum{
 - (void)createRecorder{
 	//NSLog(@"create recorder: %d", _recordSeq);
 	NSString *filename = [self nextFilename];
-	LiveClipWriter *rec = [[LiveClipWriter alloc] initWithFilename:filename];
+	LiveClipWriter *rec = [[LiveClipWriter alloc] initWithFilename:filename videoWidth:_width videoHeight:_height];
 	dispatch_async(_captureQueue, ^{
 		[_workingWriters addObject:rec];
 	});

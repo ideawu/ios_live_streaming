@@ -21,6 +21,7 @@
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+	NSLog(@"NSTemporaryDirectory: %@", NSTemporaryDirectory());
 	// Insert code here to initialize your application
 	_player = [[PlayerController alloc] initWithWindowNibName:@"PlayerController"];
 	//[_player showWindow:self];

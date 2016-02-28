@@ -23,8 +23,10 @@
 	return self;
 }
 
-- (id)initWithFilename:(NSString *)filename{
+- (id)initWithFilename:(NSString *)filename videoWidth:(int)width videoHeight:(int)height{
 	self = [self init];
+	_width = width;
+	_height = height;
 	
 	if([[NSFileManager defaultManager] fileExistsAtPath:filename]){
 		[[NSFileManager defaultManager] removeItemAtPath:filename error:nil];
@@ -115,7 +117,8 @@
 
 - (void)updateMetadata:(NSMutableData *)data{
 	NSData *metadata = [[self metastr] dataUsingEncoding:NSUTF8StringEncoding];
-	NSRange range = NSMakeRange(data.length - metadata.length, metadata.length);
+	NSUInteger pos = data.length - metadata.length - 1; // +\0;
+	NSRange range = NSMakeRange(pos, metadata.length);
 	[data replaceBytesInRange:range withBytes:metadata.bytes length:metadata.length];
 }
 

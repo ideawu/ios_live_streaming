@@ -70,7 +70,7 @@ size_t icomet_callback(char *ptr, size_t size, size_t nmemb, void *userdata){
 	"<div style=\"width: 100%; height: 100%; background: #fff;\">"
 	"	<div id=\"video\" style=\"width: 240; height: 320; background: #333;\">"
 	"	</div>"
-	"	<span style=\"width: 100%; color: #333;\">Hello World!</span>"
+	"	<span style=\"width: 100%; clear: both; text-align: center; color: #333;\">Hello World!</span>"
 	"</div>";
 	_mainView = [IView viewFromXml:xml];
 	_videoView = [_mainView getViewById:@"video"];
