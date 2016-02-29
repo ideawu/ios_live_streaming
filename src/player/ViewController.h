@@ -6,9 +6,9 @@
 //  Copyright © 2016 ideawu. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import "IKit/IKit.h"
 
-@interface ViewController : UIViewController
+@interface ViewController : ITable
 
 
 @end

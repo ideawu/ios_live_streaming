@@ -11,6 +11,7 @@
 @interface LiveClipWriter()
 @property (nonatomic) int width;
 @property (nonatomic) int height;
+@property (nonatomic) int bitrate;
 @property (nonatomic) AVAssetWriterInput *videoInput;
 @end
 
@@ -20,6 +21,7 @@
 	self = [super init];
 	_width = 360;
 	_height = 480;
+	_bitrate = 1024 * 200;
 	return self;
 }
 
@@ -37,6 +39,11 @@
 							AVVideoCodecKey: AVVideoCodecH264,
 							AVVideoWidthKey: @(_width),
 							AVVideoHeightKey: @(_height),
+							AVVideoCompressionPropertiesKey: @{
+									AVVideoAverageBitRateKey: [NSNumber numberWithInt:_bitrate],
+									//AVVideoAllowFrameReorderingKey: @YES,
+									//AVVideoProfileLevelKey: AVVideoProfileLevelH264BaselineAutoLevel,
+									},
 							// belows require OS X 10.10+
 							//AVVideoH264EntropyModeKey: AVVideoH264EntropyModeCAVLC,
 							//AVVideoExpectedSourceFrameRateKey: @(30),

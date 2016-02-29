@@ -19,6 +19,7 @@
 		31624C271C8153B800BD588D /* libIObj.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 31624C261C8153B800BD588D /* libIObj.a */; };
 		31624C2C1C815E1300BD588D /* LiveClipReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 31624C291C815E1300BD588D /* LiveClipReader.m */; };
 		31624C2D1C815E1300BD588D /* LivePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 31624C2B1C815E1300BD588D /* LivePlayer.m */; };
+		319207811C844FF90017C818 /* main.xml in Resources */ = {isa = PBXBuildFile; fileRef = 319207801C844FF90017C818 /* main.xml */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +41,7 @@
 		31624C291C815E1300BD588D /* LiveClipReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveClipReader.m; sourceTree = "<group>"; };
 		31624C2A1C815E1300BD588D /* LivePlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LivePlayer.h; sourceTree = "<group>"; };
 		31624C2B1C815E1300BD588D /* LivePlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LivePlayer.m; sourceTree = "<group>"; };
+		319207801C844FF90017C818 /* main.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = main.xml; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +83,7 @@
 				31624C0B1C7EFAA900BD588D /* AppDelegate.m */,
 				31624C0D1C7EFAA900BD588D /* ViewController.h */,
 				31624C0E1C7EFAA900BD588D /* ViewController.m */,
+				319207801C844FF90017C818 /* main.xml */,
 				31624C281C815E1300BD588D /* LiveClipReader.h */,
 				31624C291C815E1300BD588D /* LiveClipReader.m */,
 				31624C2A1C815E1300BD588D /* LivePlayer.h */,
@@ -163,6 +166,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				319207811C844FF90017C818 /* main.xml in Resources */,
 				31624C141C7EFAA900BD588D /* Assets.xcassets in Resources */,
 				08BA04111C81E10E00650A44 /* Launch Screen.xib in Resources */,
 			);

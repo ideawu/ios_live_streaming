@@ -22,6 +22,11 @@
 @property IView *mainView;
 @property IView *videoView;
 
+@property IInput *ipInput;
+@property IButton *submit;
+
+@property NSString *ip;
+
 @end
 
 @implementation ViewController
@@ -33,25 +38,50 @@
 	_chunks = [[NSMutableArray alloc] init];
 	_uploading = false;
 
+	_mainView = [IView namedView:@"main"];
+	_videoView = [_mainView getViewById:@"video"];
+	[self addIViewRow:_mainView];
+	[self reload];
+	[_mainView layoutIfNeeded];
+	
+	__weak typeof(self) me = self;
+	_ipInput = (IInput *)[_mainView getViewById:@"ip"];
+	_submit = (IButton *)[_mainView getViewById:@"submit"];
+	
+	[_submit bindEvent:IEventClick handler:^(IEventType event, IView *view) {
+		[me start];
+	}];
+	
+	[self loadIp];
+}
+
+- (void)loadIp{
+	_ip = _ipInput.value;
+	if(!_ip || _ip.length == 0){
+		_ip = [[NSUserDefaults standardUserDefaults] objectForKey:@"ip"];
+		if(!_ip || _ip.length == 0){
+			_ip = @"127.0.0.1";
+		}
+	}
+	[[NSUserDefaults standardUserDefaults] setObject:_ip forKey:@"ip"];
+	_ipInput.value = _ip;
+}
+
+- (void)start{
+	if(_recorder){
+		return;
+	}
+	_submit.button.enabled = NO;
+	[self loadIp];
+	
 	_recorder = [LiveRecorder recorderForWidth:360 height:480];
 	_recorder.chunkDuration = 0.5;
-
-	NSString *xml = @""
-	"<div style=\"width: 100%; height: 100%; background: #fff;\">"
-	"	<div id=\"video\" style=\"width: 240; height: 320; background: #333;\">"
-	"	</div>"
-	"	<span style=\"width: 100%; clear: both; text-align: center; color: #333;\">Hello World!</span>"
-	"</div>";
-	_mainView = [IView viewFromXml:xml];
-	_videoView = [_mainView getViewById:@"video"];
-	[self.view addSubview:_mainView];
-	[_mainView layoutIfNeeded];
-
+	
 	_previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:_recorder.session];
 	_previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
 	[_previewLayer setFrame:[_videoView bounds]];
 	[_videoView.layer addSublayer:_previewLayer];
-
+	
 	__weak typeof(self) me = self;
 	[_recorder start:^(NSData *data) {
 		[me onChunkReady:data];
@@ -83,7 +113,7 @@ static NSString *base64_encode_data(NSData *data){
 			return;
 		}
 
-		NSString *url = @"http://192.168.0.100:8000/push"; // icomet
+		NSString *url = [NSString stringWithFormat:@"http://%@:8000/push", _ip]; // icomet
 		NSString *data_str = base64_encode_data(data);
 		NSDictionary *params = @{
 								 @"content" : data_str,

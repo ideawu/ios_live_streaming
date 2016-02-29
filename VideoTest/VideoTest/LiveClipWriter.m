@@ -31,10 +31,16 @@
 	}
 	NSURL *url = [NSURL fileURLWithPath:filename];
 	_writer = [AVAssetWriter assetWriterWithURL:url fileType:AVFileTypeMPEG4 error:nil];
+	int bitrate = 1024 * 200;
 	NSDictionary* settings = @{
 							AVVideoCodecKey: AVVideoCodecH264,
 							AVVideoWidthKey: @(_width),
 							AVVideoHeightKey: @(_height),
+							AVVideoCompressionPropertiesKey: @{
+									AVVideoAverageBitRateKey: [NSNumber numberWithInt:bitrate],
+//									AVVideoAllowFrameReorderingKey: @NO,
+//									AVVideoProfileLevelKey: AVVideoProfileLevelH264BaselineAutoLevel,
+									},
 							// belows require OS X 10.10+
 							//AVVideoH264EntropyModeKey: AVVideoH264EntropyModeCAVLC,
 							//AVVideoExpectedSourceFrameRateKey: @(30),

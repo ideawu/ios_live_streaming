@@ -23,6 +23,11 @@
 @property CALayer *playerLayer;
 @property LivePlayer *livePlayer;
 
+@property IInput *ipInput;
+@property IButton *submit;
+
+@property NSString *ip;
+
 - (void)streamCallback:(NSData *)data;
 @end
 
@@ -66,16 +71,29 @@ size_t icomet_callback(char *ptr, size_t size, size_t nmemb, void *userdata){
 	[super viewDidLoad];
 	self.navigationItem.title = @"Player";
 
-	NSString *xml = @""
-	"<div style=\"width: 100%; height: 100%; background: #fff;\">"
-	"	<div id=\"video\" style=\"width: 240; height: 320; background: #333;\">"
-	"	</div>"
-	"	<span style=\"width: 100%; clear: both; text-align: center; color: #333;\">Hello World!</span>"
-	"</div>";
-	_mainView = [IView viewFromXml:xml];
+	_mainView = [IView namedView:@"main"];
 	_videoView = [_mainView getViewById:@"video"];
-	[self.view addSubview:_mainView];
+	[self addIViewRow:_mainView];
+	[self reload];
 	[_mainView layoutIfNeeded];
+	
+	__weak typeof(self) me = self;
+	_ipInput = (IInput *)[_mainView getViewById:@"ip"];
+	_submit = (IButton *)[_mainView getViewById:@"submit"];
+	
+	[_submit bindEvent:IEventClick handler:^(IEventType event, IView *view) {
+		[me start];
+	}];
+	
+	[self loadIp];
+}
+
+- (void)start{
+	if(_playerLayer){
+		return;
+	}
+	_submit.button.enabled = NO;
+	[self loadIp];
 
 	_playerLayer = [CALayer layer];
 	[_playerLayer setFrame:[_videoView bounds]];
@@ -83,14 +101,27 @@ size_t icomet_callback(char *ptr, size_t size, size_t nmemb, void *userdata){
 	
 	_livePlayer = [LivePlayer playerWithCALayer:_playerLayer];
 	[_livePlayer play];
-	
+
 	///////////////////////////
 	[self performSelectorInBackground:@selector(startStreaming) withObject:nil];
 }
 
+- (void)loadIp{
+	_ip = _ipInput.value;
+	if(!_ip || _ip.length == 0){
+		_ip = [[NSUserDefaults standardUserDefaults] objectForKey:@"ip"];
+		if(!_ip || _ip.length == 0){
+			_ip = @"127.0.0.1";
+		}
+	}
+	[[NSUserDefaults standardUserDefaults] setObject:_ip forKey:@"ip"];
+	_ipInput.value = _ip;
+}
+
 - (void)startStreaming{
+	NSString *url = [NSString stringWithFormat:@"http://%@:8100/stream", _ip]; // icomet
 	_curl = curl_easy_init();
-	curl_easy_setopt(_curl, CURLOPT_URL, "http://127.0.0.1:8100/stream?cname=&seq=1");
+	curl_easy_setopt(_curl, CURLOPT_URL, url.UTF8String);
 	curl_easy_setopt(_curl, CURLOPT_NOSIGNAL, 1L);	// try not to use signals
 	curl_easy_setopt(_curl, CURLOPT_USERAGENT, curl_version());	// set a default user agent
 	curl_easy_setopt(_curl, CURLOPT_WRITEFUNCTION, icomet_callback);
