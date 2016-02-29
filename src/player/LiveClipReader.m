@@ -53,6 +53,7 @@ typedef enum{
 	_assetReaderOutput = [[AVAssetReaderTrackOutput alloc] initWithTrack:video_track
 														  outputSettings:dictionary];
 	
+	_assetReaderOutput.alwaysCopiesSampleData = NO;
 	if([_assetReader canAddOutput:_assetReaderOutput]){
 		[_assetReader addOutput:_assetReaderOutput];
 	}

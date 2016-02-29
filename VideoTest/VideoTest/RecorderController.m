@@ -19,13 +19,14 @@ typedef enum{
 	RecordStop,
 }RecordStatus;
 
-@interface RecorderController ()<AVCaptureVideoDataOutputSampleBufferDelegate>{
+@interface RecorderController ()<AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate>{
 	AVCaptureAudioPreviewOutput *audioPreviewOutput;
 	AVCaptureDevice *videoDevice;
 	AVCaptureDevice *audioDevice;
 	AVCaptureDeviceInput *videoInput;
 	AVCaptureDeviceInput *audioInput;
 	AVCaptureVideoDataOutput* _videoDataOutput;
+	AVCaptureAudioDataOutput* _audioDataOutput;
 
 	dispatch_queue_t _captureQueue;
 	dispatch_queue_t _processQueue;
@@ -104,8 +105,8 @@ typedef enum{
 	};
 	_videoDataOutput.videoSettings = setcapSettings;
 
-	audioPreviewOutput = [[AVCaptureAudioPreviewOutput alloc] init];
-	[audioPreviewOutput setVolume:1.f];
+	_audioDataOutput = [[AVCaptureAudioDataOutput alloc] init];
+	[_audioDataOutput setSampleBufferDelegate:self queue:_captureQueue];
 	
 	videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
 	videoInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
@@ -127,7 +128,7 @@ typedef enum{
 	[_session beginConfiguration];
 	[_session setSessionPreset:AVCaptureSessionPresetMedium];
 	[_session addOutput:_videoDataOutput];
-	[_session addOutput:audioPreviewOutput];
+	[_session addOutput:_audioDataOutput];
 	[_session addInput:videoInput];
 	[_session addInput:audioInput];
 	[_session commitConfiguration];
@@ -277,9 +278,13 @@ static NSString *base64_encode_data(NSData *data){
 			_status = RecordNone;
 			return;
 		}
-		[rec encodeVideoSampleBuffer:sampleBuffer];
+		if(captureOutput == _videoDataOutput){
+			[rec encodeVideoSampleBuffer:sampleBuffer];
+		}else{
+			[rec encodeAudioSampleBuffer:sampleBuffer];
+		}
 		
-		float chunk_duration = 0.5;
+		float chunk_duration = 3.5;
 		if(rec.duration >= chunk_duration){
 			[self switchClip];
 			// TODO: TEST

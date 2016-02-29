@@ -19,6 +19,7 @@
 
 - (id)initWithFilename:(NSString *)filename;
 
+- (void)encodeAudioSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 - (void)encodeVideoSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 - (void)finishWritingWithCompletionHandler:(void (^)())handler;
 

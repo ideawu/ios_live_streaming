@@ -11,6 +11,7 @@
 @interface LiveClipWriter()
 @property (nonatomic) int width;
 @property (nonatomic) int height;
+@property (nonatomic) AVAssetWriterInput *audioInput;
 @property (nonatomic) AVAssetWriterInput *videoInput;
 @end
 
@@ -56,19 +57,42 @@
 	}
 #endif
 #endif
-	_videoInput = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:settings];
+	_videoInput = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeVideo outputSettings:settings];
 	_videoInput.expectsMediaDataInRealTime = YES;
 	[_writer addInput:_videoInput];
+	
+	
+//	audioOutputSettings = [NSDictionary dictionaryWithObjectsAndKeys:
+//						   [ NSNumber numberWithInt: kAudioFormatMPEG4AAC ], AVFormatIDKey,
+//						   [ NSNumber numberWithInt: 2 ], AVNumberOfChannelsKey,
+//						   [ NSNumber numberWithFloat: 44100.0 ], AVSampleRateKey,
+//						   [ NSNumber numberWithInt: 64000 ], AVEncoderBitRateKey,
+//						   [ NSData dataWithBytes: &acl length: sizeof( acl ) ], AVChannelLayoutKey,
+//						   nil];
+
+	AudioChannelLayout acl;
+	bzero(&acl, sizeof(acl));
+	acl.mChannelLayoutTag = kAudioChannelLayoutTag_Stereo;
+	settings = @{
+				 AVFormatIDKey : @(kAudioFormatMPEG4AAC),
+				 AVSampleRateKey: @(44100.0),
+				 AVChannelLayoutKey: [NSData dataWithBytes:&acl length:sizeof(acl)],
+				 };
+	_audioInput = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeAudio outputSettings:settings];
+	_audioInput.expectsMediaDataInRealTime = YES;
+	[_writer addInput:_audioInput];
 
 	return self;
 }
 
-- (void)encodeVideoSampleBuffer:(CMSampleBufferRef)sampleBuffer{
+- (void)encodeAudioSampleBuffer:(CMSampleBufferRef)sampleBuffer ofMediaType:(NSString *)mediaType{
 	if (!CMSampleBufferDataIsReady(sampleBuffer)){
 		NSLog(@"!CMSampleBufferDataIsReady");
 		return;
 	}
-
+	
+	AVAssetWriterInput *input = (mediaType == AVMediaTypeVideo)? _videoInput : _audioInput;
+	
 	if (_writer.status == AVAssetWriterStatusUnknown){
 		_startTime = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
 		NSLog(@"start %@", _writer.outputURL.lastPathComponent);
@@ -78,15 +102,26 @@
 	}
 	if (_writer.status == AVAssetWriterStatusFailed){
 		NSLog(@"writer error %@", _writer.error.localizedDescription);
-	}else if(_videoInput.readyForMoreMediaData == YES){
-		_frameCount ++;
-		[_videoInput appendSampleBuffer:sampleBuffer];
+	}else if(input.readyForMoreMediaData == YES){
+		if(mediaType == AVMediaTypeVideo){
+			_frameCount ++;
+		}
+		[input appendSampleBuffer:sampleBuffer];
 	}else{
 		NSLog(@"!readyForMoreMediaData");
 	}
-
+	
 	_endTime = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
 	_duration = _endTime - _startTime;
+}
+
+- (void)encodeAudioSampleBuffer:(CMSampleBufferRef)sampleBuffer{
+	[self encodeAudioSampleBuffer:sampleBuffer ofMediaType:AVMediaTypeAudio];
+}
+
+
+- (void)encodeVideoSampleBuffer:(CMSampleBufferRef)sampleBuffer{
+	[self encodeAudioSampleBuffer:sampleBuffer ofMediaType:AVMediaTypeVideo];
 }
 
 - (NSArray *)getMetadataItems{

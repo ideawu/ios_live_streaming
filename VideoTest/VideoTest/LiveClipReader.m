@@ -8,6 +8,7 @@
 
 #import <AVFoundation/AVFoundation.h>
 #import "LiveClipReader.h"
+#import "AudioPlayer.h"
 
 typedef enum{
 	LiveClipReaderStatusNone = 0,
@@ -18,10 +19,13 @@ typedef enum{
 @interface LiveClipReader(){
 	AVURLAsset *_asset;
 	AVAssetReader *_assetReader;
-	AVAssetReaderTrackOutput *_assetReaderOutput;
+	AVAssetReaderTrackOutput *_audioOutput;
+	AVAssetReaderTrackOutput *_videoOutput;
 	int _nextIndex;
 	int _approximatedFrameCount;
 	double _sessionStartTime;
+	
+	AudioPlayer *_audio;
 }
 @property (nonatomic, readonly) LiveClipReaderStatus status;
 @end
@@ -44,17 +48,32 @@ typedef enum{
 		NSLog(@"error: %@", error);
 		return self;
 	}
+	
+	NSDictionary *settings;
+	
 	AVAssetTrack* video_track = [_asset tracksWithMediaType:AVMediaTypeVideo].lastObject;
-	
-	NSMutableDictionary *dictionary = [[NSMutableDictionary alloc]init];
-	[dictionary setObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA]
-				   forKey:(NSString *)kCVPixelBufferPixelFormatTypeKey];
-	_assetReaderOutput = [[AVAssetReaderTrackOutput alloc] initWithTrack:video_track
-														  outputSettings:dictionary];
-	
-	if([_assetReader canAddOutput:_assetReaderOutput]){
-		[_assetReader addOutput:_assetReaderOutput];
+	settings = @{
+			  (NSString *)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
+			  };
+	_videoOutput = [[AVAssetReaderTrackOutput alloc] initWithTrack:video_track
+													outputSettings:settings];
+	_videoOutput.alwaysCopiesSampleData = NO;
+	if([_assetReader canAddOutput:_videoOutput]){
+		[_assetReader addOutput:_videoOutput];
 	}
+	
+	AVAssetTrack* audio_track = [_asset tracksWithMediaType:AVMediaTypeAudio].lastObject;
+	settings = @{
+				 AVFormatIDKey: @(kAudioFormatLinearPCM),
+				 };
+	_audioOutput = [[AVAssetReaderTrackOutput alloc] initWithTrack:audio_track
+														  outputSettings:settings];
+	if([_assetReader canAddOutput:_audioOutput]){
+		[_assetReader addOutput:_audioOutput];
+	}
+
+	
+	
 	if([_assetReader startReading]){
 		NSLog(@"du: %f, fps: %f", CMTimeGetSeconds(video_track.timeRange.duration), video_track.nominalFrameRate);
 		_frameDuration = 1.0/video_track.nominalFrameRate;
@@ -65,9 +84,29 @@ typedef enum{
 		_approximatedFrameCount = (int)ceil(CMTimeGetSeconds(video_track.timeRange.duration) / _frameDuration);
 	}
 
+	[self test];
+
 	[self readMetadata];
 
 	return self;
+}
+
+- (void)test{
+	_audio = [[AudioPlayer alloc] init];
+	
+	int n = 0;
+	while(1){
+		CMSampleBufferRef sampleBuffer = [_audioOutput copyNextSampleBuffer];
+		if(!sampleBuffer){
+			break;
+		}
+		n ++;
+		
+		[_audio appendSampleBuffer:sampleBuffer];
+		
+		CFRelease(sampleBuffer);
+	}
+	NSLog(@"audio samples = %d", n);
 }
 
 - (void)readMetadata{
@@ -148,7 +187,7 @@ typedef enum{
 		return nil;
 	}
 	
-	CMSampleBufferRef buffer = [_assetReaderOutput copyNextSampleBuffer];
+	CMSampleBufferRef buffer = [_videoOutput copyNextSampleBuffer];
 	if(_assetReader.status == AVAssetReaderStatusFailed){
 		_status = LiveClipReaderStatusCompleted;
 	}else if(_assetReader.status == AVAssetReaderStatusCancelled){
