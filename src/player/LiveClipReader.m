@@ -185,6 +185,7 @@ typedef enum{
 		//NSLog(@"nil buffer");
 		return nil;
 	}
+	// CVImageBufferRef 即是 CVPixelBufferRef
 	CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(buffer);
 	CVPixelBufferLockBaseAddress(imageBuffer, 0);
 	uint8_t *baseAddress = (uint8_t *)CVPixelBufferGetBaseAddress(imageBuffer);
