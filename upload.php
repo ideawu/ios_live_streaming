@@ -1,7 +1,7 @@
 <?php
 $url = "http://127.0.0.1:8000/push";
-$dir = "/var/folders/fw/y8gs_wys7_n5_f_yb4y7mg2m0000gn/T/";
-for($i=0; $i<5; $i++){
+$dir = "/var/folders/rz/fc0z6vxs18vd9tvclb375wfm0000gn/T/";
+for($i=2; $i<5; $i++){
 	$file = sprintf("m%03d.mp4", $i);
 	$file = "$dir/$file";
 	$content = file_get_contents($file);

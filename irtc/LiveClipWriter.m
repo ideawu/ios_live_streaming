@@ -16,6 +16,7 @@
 @property (nonatomic) AVAssetWriter *writer;
 @property (nonatomic) AVAssetWriterInput *audioInput;
 @property (nonatomic) AVAssetWriterInput *videoInput;
+@property (nonatomic) double videoStartTime;
 @end
 
 @implementation LiveClipWriter
@@ -88,16 +89,16 @@
 		return;
 	}
 	
+	double time = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
 	AVAssetWriterInput *input = (mediaType == AVMediaTypeVideo)? _videoInput : _audioInput;
 	
 	if (_writer.status == AVAssetWriterStatusUnknown){
-		_startTime = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
 		NSLog(@"start %@", _writer.outputURL.lastPathComponent);
 		_writer.metadata = [self getMetadataItems];
 		if(![_writer startWriting]){
 			NSLog(@"start writer failed: %@", _writer.error.description);
 		}
-		[_writer startSessionAtSourceTime:CMTimeMakeWithSeconds(_startTime, 1)];
+		[_writer startSessionAtSourceTime:CMTimeMakeWithSeconds(time, 1)];
 	}
 	if (_writer.status == AVAssetWriterStatusFailed){
 		NSLog(@"writer error %@", _writer.error.localizedDescription);
@@ -111,8 +112,13 @@
 		NSLog(@"!readyForMoreMediaData");
 	}
 	
-	_endTime = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
-	_duration = _endTime - _startTime;
+	if(mediaType == AVMediaTypeVideo){
+		if(_startTime == 0){
+			_startTime = time;
+		}
+		_endTime = time;
+		_duration = _endTime - _startTime;
+	}
 }
 
 - (void)encodeAudioSampleBuffer:(CMSampleBufferRef)sampleBuffer{

@@ -218,7 +218,7 @@
 
 			double time_gap = reader.startTime - last_time_e;
 			if(time_gap > 5 || time_gap < -5){
-				NSLog(@"===== reset clock ===== %f, %f", reader.startTime, last_time_e);
+				NSLog(@"===== reset clock =====");
 				[_clock reset];
 				continue;
 			}

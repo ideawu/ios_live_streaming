@@ -7,23 +7,27 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3187763C1C85586800FC417F /* PlayerController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 318776361C85586800FC417F /* PlayerController.xib */; };
-		3187763D1C85586800FC417F /* RecorderController.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776381C85586800FC417F /* RecorderController.m */; };
-		3187763E1C85586800FC417F /* RecorderController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 318776391C85586800FC417F /* RecorderController.xib */; };
 		318776431C85598200FC417F /* LiveClipWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776401C85598200FC417F /* LiveClipWriter.m */; };
 		318776441C85598200FC417F /* LiveRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776421C85598200FC417F /* LiveRecorder.m */; };
 		318776471C855A3600FC417F /* libirtc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 319207A21C854AA60017C818 /* libirtc.a */; };
 		3187764C1C855EBD00FC417F /* LiveClipReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776491C855EBD00FC417F /* LiveClipReader.m */; };
 		3187764D1C855EBD00FC417F /* LivePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187764B1C855EBD00FC417F /* LivePlayer.m */; };
 		3187764E1C855ED700FC417F /* libirtc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 319207A21C854AA60017C818 /* libirtc.a */; };
-		318776521C8561C800FC417F /* LiveRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776421C85598200FC417F /* LiveRecorder.m */; };
-		318776561C8561C800FC417F /* LivePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187764B1C855EBD00FC417F /* LivePlayer.m */; };
-		318776591C85628F00FC417F /* Http.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776581C85628F00FC417F /* Http.m */; };
-		3187765A1C856BE400FC417F /* PlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776351C85586800FC417F /* PlayerController.m */; };
-		3187765B1C85819F00FC417F /* LiveClipWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776401C85598200FC417F /* LiveClipWriter.m */; };
-		3187765C1C85819F00FC417F /* LiveClipReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776491C855EBD00FC417F /* LiveClipReader.m */; };
 		3187765F1C85857400FC417F /* AudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187765E1C85857400FC417F /* AudioPlayer.m */; };
-		318776601C8589E200FC417F /* AudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187765E1C85857400FC417F /* AudioPlayer.m */; };
+		3187767E1C85AABF00FC417F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187767D1C85AABF00FC417F /* AppDelegate.m */; };
+		318776811C85AABF00FC417F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776801C85AABF00FC417F /* main.m */; };
+		318776831C85AABF00FC417F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 318776821C85AABF00FC417F /* Assets.xcassets */; };
+		318776861C85AABF00FC417F /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 318776841C85AABF00FC417F /* MainMenu.xib */; };
+		318776931C85AAF600FC417F /* Http.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187768C1C85AAF600FC417F /* Http.m */; };
+		318776941C85AAF600FC417F /* PlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187768E1C85AAF600FC417F /* PlayerController.m */; };
+		318776951C85AAF600FC417F /* PlayerController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3187768F1C85AAF600FC417F /* PlayerController.xib */; };
+		318776961C85AAF600FC417F /* RecorderController.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776911C85AAF600FC417F /* RecorderController.m */; };
+		318776971C85AAF600FC417F /* RecorderController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 318776921C85AAF600FC417F /* RecorderController.xib */; };
+		318776981C85AB3500FC417F /* LiveClipWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776401C85598200FC417F /* LiveClipWriter.m */; };
+		318776991C85AB3500FC417F /* LiveClipReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776491C855EBD00FC417F /* LiveClipReader.m */; };
+		3187769A1C85AB3500FC417F /* LiveRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776421C85598200FC417F /* LiveRecorder.m */; };
+		3187769B1C85AB3500FC417F /* AudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187765E1C85857400FC417F /* AudioPlayer.m */; };
+		3187769C1C85AB3500FC417F /* LivePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187764B1C855EBD00FC417F /* LivePlayer.m */; };
 		318BA4FD1C85504B000CED2B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA4FC1C85504B000CED2B /* main.m */; };
 		318BA5001C85504B000CED2B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA4FF1C85504B000CED2B /* AppDelegate.m */; };
 		318BA5031C85504B000CED2B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA5021C85504B000CED2B /* ViewController.m */; };
@@ -36,22 +40,18 @@
 		318BA5211C85507E000CED2B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 318BA51F1C85507E000CED2B /* Main.storyboard */; };
 		318BA5231C85507E000CED2B /* Recorder-Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 318BA5221C85507E000CED2B /* Recorder-Assets.xcassets */; };
 		318BA5261C85507E000CED2B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 318BA5241C85507E000CED2B /* LaunchScreen.storyboard */; };
-		318BA5481C855370000CED2B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA5471C855370000CED2B /* AppDelegate.m */; };
-		318BA54B1C855370000CED2B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA54A1C855370000CED2B /* main.m */; };
-		318BA54D1C855370000CED2B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 318BA54C1C855370000CED2B /* Assets.xcassets */; };
-		318BA5501C855370000CED2B /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 318BA54E1C855370000CED2B /* MainMenu.xib */; };
 		318BA5581C8554B3000CED2B /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA5551C8554B3000CED2B /* libcurl.a */; };
 		318BA5591C8554B3000CED2B /* libIKit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA5561C8554B3000CED2B /* libIKit.a */; };
 		318BA55A1C8554B3000CED2B /* libIObj.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA5571C8554B3000CED2B /* libIObj.a */; };
-		318BA55C1C8554CB000CED2B /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA55B1C8554CB000CED2B /* libxml2.tbd */; };
-		318BA55E1C8554D5000CED2B /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA55D1C8554D5000CED2B /* libz.tbd */; };
+		318BA55C1C8554CB000CED2B /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA55B1C8554CB000CED2B /* libxml2.dylib */; };
+		318BA55E1C8554D5000CED2B /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA55D1C8554D5000CED2B /* libz.dylib */; };
 		318BA5661C8554F6000CED2B /* main.xml in Resources */ = {isa = PBXBuildFile; fileRef = 318BA5631C8554F6000CED2B /* main.xml */; };
 		318BA56E1C8555B3000CED2B /* main.xml in Resources */ = {isa = PBXBuildFile; fileRef = 318BA56B1C8555B3000CED2B /* main.xml */; };
 		318BA56F1C85564B000CED2B /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA5551C8554B3000CED2B /* libcurl.a */; };
 		318BA5701C85564B000CED2B /* libIKit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA5561C8554B3000CED2B /* libIKit.a */; };
 		318BA5711C85564B000CED2B /* libIObj.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA5571C8554B3000CED2B /* libIObj.a */; };
-		318BA5721C855653000CED2B /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA55D1C8554D5000CED2B /* libz.tbd */; };
-		318BA5731C855657000CED2B /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA55B1C8554CB000CED2B /* libxml2.tbd */; };
+		318BA5721C855653000CED2B /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA55D1C8554D5000CED2B /* libz.dylib */; };
+		318BA5731C855657000CED2B /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA55B1C8554CB000CED2B /* libxml2.dylib */; };
 		319207A61C854AA60017C818 /* irtc.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 319207A51C854AA60017C818 /* irtc.h */; };
 		319207A81C854AA60017C818 /* irtc.m in Sources */ = {isa = PBXBuildFile; fileRef = 319207A71C854AA60017C818 /* irtc.m */; };
 /* End PBXBuildFile section */
@@ -80,12 +80,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		318776341C85586800FC417F /* PlayerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayerController.h; sourceTree = "<group>"; };
-		318776351C85586800FC417F /* PlayerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayerController.m; sourceTree = "<group>"; };
-		318776361C85586800FC417F /* PlayerController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PlayerController.xib; sourceTree = "<group>"; };
-		318776371C85586800FC417F /* RecorderController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RecorderController.h; sourceTree = "<group>"; };
-		318776381C85586800FC417F /* RecorderController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RecorderController.m; sourceTree = "<group>"; };
-		318776391C85586800FC417F /* RecorderController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RecorderController.xib; sourceTree = "<group>"; };
 		3187763F1C85598200FC417F /* LiveClipWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveClipWriter.h; sourceTree = "<group>"; };
 		318776401C85598200FC417F /* LiveClipWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveClipWriter.m; sourceTree = "<group>"; };
 		318776411C85598200FC417F /* LiveRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveRecorder.h; sourceTree = "<group>"; };
@@ -94,10 +88,23 @@
 		318776491C855EBD00FC417F /* LiveClipReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveClipReader.m; sourceTree = "<group>"; };
 		3187764A1C855EBD00FC417F /* LivePlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LivePlayer.h; sourceTree = "<group>"; };
 		3187764B1C855EBD00FC417F /* LivePlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LivePlayer.m; sourceTree = "<group>"; };
-		318776571C85628F00FC417F /* Http.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Http.h; sourceTree = "<group>"; };
-		318776581C85628F00FC417F /* Http.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Http.m; sourceTree = "<group>"; };
 		3187765D1C85857400FC417F /* AudioPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioPlayer.h; sourceTree = "<group>"; };
 		3187765E1C85857400FC417F /* AudioPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioPlayer.m; sourceTree = "<group>"; };
+		3187767A1C85AABF00FC417F /* Test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Test.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3187767C1C85AABF00FC417F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		3187767D1C85AABF00FC417F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		318776801C85AABF00FC417F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		318776821C85AABF00FC417F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		318776851C85AABF00FC417F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		318776871C85AABF00FC417F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3187768B1C85AAF600FC417F /* Http.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Http.h; sourceTree = "<group>"; };
+		3187768C1C85AAF600FC417F /* Http.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Http.m; sourceTree = "<group>"; };
+		3187768D1C85AAF600FC417F /* PlayerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayerController.h; sourceTree = "<group>"; };
+		3187768E1C85AAF600FC417F /* PlayerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayerController.m; sourceTree = "<group>"; };
+		3187768F1C85AAF600FC417F /* PlayerController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PlayerController.xib; sourceTree = "<group>"; };
+		318776901C85AAF600FC417F /* RecorderController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RecorderController.h; sourceTree = "<group>"; };
+		318776911C85AAF600FC417F /* RecorderController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RecorderController.m; sourceTree = "<group>"; };
+		318776921C85AAF600FC417F /* RecorderController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RecorderController.xib; sourceTree = "<group>"; };
 		318BA4F91C85504B000CED2B /* Player.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Player.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		318BA4FC1C85504B000CED2B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		318BA4FE1C85504B000CED2B /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -118,18 +125,11 @@
 		318BA5221C85507E000CED2B /* Recorder-Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Recorder-Assets.xcassets"; sourceTree = "<group>"; };
 		318BA5251C85507E000CED2B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		318BA5271C85507E000CED2B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		318BA5441C855370000CED2B /* Test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Test.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		318BA5461C855370000CED2B /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		318BA5471C855370000CED2B /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		318BA54A1C855370000CED2B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		318BA54C1C855370000CED2B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		318BA54F1C855370000CED2B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		318BA5511C855370000CED2B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		318BA5551C8554B3000CED2B /* libcurl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcurl.a; path = deps/libcurl.a; sourceTree = "<group>"; };
 		318BA5561C8554B3000CED2B /* libIKit.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libIKit.a; path = deps/libIKit.a; sourceTree = "<group>"; };
 		318BA5571C8554B3000CED2B /* libIObj.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libIObj.a; path = deps/libIObj.a; sourceTree = "<group>"; };
-		318BA55B1C8554CB000CED2B /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
-		318BA55D1C8554D5000CED2B /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		318BA55B1C8554CB000CED2B /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
+		318BA55D1C8554D5000CED2B /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		318BA5631C8554F6000CED2B /* main.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = main.xml; sourceTree = "<group>"; };
 		318BA56B1C8555B3000CED2B /* main.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = main.xml; sourceTree = "<group>"; };
 		319207A21C854AA60017C818 /* libirtc.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libirtc.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -138,13 +138,20 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		318776771C85AABF00FC417F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		318BA4F61C85504B000CED2B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				3187764E1C855ED700FC417F /* libirtc.a in Frameworks */,
-				318BA55E1C8554D5000CED2B /* libz.tbd in Frameworks */,
-				318BA55C1C8554CB000CED2B /* libxml2.tbd in Frameworks */,
+				318BA55E1C8554D5000CED2B /* libz.dylib in Frameworks */,
+				318BA55C1C8554CB000CED2B /* libxml2.dylib in Frameworks */,
 				318BA5581C8554B3000CED2B /* libcurl.a in Frameworks */,
 				318BA5591C8554B3000CED2B /* libIKit.a in Frameworks */,
 				318BA55A1C8554B3000CED2B /* libIObj.a in Frameworks */,
@@ -156,18 +163,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				318776471C855A3600FC417F /* libirtc.a in Frameworks */,
-				318BA5731C855657000CED2B /* libxml2.tbd in Frameworks */,
-				318BA5721C855653000CED2B /* libz.tbd in Frameworks */,
+				318BA5731C855657000CED2B /* libxml2.dylib in Frameworks */,
+				318BA5721C855653000CED2B /* libz.dylib in Frameworks */,
 				318BA56F1C85564B000CED2B /* libcurl.a in Frameworks */,
 				318BA5701C85564B000CED2B /* libIKit.a in Frameworks */,
 				318BA5711C85564B000CED2B /* libIObj.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		318BA5411C855370000CED2B /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -181,6 +181,35 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3187767B1C85AABF00FC417F /* Test */ = {
+			isa = PBXGroup;
+			children = (
+				3187767C1C85AABF00FC417F /* AppDelegate.h */,
+				3187767D1C85AABF00FC417F /* AppDelegate.m */,
+				3187768D1C85AAF600FC417F /* PlayerController.h */,
+				3187768E1C85AAF600FC417F /* PlayerController.m */,
+				3187768F1C85AAF600FC417F /* PlayerController.xib */,
+				318776901C85AAF600FC417F /* RecorderController.h */,
+				318776911C85AAF600FC417F /* RecorderController.m */,
+				318776921C85AAF600FC417F /* RecorderController.xib */,
+				3187768B1C85AAF600FC417F /* Http.h */,
+				3187768C1C85AAF600FC417F /* Http.m */,
+				3187767F1C85AABF00FC417F /* Supporting Files */,
+			);
+			path = Test;
+			sourceTree = "<group>";
+		};
+		3187767F1C85AABF00FC417F /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				318776821C85AABF00FC417F /* Assets.xcassets */,
+				318776841C85AABF00FC417F /* MainMenu.xib */,
+				318776871C85AABF00FC417F /* Info.plist */,
+				318776801C85AABF00FC417F /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		318BA4FA1C85504B000CED2B /* Player */ = {
 			isa = PBXGroup;
 			children = (
@@ -231,48 +260,19 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		318BA5451C855370000CED2B /* Test */ = {
-			isa = PBXGroup;
-			children = (
-				318BA5461C855370000CED2B /* AppDelegate.h */,
-				318BA5471C855370000CED2B /* AppDelegate.m */,
-				318776341C85586800FC417F /* PlayerController.h */,
-				318776351C85586800FC417F /* PlayerController.m */,
-				318776361C85586800FC417F /* PlayerController.xib */,
-				318776371C85586800FC417F /* RecorderController.h */,
-				318776381C85586800FC417F /* RecorderController.m */,
-				318776391C85586800FC417F /* RecorderController.xib */,
-				318776571C85628F00FC417F /* Http.h */,
-				318776581C85628F00FC417F /* Http.m */,
-				318BA5491C855370000CED2B /* Supporting Files */,
-			);
-			path = Test;
-			sourceTree = "<group>";
-		};
-		318BA5491C855370000CED2B /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				318BA54A1C855370000CED2B /* main.m */,
-				318BA54C1C855370000CED2B /* Assets.xcassets */,
-				318BA54E1C855370000CED2B /* MainMenu.xib */,
-				318BA5511C855370000CED2B /* Info.plist */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 		319207991C854AA60017C818 = {
 			isa = PBXGroup;
 			children = (
 				319207A41C854AA60017C818 /* irtc */,
 				318BA4FA1C85504B000CED2B /* Player */,
 				318BA5151C85507E000CED2B /* Recorder */,
-				318BA5451C855370000CED2B /* Test */,
+				3187767B1C85AABF00FC417F /* Test */,
 				319207A31C854AA60017C818 /* Products */,
 				318BA5551C8554B3000CED2B /* libcurl.a */,
 				318BA5561C8554B3000CED2B /* libIKit.a */,
 				318BA5571C8554B3000CED2B /* libIObj.a */,
-				318BA55D1C8554D5000CED2B /* libz.tbd */,
-				318BA55B1C8554CB000CED2B /* libxml2.tbd */,
+				318BA55D1C8554D5000CED2B /* libz.dylib */,
+				318BA55B1C8554CB000CED2B /* libxml2.dylib */,
 			);
 			sourceTree = "<group>";
 		};
@@ -282,7 +282,7 @@
 				319207A21C854AA60017C818 /* libirtc.a */,
 				318BA4F91C85504B000CED2B /* Player.app */,
 				318BA5141C85507E000CED2B /* Recorder.app */,
-				318BA5441C855370000CED2B /* Test.app */,
+				3187767A1C85AABF00FC417F /* Test.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -309,6 +309,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		318776791C85AABF00FC417F /* Test */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 318776881C85AABF00FC417F /* Build configuration list for PBXNativeTarget "Test" */;
+			buildPhases = (
+				318776761C85AABF00FC417F /* Sources */,
+				318776771C85AABF00FC417F /* Frameworks */,
+				318776781C85AABF00FC417F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Test;
+			productName = Test;
+			productReference = 3187767A1C85AABF00FC417F /* Test.app */;
+			productType = "com.apple.product-type.application";
+		};
 		318BA4F81C85504B000CED2B /* Player */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 318BA50F1C85504B000CED2B /* Build configuration list for PBXNativeTarget "Player" */;
@@ -344,23 +361,6 @@
 			productReference = 318BA5141C85507E000CED2B /* Recorder.app */;
 			productType = "com.apple.product-type.application";
 		};
-		318BA5431C855370000CED2B /* Test */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 318BA5521C855370000CED2B /* Build configuration list for PBXNativeTarget "Test" */;
-			buildPhases = (
-				318BA5401C855370000CED2B /* Sources */,
-				318BA5411C855370000CED2B /* Frameworks */,
-				318BA5421C855370000CED2B /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = Test;
-			productName = Test;
-			productReference = 318BA5441C855370000CED2B /* Test.app */;
-			productType = "com.apple.product-type.application";
-		};
 		319207A11C854AA60017C818 /* irtc */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 319207AB1C854AA60017C818 /* Build configuration list for PBXNativeTarget "irtc" */;
@@ -387,6 +387,9 @@
 				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = ideawu;
 				TargetAttributes = {
+					318776791C85AABF00FC417F = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
 					318BA4F81C85504B000CED2B = {
 						CreatedOnToolsVersion = 7.2.1;
 						DevelopmentTeam = 984G66F55J;
@@ -394,9 +397,6 @@
 					318BA5131C85507E000CED2B = {
 						CreatedOnToolsVersion = 7.2.1;
 						DevelopmentTeam = 984G66F55J;
-					};
-					318BA5431C855370000CED2B = {
-						CreatedOnToolsVersion = 7.2.1;
 					};
 					319207A11C854AA60017C818 = {
 						CreatedOnToolsVersion = 7.2.1;
@@ -419,12 +419,23 @@
 				319207A11C854AA60017C818 /* irtc */,
 				318BA4F81C85504B000CED2B /* Player */,
 				318BA5131C85507E000CED2B /* Recorder */,
-				318BA5431C855370000CED2B /* Test */,
+				318776791C85AABF00FC417F /* Test */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		318776781C85AABF00FC417F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				318776831C85AABF00FC417F /* Assets.xcassets in Resources */,
+				318776971C85AAF600FC417F /* RecorderController.xib in Resources */,
+				318776861C85AABF00FC417F /* MainMenu.xib in Resources */,
+				318776951C85AAF600FC417F /* PlayerController.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		318BA4F71C85504B000CED2B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -447,20 +458,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		318BA5421C855370000CED2B /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				318BA54D1C855370000CED2B /* Assets.xcassets in Resources */,
-				3187763E1C85586800FC417F /* RecorderController.xib in Resources */,
-				318BA5501C855370000CED2B /* MainMenu.xib in Resources */,
-				3187763C1C85586800FC417F /* PlayerController.xib in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		318776761C85AABF00FC417F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				318776981C85AB3500FC417F /* LiveClipWriter.m in Sources */,
+				318776991C85AB3500FC417F /* LiveClipReader.m in Sources */,
+				3187769A1C85AB3500FC417F /* LiveRecorder.m in Sources */,
+				3187769B1C85AB3500FC417F /* AudioPlayer.m in Sources */,
+				3187769C1C85AB3500FC417F /* LivePlayer.m in Sources */,
+				318776811C85AABF00FC417F /* main.m in Sources */,
+				3187767E1C85AABF00FC417F /* AppDelegate.m in Sources */,
+				318776941C85AAF600FC417F /* PlayerController.m in Sources */,
+				318776961C85AAF600FC417F /* RecorderController.m in Sources */,
+				318776931C85AAF600FC417F /* Http.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		318BA4F51C85504B000CED2B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -478,23 +495,6 @@
 				318BA51E1C85507E000CED2B /* ViewController.m in Sources */,
 				318BA51B1C85507E000CED2B /* AppDelegate.m in Sources */,
 				318BA5181C85507E000CED2B /* main.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		318BA5401C855370000CED2B /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				318776601C8589E200FC417F /* AudioPlayer.m in Sources */,
-				3187765B1C85819F00FC417F /* LiveClipWriter.m in Sources */,
-				3187765C1C85819F00FC417F /* LiveClipReader.m in Sources */,
-				318776521C8561C800FC417F /* LiveRecorder.m in Sources */,
-				318776561C8561C800FC417F /* LivePlayer.m in Sources */,
-				318776591C85628F00FC417F /* Http.m in Sources */,
-				3187765A1C856BE400FC417F /* PlayerController.m in Sources */,
-				318BA54B1C855370000CED2B /* main.m in Sources */,
-				3187763D1C85586800FC417F /* RecorderController.m in Sources */,
-				318BA5481C855370000CED2B /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -522,6 +522,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		318776841C85AABF00FC417F /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				318776851C85AABF00FC417F /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
 		318BA5041C85504B000CED2B /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -554,17 +562,41 @@
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
-		318BA54E1C855370000CED2B /* MainMenu.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				318BA54F1C855370000CED2B /* Base */,
-			);
-			name = MainMenu.xib;
-			sourceTree = "<group>";
-		};
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		318776891C85AABF00FC417F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Test/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ideawu.test.Test;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = ./deps/include;
+			};
+			name = Debug;
+		};
+		3187768A1C85AABF00FC417F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Test/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ideawu.test.Test;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = ./deps/include;
+			};
+			name = Release;
+		};
 		318BA50D1C85504B000CED2B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -639,38 +671,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SYMROOT = build;
 				TARGETED_DEVICE_FAMILY = 1;
-				USER_HEADER_SEARCH_PATHS = ./deps/include;
-			};
-			name = Release;
-		};
-		318BA5531C855370000CED2B /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "-";
-				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = Test/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				PRODUCT_BUNDLE_IDENTIFIER = com.ideawu.test.Test;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = ./deps/include;
-			};
-			name = Debug;
-		};
-		318BA5541C855370000CED2B /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "-";
-				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = Test/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				PRODUCT_BUNDLE_IDENTIFIER = com.ideawu.test.Test;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = ./deps/include;
 			};
 			name = Release;
@@ -778,6 +778,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		318776881C85AABF00FC417F /* Build configuration list for PBXNativeTarget "Test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				318776891C85AABF00FC417F /* Debug */,
+				3187768A1C85AABF00FC417F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		318BA50F1C85504B000CED2B /* Build configuration list for PBXNativeTarget "Player" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -792,15 +800,6 @@
 			buildConfigurations = (
 				318BA5291C85507E000CED2B /* Debug */,
 				318BA52A1C85507E000CED2B /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		318BA5521C855370000CED2B /* Build configuration list for PBXNativeTarget "Test" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				318BA5531C855370000CED2B /* Debug */,
-				318BA5541C855370000CED2B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

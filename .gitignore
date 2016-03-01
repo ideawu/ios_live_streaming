@@ -3,6 +3,7 @@ a.json
 .DS_Store
 *.swp
 *.xcuserstate
+DerivedData
 build
 UserInterfaceState.xcuserstate
 xcuserdata

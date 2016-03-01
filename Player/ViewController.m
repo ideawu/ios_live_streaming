@@ -119,7 +119,7 @@ size_t icomet_callback(char *ptr, size_t size, size_t nmemb, void *userdata){
 }
 
 - (void)startStreaming{
-	NSString *url = [NSString stringWithFormat:@"http://%@:8100/stream", _ip]; // icomet
+	NSString *url = [NSString stringWithFormat:@"http://%@:8100/stream?seq=1", _ip]; // icomet
 	_curl = curl_easy_init();
 	curl_easy_setopt(_curl, CURLOPT_URL, url.UTF8String);
 	curl_easy_setopt(_curl, CURLOPT_NOSIGNAL, 1L);	// try not to use signals
