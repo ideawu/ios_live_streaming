@@ -24,9 +24,9 @@
 	NSLog(@"NSTemporaryDirectory: %@", NSTemporaryDirectory());
 	// Insert code here to initialize your application
 	_player = [[PlayerController alloc] initWithWindowNibName:@"PlayerController"];
-	[_player showWindow:self];
-
 	_recorder = [[RecorderController alloc] initWithWindowNibName:@"RecorderController"];
+
+	[_player showWindow:self];
 	[_recorder showWindow:self];
 }
 

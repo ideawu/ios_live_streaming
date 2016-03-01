@@ -41,7 +41,9 @@
 }
 
 - (IBAction)onLoad:(id)sender {
-	[_livePlayer addMovieFile:[NSTemporaryDirectory() stringByAppendingPathComponent:@"m004.mp4"]];
+	[_livePlayer addMovieFile:[NSTemporaryDirectory() stringByAppendingPathComponent:@"m001.mp4"]];
+	[_livePlayer addMovieFile:[NSTemporaryDirectory() stringByAppendingPathComponent:@"m002.mp4"]];
+	[_livePlayer addMovieFile:[NSTemporaryDirectory() stringByAppendingPathComponent:@"m003.mp4"]];
 }
 
 - (IBAction)onNextFrame:(id)sender {

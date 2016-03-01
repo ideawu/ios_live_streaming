@@ -11,7 +11,6 @@
 
 @interface AudioPlayer : NSObject
 
-- (void)start;
 - (void)stop;
 - (void)appendSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 

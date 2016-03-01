@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3187763A1C85586800FC417F /* AudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776331C85586800FC417F /* AudioPlayer.m */; };
 		3187763C1C85586800FC417F /* PlayerController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 318776361C85586800FC417F /* PlayerController.xib */; };
 		3187763D1C85586800FC417F /* RecorderController.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776381C85586800FC417F /* RecorderController.m */; };
 		3187763E1C85586800FC417F /* RecorderController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 318776391C85586800FC417F /* RecorderController.xib */; };
@@ -23,6 +22,8 @@
 		3187765A1C856BE400FC417F /* PlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776351C85586800FC417F /* PlayerController.m */; };
 		3187765B1C85819F00FC417F /* LiveClipWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776401C85598200FC417F /* LiveClipWriter.m */; };
 		3187765C1C85819F00FC417F /* LiveClipReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776491C855EBD00FC417F /* LiveClipReader.m */; };
+		3187765F1C85857400FC417F /* AudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187765E1C85857400FC417F /* AudioPlayer.m */; };
+		318776601C8589E200FC417F /* AudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187765E1C85857400FC417F /* AudioPlayer.m */; };
 		318BA4FD1C85504B000CED2B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA4FC1C85504B000CED2B /* main.m */; };
 		318BA5001C85504B000CED2B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA4FF1C85504B000CED2B /* AppDelegate.m */; };
 		318BA5031C85504B000CED2B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA5021C85504B000CED2B /* ViewController.m */; };
@@ -79,8 +80,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		318776321C85586800FC417F /* AudioPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioPlayer.h; sourceTree = "<group>"; };
-		318776331C85586800FC417F /* AudioPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioPlayer.m; sourceTree = "<group>"; };
 		318776341C85586800FC417F /* PlayerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayerController.h; sourceTree = "<group>"; };
 		318776351C85586800FC417F /* PlayerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayerController.m; sourceTree = "<group>"; };
 		318776361C85586800FC417F /* PlayerController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PlayerController.xib; sourceTree = "<group>"; };
@@ -97,6 +96,8 @@
 		3187764B1C855EBD00FC417F /* LivePlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LivePlayer.m; sourceTree = "<group>"; };
 		318776571C85628F00FC417F /* Http.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Http.h; sourceTree = "<group>"; };
 		318776581C85628F00FC417F /* Http.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Http.m; sourceTree = "<group>"; };
+		3187765D1C85857400FC417F /* AudioPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioPlayer.h; sourceTree = "<group>"; };
+		3187765E1C85857400FC417F /* AudioPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioPlayer.m; sourceTree = "<group>"; };
 		318BA4F91C85504B000CED2B /* Player.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Player.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		318BA4FC1C85504B000CED2B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		318BA4FE1C85504B000CED2B /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -235,8 +236,6 @@
 			children = (
 				318BA5461C855370000CED2B /* AppDelegate.h */,
 				318BA5471C855370000CED2B /* AppDelegate.m */,
-				318776321C85586800FC417F /* AudioPlayer.h */,
-				318776331C85586800FC417F /* AudioPlayer.m */,
 				318776341C85586800FC417F /* PlayerController.h */,
 				318776351C85586800FC417F /* PlayerController.m */,
 				318776361C85586800FC417F /* PlayerController.xib */,
@@ -299,6 +298,8 @@
 				318776491C855EBD00FC417F /* LiveClipReader.m */,
 				318776411C85598200FC417F /* LiveRecorder.h */,
 				318776421C85598200FC417F /* LiveRecorder.m */,
+				3187765D1C85857400FC417F /* AudioPlayer.h */,
+				3187765E1C85857400FC417F /* AudioPlayer.m */,
 				3187764A1C855EBD00FC417F /* LivePlayer.h */,
 				3187764B1C855EBD00FC417F /* LivePlayer.m */,
 			);
@@ -484,6 +485,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				318776601C8589E200FC417F /* AudioPlayer.m in Sources */,
 				3187765B1C85819F00FC417F /* LiveClipWriter.m in Sources */,
 				3187765C1C85819F00FC417F /* LiveClipReader.m in Sources */,
 				318776521C8561C800FC417F /* LiveRecorder.m in Sources */,
@@ -491,7 +493,6 @@
 				318776591C85628F00FC417F /* Http.m in Sources */,
 				3187765A1C856BE400FC417F /* PlayerController.m in Sources */,
 				318BA54B1C855370000CED2B /* main.m in Sources */,
-				3187763A1C85586800FC417F /* AudioPlayer.m in Sources */,
 				3187763D1C85586800FC417F /* RecorderController.m in Sources */,
 				318BA5481C855370000CED2B /* AppDelegate.m in Sources */,
 			);
@@ -502,6 +503,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				318776441C85598200FC417F /* LiveRecorder.m in Sources */,
+				3187765F1C85857400FC417F /* AudioPlayer.m in Sources */,
 				318776431C85598200FC417F /* LiveClipWriter.m in Sources */,
 				3187764C1C855EBD00FC417F /* LiveClipReader.m in Sources */,
 				319207A81C854AA60017C818 /* irtc.m in Sources */,

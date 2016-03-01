@@ -38,9 +38,6 @@ static void callback(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef
 	return self;
 }
 
-- (void)start{
-}
-
 - (void)stop{
 	AudioQueueStop(_queue, false);
 	AudioQueueDispose(_queue, false);
@@ -133,6 +130,7 @@ static void callback(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef
 	}
 	
 	CFRelease(blockBuffer);
+	CFRelease(sampleBuffer);
 }
 
 

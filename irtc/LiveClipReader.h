@@ -23,7 +23,12 @@
 - (BOOL)isCompleted;
 
 - (void)startSessionAtSourceTime:(double)time;
+
 - (BOOL)hasNextFrameForTime:(double)time;
+// 调用者负责释放内存
 - (CGImageRef)copyNextFrameForTime:(double)time;
+
+// 调用者负责释放内存
+- (CMSampleBufferRef)nextAudioSampleBuffer;
 
 @end

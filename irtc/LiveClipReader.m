@@ -92,22 +92,12 @@ typedef enum{
 	return self;
 }
 
-- (void)test{
-//	_audio = [[AudioPlayer alloc] init];
-//	
-//	int n = 0;
-//	while(1){
-//		CMSampleBufferRef sampleBuffer = [_audioOutput copyNextSampleBuffer];
-//		if(!sampleBuffer){
-//			break;
-//		}
-//		n ++;
-//		
-//		[_audio appendSampleBuffer:sampleBuffer];
-//		
-//		CFRelease(sampleBuffer);
-//	}
-//	NSLog(@"audio samples = %d", n);
+- (CMSampleBufferRef)nextAudioSampleBuffer{
+	CMSampleBufferRef sampleBuffer = [_audioOutput copyNextSampleBuffer];
+	if(!sampleBuffer){
+		return nil;
+	}
+	return sampleBuffer;
 }
 
 - (void)readMetadata{
@@ -158,6 +148,7 @@ typedef enum{
 	_sessionStartTime = time;
 	_nextIndex = 0;
 	_status = LiveClipReaderStatusReading;
+	// TODO:
 	// 似乎 mp4 的第一帧是黑屏
 	// drop first frame
 	CGImageRef first = [self copyNextFrame];
@@ -167,16 +158,20 @@ typedef enum{
 }
 
 - (BOOL)hasNextFrameForTime:(double)time{
-	if(_startTime == 0 && _duration > 0){
-		return YES;
-	}
-	if(time < _startTime || time > _endTime){
+	double elapse = time - _sessionStartTime;
+	if(elapse < 0){
 		return NO;
 	}
-	double maxDelay = MIN(0.01, _frameDuration/10);
-	double mayDelay = time - (_startTime + _nextIndex * _frameDuration);
-	// TODO: 根据下一个 dayDelay 与当前 dayDelay 对比 
-	if(mayDelay > -maxDelay || (mayDelay < 0 && mayDelay > -maxDelay)){
+	if(elapse > _duration){
+		return NO;
+	}
+	
+	double maxAhead = -MIN(0.01, _frameDuration/10);
+	double expect = _nextIndex * _frameDuration;
+	double delay = elapse - expect;
+	if(delay >= 0){
+		return YES;
+	}else if(delay >= maxAhead){
 		return YES;
 	}
 	return NO;
@@ -187,20 +182,20 @@ typedef enum{
 		_sessionStartTime = time;
 		_status = LiveClipReaderStatusReading;
 	}
-	//double s = time;
-	time = [self convertToHostTime:time];
 	if(!self.isReading){
 		return nil;
 	}
-	if(time > _endTime || time < _startTime - 3){ // 如果时间已经过, 或者太超前, 都结束
-		//NSLog(@"time: %.3f, s: %.3f e: %.3f, tick: %f", time, _startTime, _endTime, s);
+	double elapse = time - _sessionStartTime;
+	// 如果时间已经过, 或者太超前, 都结束
+	if(elapse > _duration || elapse < -3){
 		NSLog(@"complete %d of %d frames", _nextIndex, _frameCount);
 		_status = LiveClipReaderStatusCompleted;
+		return nil;
 	}
 	if(![self hasNextFrameForTime:time]){
 		return nil;
 	}
-	
+
 	CGImageRef image = [self copyNextFrame];
 	if(_assetReader.status == AVAssetReaderStatusFailed){
 		_status = LiveClipReaderStatusCompleted;
@@ -210,9 +205,9 @@ typedef enum{
 		_status = LiveClipReaderStatusCompleted;
 	}
 	
-	_delay = time - (_startTime + _nextIndex * _frameDuration);
+	_delay = elapse - _nextIndex * _frameDuration;
 	if(_delay > _frameDuration){
-		//NSLog(@"frame: %d/%d, delay: %.3f, now: %.3f, end: %.3f", _nextIndex+1, _frameCount, _delay, time, _endTime);
+		NSLog(@"frame: %d/%d, delay: %.3f, now: %.3f, end: %.3f", _nextIndex+1, _frameCount, _delay, time, _endTime);
 	}
 	_nextIndex ++;
 	return image;
