@@ -26,6 +26,7 @@
 		318776551C8561C800FC417F /* LivePlayer.h in Sources */ = {isa = PBXBuildFile; fileRef = 3187764A1C855EBD00FC417F /* LivePlayer.h */; };
 		318776561C8561C800FC417F /* LivePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187764B1C855EBD00FC417F /* LivePlayer.m */; };
 		318776591C85628F00FC417F /* Http.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776581C85628F00FC417F /* Http.m */; };
+		3187765A1C856BE400FC417F /* PlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776351C85586800FC417F /* PlayerController.m */; };
 		318BA4FD1C85504B000CED2B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA4FC1C85504B000CED2B /* main.m */; };
 		318BA5001C85504B000CED2B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA4FF1C85504B000CED2B /* AppDelegate.m */; };
 		318BA5031C85504B000CED2B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA5021C85504B000CED2B /* ViewController.m */; };
@@ -395,6 +396,7 @@
 					};
 					318BA5131C85507E000CED2B = {
 						CreatedOnToolsVersion = 7.2.1;
+						DevelopmentTeam = 984G66F55J;
 					};
 					318BA5431C855370000CED2B = {
 						CreatedOnToolsVersion = 7.2.1;
@@ -490,6 +492,7 @@
 				3187764F1C8561C800FC417F /* LiveClipWriter.h in Sources */,
 				318776501C8561C800FC417F /* LiveClipWriter.m in Sources */,
 				318776511C8561C800FC417F /* LiveRecorder.h in Sources */,
+				3187765A1C856BE400FC417F /* PlayerController.m in Sources */,
 				318776521C8561C800FC417F /* LiveRecorder.m in Sources */,
 				318776531C8561C800FC417F /* LiveClipReader.h in Sources */,
 				318776541C8561C800FC417F /* LiveClipReader.m in Sources */,
@@ -582,7 +585,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.ideawu.test.Player;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				USER_HEADER_SEARCH_PATHS = ./deps/include;
 			};
 			name = Debug;
@@ -601,7 +604,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.ideawu.test.Player;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				USER_HEADER_SEARCH_PATHS = ./deps/include;
 			};
 			name = Release;
@@ -611,6 +614,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "Brand Assets";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = Recorder/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
@@ -620,7 +624,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.ideawu.test.Recorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SYMROOT = build;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				USER_HEADER_SEARCH_PATHS = ./deps/include;
 			};
 			name = Debug;
@@ -630,6 +634,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "Brand Assets";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = Recorder/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
@@ -639,7 +644,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.ideawu.test.Recorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SYMROOT = build;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				USER_HEADER_SEARCH_PATHS = ./deps/include;
 			};
 			name = Release;

@@ -12,6 +12,7 @@
 @property (nonatomic) int width;
 @property (nonatomic) int height;
 @property (nonatomic) int bitrate;
+@property (nonatomic) int audioSampleRate;
 @property (nonatomic) AVAssetWriterInput *audioInput;
 @property (nonatomic) AVAssetWriterInput *videoInput;
 @end
@@ -23,6 +24,7 @@
 	_width = 360;
 	_height = 480;
 	_bitrate = 1024 * 200;
+	_audioSampleRate = 44100;
 	return self;
 }
 
@@ -69,7 +71,7 @@
 	acl.mChannelLayoutTag = kAudioChannelLayoutTag_Stereo;
 	settings = @{
 				 AVFormatIDKey : @(kAudioFormatMPEG4AAC),
-				 AVSampleRateKey: @(44100.0),
+				 AVSampleRateKey: @(_audioSampleRate),
 				 AVChannelLayoutKey: [NSData dataWithBytes:&acl length:sizeof(acl)],
 				 };
 	_audioInput = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeAudio outputSettings:settings];

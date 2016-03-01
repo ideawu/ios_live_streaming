@@ -6,6 +6,9 @@
 //  Copyright (c) 2016年 ideawu. All rights reserved.
 //
 #import <AVFoundation/AVFoundation.h>
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#endif
 #import "LiveRecorder.h"
 #import "LiveClipWriter.h"
 
@@ -16,11 +19,12 @@ typedef enum{
 	RecordStop,
 }RecordStatus;
 
-@interface LiveRecorder ()<AVCaptureVideoDataOutputSampleBufferDelegate>{
-	AVCaptureDevice *videoDevice;
+@interface LiveRecorder ()<AVCaptureAudioDataOutputSampleBufferDelegate, AVCaptureVideoDataOutputSampleBufferDelegate>{
 	AVCaptureDevice *audioDevice;
-	AVCaptureDeviceInput *videoInput;
+	AVCaptureDevice *videoDevice;
 	AVCaptureDeviceInput *audioInput;
+	AVCaptureDeviceInput *videoInput;
+	AVCaptureAudioDataOutput* _audioDataOutput;
 	AVCaptureVideoDataOutput* _videoDataOutput;
 
 	dispatch_queue_t _captureQueue;
@@ -59,27 +63,22 @@ typedef enum{
 
 
 - (void)setupDevices{
+	NSError *error = nil;
 	_captureQueue = dispatch_queue_create("capture", DISPATCH_QUEUE_SERIAL);
 	_processQueue = dispatch_queue_create("process", DISPATCH_QUEUE_SERIAL);
 
 	_session = [[AVCaptureSession alloc] init];
+	
+	_audioDataOutput = [[AVCaptureAudioDataOutput alloc] init];
+	[_audioDataOutput setSampleBufferDelegate:self queue:_captureQueue];
 
 	_videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
 	[_videoDataOutput setSampleBufferDelegate:self queue:_captureQueue];
-	NSDictionary* setcapSettings = @{
-									 (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange),
-									 };
-	_videoDataOutput.videoSettings = setcapSettings;
+	NSDictionary* settings = @{
+		(id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange),
+	};
+	_videoDataOutput.videoSettings = settings;
 
-	NSError *error = nil;
-	videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-	for(AVCaptureDevice *dev in [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo]){
-		if(dev.position == AVCaptureDevicePositionFront){
-			videoDevice = dev;
-			break;
-		}
-	}
-	videoInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
 	audioDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
 	for(AVCaptureDevice *dev in [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio]){
 		if(dev.position == AVCaptureDevicePositionFront){
@@ -88,6 +87,15 @@ typedef enum{
 		}
 	}
 	audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioDevice error:&error];
+
+	videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+	for(AVCaptureDevice *dev in [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo]){
+		if(dev.position == AVCaptureDevicePositionFront){
+			videoDevice = dev;
+			break;
+		}
+	}
+	videoInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
 
 	for(AVFrameRateRange *range in videoDevice.activeFormat.videoSupportedFrameRateRanges){
 		float setFPS = 24.0;
@@ -103,9 +111,10 @@ typedef enum{
 
 	[_session beginConfiguration];
 	[_session setSessionPreset:AVCaptureSessionPresetMedium];
+	[_session addOutput:_audioDataOutput];
 	[_session addOutput:_videoDataOutput];
-	[_session addInput:videoInput];
 	[_session addInput:audioInput];
+	[_session addInput:videoInput];
 	[_session commitConfiguration];
 
 #if TARGET_OS_IPHONE
@@ -172,7 +181,11 @@ typedef enum{
 			_status = RecordNone;
 			return;
 		}
-		[rec encodeVideoSampleBuffer:sampleBuffer];
+		if(captureOutput == _videoDataOutput){
+			[rec encodeVideoSampleBuffer:sampleBuffer];
+		}else{
+			[rec encodeAudioSampleBuffer:sampleBuffer];
+		}
 
 		if(rec.duration >= _chunkDuration){
 			[self switchClip];

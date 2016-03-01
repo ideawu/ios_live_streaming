@@ -7,10 +7,10 @@
 //
 
 #import <AVFoundation/AVFoundation.h>
-#import "LiveClipReader.h"
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
 #endif
+#import "LiveClipReader.h"
 
 typedef enum{
 	LiveClipReaderStatusNone = 0,
@@ -52,25 +52,29 @@ typedef enum{
 
 	NSDictionary *settings;
 	
-	AVAssetTrack* video_track = [_asset tracksWithMediaType:AVMediaTypeVideo].lastObject;
-	settings = @{
-			  (NSString *)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
-			  };
-	_videoOutput = [[AVAssetReaderTrackOutput alloc] initWithTrack:video_track
-													outputSettings:settings];
-	_videoOutput.alwaysCopiesSampleData = NO;
-	if([_assetReader canAddOutput:_videoOutput]){
-		[_assetReader addOutput:_videoOutput];
-	}
-	
 	AVAssetTrack* audio_track = [_asset tracksWithMediaType:AVMediaTypeAudio].lastObject;
-	settings = @{
-				 AVFormatIDKey: @(kAudioFormatLinearPCM),
-				 };
-	_audioOutput = [[AVAssetReaderTrackOutput alloc] initWithTrack:audio_track
-													outputSettings:settings];
-	if([_assetReader canAddOutput:_audioOutput]){
-		[_assetReader addOutput:_audioOutput];
+	if(audio_track){
+		settings = @{
+					 AVFormatIDKey: @(kAudioFormatLinearPCM),
+					 };
+		_audioOutput = [[AVAssetReaderTrackOutput alloc] initWithTrack:audio_track
+														outputSettings:settings];
+		if([_assetReader canAddOutput:_audioOutput]){
+			[_assetReader addOutput:_audioOutput];
+		}
+	}
+
+	AVAssetTrack* video_track = [_asset tracksWithMediaType:AVMediaTypeVideo].lastObject;
+	if(video_track){
+		settings = @{
+					 (NSString *)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
+					 };
+		_videoOutput = [[AVAssetReaderTrackOutput alloc] initWithTrack:video_track
+														outputSettings:settings];
+		_videoOutput.alwaysCopiesSampleData = NO;
+		if([_assetReader canAddOutput:_videoOutput]){
+			[_assetReader addOutput:_videoOutput];
+		}
 	}
 
 	if([_assetReader startReading]){
@@ -84,7 +88,6 @@ typedef enum{
 	}
 
 	[self readMetadata];
-
 	return self;
 }
 
