@@ -11,7 +11,8 @@
 
 @interface LiveClipWriter : NSObject
 
-@property (nonatomic, readonly) AVAssetWriter *writer;
+// TODO: status
+
 @property (nonatomic, readonly) int frameCount;
 @property (nonatomic, readonly) double duration;
 @property (nonatomic, readonly) double startTime;

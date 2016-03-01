@@ -29,6 +29,7 @@ typedef enum{
 	double _sessionStartTime;
 }
 @property (nonatomic, readonly) LiveClipReaderStatus status;
+@property (nonatomic, readonly) NSURL *URL;
 @end
 
 @implementation LiveClipReader

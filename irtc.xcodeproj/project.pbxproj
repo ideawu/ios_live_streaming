@@ -17,16 +17,12 @@
 		3187764C1C855EBD00FC417F /* LiveClipReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776491C855EBD00FC417F /* LiveClipReader.m */; };
 		3187764D1C855EBD00FC417F /* LivePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187764B1C855EBD00FC417F /* LivePlayer.m */; };
 		3187764E1C855ED700FC417F /* libirtc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 319207A21C854AA60017C818 /* libirtc.a */; };
-		3187764F1C8561C800FC417F /* LiveClipWriter.h in Sources */ = {isa = PBXBuildFile; fileRef = 3187763F1C85598200FC417F /* LiveClipWriter.h */; };
-		318776501C8561C800FC417F /* LiveClipWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776401C85598200FC417F /* LiveClipWriter.m */; };
-		318776511C8561C800FC417F /* LiveRecorder.h in Sources */ = {isa = PBXBuildFile; fileRef = 318776411C85598200FC417F /* LiveRecorder.h */; };
 		318776521C8561C800FC417F /* LiveRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776421C85598200FC417F /* LiveRecorder.m */; };
-		318776531C8561C800FC417F /* LiveClipReader.h in Sources */ = {isa = PBXBuildFile; fileRef = 318776481C855EBD00FC417F /* LiveClipReader.h */; };
-		318776541C8561C800FC417F /* LiveClipReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776491C855EBD00FC417F /* LiveClipReader.m */; };
-		318776551C8561C800FC417F /* LivePlayer.h in Sources */ = {isa = PBXBuildFile; fileRef = 3187764A1C855EBD00FC417F /* LivePlayer.h */; };
 		318776561C8561C800FC417F /* LivePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187764B1C855EBD00FC417F /* LivePlayer.m */; };
 		318776591C85628F00FC417F /* Http.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776581C85628F00FC417F /* Http.m */; };
 		3187765A1C856BE400FC417F /* PlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776351C85586800FC417F /* PlayerController.m */; };
+		3187765B1C85819F00FC417F /* LiveClipWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776401C85598200FC417F /* LiveClipWriter.m */; };
+		3187765C1C85819F00FC417F /* LiveClipReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776491C855EBD00FC417F /* LiveClipReader.m */; };
 		318BA4FD1C85504B000CED2B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA4FC1C85504B000CED2B /* main.m */; };
 		318BA5001C85504B000CED2B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA4FF1C85504B000CED2B /* AppDelegate.m */; };
 		318BA5031C85504B000CED2B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA5021C85504B000CED2B /* ViewController.m */; };
@@ -299,10 +295,10 @@
 				319207A71C854AA60017C818 /* irtc.m */,
 				3187763F1C85598200FC417F /* LiveClipWriter.h */,
 				318776401C85598200FC417F /* LiveClipWriter.m */,
-				318776411C85598200FC417F /* LiveRecorder.h */,
-				318776421C85598200FC417F /* LiveRecorder.m */,
 				318776481C855EBD00FC417F /* LiveClipReader.h */,
 				318776491C855EBD00FC417F /* LiveClipReader.m */,
+				318776411C85598200FC417F /* LiveRecorder.h */,
+				318776421C85598200FC417F /* LiveRecorder.m */,
 				3187764A1C855EBD00FC417F /* LivePlayer.h */,
 				3187764B1C855EBD00FC417F /* LivePlayer.m */,
 			);
@@ -488,16 +484,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				318776591C85628F00FC417F /* Http.m in Sources */,
-				3187764F1C8561C800FC417F /* LiveClipWriter.h in Sources */,
-				318776501C8561C800FC417F /* LiveClipWriter.m in Sources */,
-				318776511C8561C800FC417F /* LiveRecorder.h in Sources */,
-				3187765A1C856BE400FC417F /* PlayerController.m in Sources */,
+				3187765B1C85819F00FC417F /* LiveClipWriter.m in Sources */,
+				3187765C1C85819F00FC417F /* LiveClipReader.m in Sources */,
 				318776521C8561C800FC417F /* LiveRecorder.m in Sources */,
-				318776531C8561C800FC417F /* LiveClipReader.h in Sources */,
-				318776541C8561C800FC417F /* LiveClipReader.m in Sources */,
-				318776551C8561C800FC417F /* LivePlayer.h in Sources */,
 				318776561C8561C800FC417F /* LivePlayer.m in Sources */,
+				318776591C85628F00FC417F /* Http.m in Sources */,
+				3187765A1C856BE400FC417F /* PlayerController.m in Sources */,
 				318BA54B1C855370000CED2B /* main.m in Sources */,
 				3187763A1C85586800FC417F /* AudioPlayer.m in Sources */,
 				3187763D1C85586800FC417F /* RecorderController.m in Sources */,

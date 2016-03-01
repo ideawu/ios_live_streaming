@@ -10,13 +10,11 @@
 #import <AudioToolbox/AudioToolbox.h>
 
 
-void callback(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef buffer){
+static void callback(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef buffer){
 	AudioQueueFreeBuffer(queue, buffer);
 	NSLog(@"callback");
 }
 
-#define NUM_BUFFERS 3
-#define BUFFER_SIZE 4096
 
 @interface AudioPlayer(){
 	AudioQueueRef _queue;
@@ -71,7 +69,6 @@ void callback(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef buffer
 		NSLog(@"format.mBytesPerPacket:  %d", format.mBytesPerPacket);
 		
 		OSStatus err;
-		//err = AudioQueueNewOutput(&format, callback, NULL, CFRunLoopGetCurrent(), kCFRunLoopCommonModes, 0, &_queue);
 		err = AudioQueueNewOutput(&format, callback, NULL, NULL, NULL, 0, &_queue);
 		if(err){
 			NSLog(@"%d error", __LINE__);
@@ -119,11 +116,10 @@ void callback(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef buffer
 		buffer->mAudioDataByteSize = audioBuffer.mDataByteSize;
 		err = AudioQueueEnqueueBuffer(_queue, buffer, (UInt32)numPacketDescs, packetDescs);
 		if(err){
-			NSLog(@"%d error %d", __LINE__, err);
 			NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain
 												 code:err
 											 userInfo:nil];
-			NSLog(@"Error: %@", [error description]);
+			NSLog(@"AudioQueueEnqueueBuffer error: %d %@", err, [error description]);
 			break;
 		}
 		//NSLog(@"add AudioBuffer");

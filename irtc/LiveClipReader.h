@@ -10,7 +10,6 @@
 
 @interface LiveClipReader : NSObject
 
-@property (nonatomic, readonly) NSURL *URL;
 @property (nonatomic, readonly) double delay;
 @property (nonatomic, readonly) int frameCount;
 @property (nonatomic, readonly) double frameDuration;

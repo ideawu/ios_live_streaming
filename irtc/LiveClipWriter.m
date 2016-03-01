@@ -13,6 +13,7 @@
 @property (nonatomic) int height;
 @property (nonatomic) int bitrate;
 @property (nonatomic) int audioSampleRate;
+@property (nonatomic) AVAssetWriter *writer;
 @property (nonatomic) AVAssetWriterInput *audioInput;
 @property (nonatomic) AVAssetWriterInput *videoInput;
 @end
@@ -81,7 +82,7 @@
 	return self;
 }
 
-- (void)encodeAudioSampleBuffer:(CMSampleBufferRef)sampleBuffer ofMediaType:(NSString *)mediaType{
+- (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer ofMediaType:(NSString *)mediaType{
 	if (!CMSampleBufferDataIsReady(sampleBuffer)){
 		NSLog(@"!CMSampleBufferDataIsReady");
 		return;
@@ -93,11 +94,14 @@
 		_startTime = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
 		NSLog(@"start %@", _writer.outputURL.lastPathComponent);
 		_writer.metadata = [self getMetadataItems];
-		[_writer startWriting];
+		if(![_writer startWriting]){
+			NSLog(@"start writer failed: %@", _writer.error.description);
+		}
 		[_writer startSessionAtSourceTime:CMTimeMakeWithSeconds(_startTime, 1)];
 	}
 	if (_writer.status == AVAssetWriterStatusFailed){
 		NSLog(@"writer error %@", _writer.error.localizedDescription);
+		// TODO: set status
 	}else if(input.readyForMoreMediaData == YES){
 		if(mediaType == AVMediaTypeVideo){
 			_frameCount ++;
@@ -112,12 +116,12 @@
 }
 
 - (void)encodeAudioSampleBuffer:(CMSampleBufferRef)sampleBuffer{
-	[self encodeAudioSampleBuffer:sampleBuffer ofMediaType:AVMediaTypeAudio];
+	[self encodeSampleBuffer:sampleBuffer ofMediaType:AVMediaTypeAudio];
 }
 
 
 - (void)encodeVideoSampleBuffer:(CMSampleBufferRef)sampleBuffer{
-	[self encodeAudioSampleBuffer:sampleBuffer ofMediaType:AVMediaTypeVideo];
+	[self encodeSampleBuffer:sampleBuffer ofMediaType:AVMediaTypeVideo];
 }
 
 - (NSArray *)getMetadataItems{
@@ -132,18 +136,17 @@
 	return myMetadata;
 }
 
-//- (void)writeMetadata{
-//	NSLog(@"writting endTime %@", _writer.outputURL.lastPathComponent);
-//	NSFileHandle *file = [NSFileHandle fileHandleForUpdatingAtPath:_writer.outputURL.path];
-//	[file seekToEndOfFile];
-//	uint64_t pos = [file offsetInFile];
-//	pos -= (20 + 1 + 10) + 1; // +\0
-//	[file seekToFileOffset:pos];
-//	NSString *str = [NSString stringWithFormat:@"%20.5f,%10d", _endTime, _frameCount];
-//	NSData *data = [str dataUsingEncoding:NSUTF8StringEncoding];
-//	[file writeData:data];
-//	[file closeFile];
-//}
+- (void)writeMetadata{
+	NSLog(@"writting endTime %@", _writer.outputURL.lastPathComponent);
+	NSFileHandle *file = [NSFileHandle fileHandleForUpdatingAtPath:_writer.outputURL.path];
+	[file seekToEndOfFile];
+	uint64_t file_len = [file offsetInFile];
+	NSData *metadata = [[self metastr] dataUsingEncoding:NSUTF8StringEncoding];
+	NSUInteger pos = file_len - metadata.length - 1; // +\0;
+	[file seekToFileOffset:pos];
+	[file writeData:metadata];
+	[file closeFile];
+}
 
 - (NSString *)metastr{
 	return [NSString stringWithFormat:@"TIMEINFO,%20.5f,%20.5f,%10d",
@@ -155,6 +158,9 @@
 	NSUInteger pos = data.length - metadata.length - 1; // +\0;
 	NSRange range = NSMakeRange(pos, metadata.length);
 	[data replaceBytesInRange:range withBytes:metadata.bytes length:metadata.length];
+#ifdef DEBUG
+	[self writeMetadata];
+#endif
 }
 
 - (void)finishWritingWithCompletionHandler:(void (^)(NSData *))handler{

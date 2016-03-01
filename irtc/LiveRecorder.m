@@ -118,7 +118,7 @@ typedef enum{
 	[_session commitConfiguration];
 
 #if TARGET_OS_IPHONE
-	[self setVideoOrientation:[UIApplication sharedApplication].statusBarOrientation];
+	[self setVideoOrientation:(AVCaptureVideoOrientation)[UIApplication sharedApplication].statusBarOrientation];
 #endif
 }
 

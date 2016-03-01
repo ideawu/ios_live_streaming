@@ -74,6 +74,7 @@ typedef enum{
 
 - (IBAction)stop:(id)sender {
 	_status = RecordStop;
+	[_recorder stop];
 }
 
 static NSString *base64_encode_data(NSData *data){
