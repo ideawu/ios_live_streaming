@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
 
 @interface LiveRecorder : NSObject
 
@@ -16,7 +15,7 @@
 
 + (LiveRecorder *)recorderForWidth:(int)width height:(int)height;
 
-- (void)setVideoOrientation:(UIInterfaceOrientation)orientation;
+- (void)setVideoOrientation:(AVCaptureVideoOrientation)orientation;
 
 - (void)start:(void (^)(NSData *data))chunkCallback;
 - (void)stop;

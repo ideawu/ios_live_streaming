@@ -8,13 +8,24 @@
 
 /* Begin PBXBuildFile section */
 		3187763A1C85586800FC417F /* AudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776331C85586800FC417F /* AudioPlayer.m */; };
-		3187763B1C85586800FC417F /* PlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776351C85586800FC417F /* PlayerController.m */; };
 		3187763C1C85586800FC417F /* PlayerController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 318776361C85586800FC417F /* PlayerController.xib */; };
 		3187763D1C85586800FC417F /* RecorderController.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776381C85586800FC417F /* RecorderController.m */; };
 		3187763E1C85586800FC417F /* RecorderController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 318776391C85586800FC417F /* RecorderController.xib */; };
 		318776431C85598200FC417F /* LiveClipWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776401C85598200FC417F /* LiveClipWriter.m */; };
 		318776441C85598200FC417F /* LiveRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776421C85598200FC417F /* LiveRecorder.m */; };
 		318776471C855A3600FC417F /* libirtc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 319207A21C854AA60017C818 /* libirtc.a */; };
+		3187764C1C855EBD00FC417F /* LiveClipReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776491C855EBD00FC417F /* LiveClipReader.m */; };
+		3187764D1C855EBD00FC417F /* LivePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187764B1C855EBD00FC417F /* LivePlayer.m */; };
+		3187764E1C855ED700FC417F /* libirtc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 319207A21C854AA60017C818 /* libirtc.a */; };
+		3187764F1C8561C800FC417F /* LiveClipWriter.h in Sources */ = {isa = PBXBuildFile; fileRef = 3187763F1C85598200FC417F /* LiveClipWriter.h */; };
+		318776501C8561C800FC417F /* LiveClipWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776401C85598200FC417F /* LiveClipWriter.m */; };
+		318776511C8561C800FC417F /* LiveRecorder.h in Sources */ = {isa = PBXBuildFile; fileRef = 318776411C85598200FC417F /* LiveRecorder.h */; };
+		318776521C8561C800FC417F /* LiveRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776421C85598200FC417F /* LiveRecorder.m */; };
+		318776531C8561C800FC417F /* LiveClipReader.h in Sources */ = {isa = PBXBuildFile; fileRef = 318776481C855EBD00FC417F /* LiveClipReader.h */; };
+		318776541C8561C800FC417F /* LiveClipReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776491C855EBD00FC417F /* LiveClipReader.m */; };
+		318776551C8561C800FC417F /* LivePlayer.h in Sources */ = {isa = PBXBuildFile; fileRef = 3187764A1C855EBD00FC417F /* LivePlayer.h */; };
+		318776561C8561C800FC417F /* LivePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187764B1C855EBD00FC417F /* LivePlayer.m */; };
+		318776591C85628F00FC417F /* Http.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776581C85628F00FC417F /* Http.m */; };
 		318BA4FD1C85504B000CED2B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA4FC1C85504B000CED2B /* main.m */; };
 		318BA5001C85504B000CED2B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA4FF1C85504B000CED2B /* AppDelegate.m */; };
 		318BA5031C85504B000CED2B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA5021C85504B000CED2B /* ViewController.m */; };
@@ -36,8 +47,6 @@
 		318BA55A1C8554B3000CED2B /* libIObj.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA5571C8554B3000CED2B /* libIObj.a */; };
 		318BA55C1C8554CB000CED2B /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA55B1C8554CB000CED2B /* libxml2.tbd */; };
 		318BA55E1C8554D5000CED2B /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA55D1C8554D5000CED2B /* libz.tbd */; };
-		318BA5641C8554F6000CED2B /* LiveClipReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA5601C8554F6000CED2B /* LiveClipReader.m */; };
-		318BA5651C8554F6000CED2B /* LivePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA5621C8554F6000CED2B /* LivePlayer.m */; };
 		318BA5661C8554F6000CED2B /* main.xml in Resources */ = {isa = PBXBuildFile; fileRef = 318BA5631C8554F6000CED2B /* main.xml */; };
 		318BA56E1C8555B3000CED2B /* main.xml in Resources */ = {isa = PBXBuildFile; fileRef = 318BA56B1C8555B3000CED2B /* main.xml */; };
 		318BA56F1C85564B000CED2B /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA5551C8554B3000CED2B /* libcurl.a */; };
@@ -85,6 +94,12 @@
 		318776401C85598200FC417F /* LiveClipWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveClipWriter.m; sourceTree = "<group>"; };
 		318776411C85598200FC417F /* LiveRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveRecorder.h; sourceTree = "<group>"; };
 		318776421C85598200FC417F /* LiveRecorder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveRecorder.m; sourceTree = "<group>"; };
+		318776481C855EBD00FC417F /* LiveClipReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveClipReader.h; sourceTree = "<group>"; };
+		318776491C855EBD00FC417F /* LiveClipReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveClipReader.m; sourceTree = "<group>"; };
+		3187764A1C855EBD00FC417F /* LivePlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LivePlayer.h; sourceTree = "<group>"; };
+		3187764B1C855EBD00FC417F /* LivePlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LivePlayer.m; sourceTree = "<group>"; };
+		318776571C85628F00FC417F /* Http.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Http.h; sourceTree = "<group>"; };
+		318776581C85628F00FC417F /* Http.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Http.m; sourceTree = "<group>"; };
 		318BA4F91C85504B000CED2B /* Player.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Player.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		318BA4FC1C85504B000CED2B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		318BA4FE1C85504B000CED2B /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -117,10 +132,6 @@
 		318BA5571C8554B3000CED2B /* libIObj.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libIObj.a; path = deps/libIObj.a; sourceTree = "<group>"; };
 		318BA55B1C8554CB000CED2B /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
 		318BA55D1C8554D5000CED2B /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
-		318BA55F1C8554F6000CED2B /* LiveClipReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveClipReader.h; sourceTree = "<group>"; };
-		318BA5601C8554F6000CED2B /* LiveClipReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveClipReader.m; sourceTree = "<group>"; };
-		318BA5611C8554F6000CED2B /* LivePlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LivePlayer.h; sourceTree = "<group>"; };
-		318BA5621C8554F6000CED2B /* LivePlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LivePlayer.m; sourceTree = "<group>"; };
 		318BA5631C8554F6000CED2B /* main.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = main.xml; sourceTree = "<group>"; };
 		318BA56B1C8555B3000CED2B /* main.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = main.xml; sourceTree = "<group>"; };
 		319207A21C854AA60017C818 /* libirtc.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libirtc.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -133,6 +144,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3187764E1C855ED700FC417F /* libirtc.a in Frameworks */,
 				318BA55E1C8554D5000CED2B /* libz.tbd in Frameworks */,
 				318BA55C1C8554CB000CED2B /* libxml2.tbd in Frameworks */,
 				318BA5581C8554B3000CED2B /* libcurl.a in Frameworks */,
@@ -178,10 +190,6 @@
 				318BA4FF1C85504B000CED2B /* AppDelegate.m */,
 				318BA5011C85504B000CED2B /* ViewController.h */,
 				318BA5021C85504B000CED2B /* ViewController.m */,
-				318BA55F1C8554F6000CED2B /* LiveClipReader.h */,
-				318BA5601C8554F6000CED2B /* LiveClipReader.m */,
-				318BA5611C8554F6000CED2B /* LivePlayer.h */,
-				318BA5621C8554F6000CED2B /* LivePlayer.m */,
 				318BA5631C8554F6000CED2B /* main.xml */,
 				318BA4FB1C85504B000CED2B /* Supporting Files */,
 			);
@@ -238,6 +246,8 @@
 				318776371C85586800FC417F /* RecorderController.h */,
 				318776381C85586800FC417F /* RecorderController.m */,
 				318776391C85586800FC417F /* RecorderController.xib */,
+				318776571C85628F00FC417F /* Http.h */,
+				318776581C85628F00FC417F /* Http.m */,
 				318BA5491C855370000CED2B /* Supporting Files */,
 			);
 			path = Test;
@@ -290,6 +300,10 @@
 				318776401C85598200FC417F /* LiveClipWriter.m */,
 				318776411C85598200FC417F /* LiveRecorder.h */,
 				318776421C85598200FC417F /* LiveRecorder.m */,
+				318776481C855EBD00FC417F /* LiveClipReader.h */,
+				318776491C855EBD00FC417F /* LiveClipReader.m */,
+				3187764A1C855EBD00FC417F /* LivePlayer.h */,
+				3187764B1C855EBD00FC417F /* LivePlayer.m */,
 			);
 			path = irtc;
 			sourceTree = "<group>";
@@ -454,9 +468,7 @@
 			files = (
 				318BA5031C85504B000CED2B /* ViewController.m in Sources */,
 				318BA5001C85504B000CED2B /* AppDelegate.m in Sources */,
-				318BA5641C8554F6000CED2B /* LiveClipReader.m in Sources */,
 				318BA4FD1C85504B000CED2B /* main.m in Sources */,
-				318BA5651C8554F6000CED2B /* LivePlayer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -474,9 +486,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				318776591C85628F00FC417F /* Http.m in Sources */,
+				3187764F1C8561C800FC417F /* LiveClipWriter.h in Sources */,
+				318776501C8561C800FC417F /* LiveClipWriter.m in Sources */,
+				318776511C8561C800FC417F /* LiveRecorder.h in Sources */,
+				318776521C8561C800FC417F /* LiveRecorder.m in Sources */,
+				318776531C8561C800FC417F /* LiveClipReader.h in Sources */,
+				318776541C8561C800FC417F /* LiveClipReader.m in Sources */,
+				318776551C8561C800FC417F /* LivePlayer.h in Sources */,
+				318776561C8561C800FC417F /* LivePlayer.m in Sources */,
 				318BA54B1C855370000CED2B /* main.m in Sources */,
 				3187763A1C85586800FC417F /* AudioPlayer.m in Sources */,
-				3187763B1C85586800FC417F /* PlayerController.m in Sources */,
 				3187763D1C85586800FC417F /* RecorderController.m in Sources */,
 				318BA5481C855370000CED2B /* AppDelegate.m in Sources */,
 			);
@@ -488,7 +508,9 @@
 			files = (
 				318776441C85598200FC417F /* LiveRecorder.m in Sources */,
 				318776431C85598200FC417F /* LiveClipWriter.m in Sources */,
+				3187764C1C855EBD00FC417F /* LiveClipReader.m in Sources */,
 				319207A81C854AA60017C818 /* irtc.m in Sources */,
+				3187764D1C855EBD00FC417F /* LivePlayer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

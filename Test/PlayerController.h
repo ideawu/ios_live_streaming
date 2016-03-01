@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 @interface PlayerController : NSWindowController
-@property (weak) IBOutlet NSView *previewView;
+@property (weak) IBOutlet NSView *videoView;
 @property (weak) IBOutlet NSButton *playBtn;
 - (IBAction)onPlay:(id)sender;
 - (IBAction)onNextFrame:(id)sender;

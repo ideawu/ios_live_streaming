@@ -28,11 +28,12 @@ static int num = 0;
 
 - (void)windowDidLoad {
     [super windowDidLoad];
+	_videoView.layer.backgroundColor = [NSColor blackColor].CGColor;
 
 	_player = [[AVQueuePlayer alloc] init];
 
 	_playerLayer = [AVPlayerLayer playerLayerWithPlayer:_player];
-	[_playerLayer setFrame:[_previewView bounds]];
+	[_playerLayer setFrame:[_videoView bounds]];
 	[_playerLayer setAutoresizingMask:kCALayerWidthSizable | kCALayerHeightSizable];
 	[_playerLayer setBackgroundColor:[NSColor blackColor].CGColor];
 

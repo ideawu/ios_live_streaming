@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 @interface RecorderController : NSWindowController
-@property (weak) IBOutlet NSView *previewView;
+@property (weak) IBOutlet NSView *videoView;
 - (IBAction)start:(id)sender;
 - (IBAction)stop:(id)sender;
 

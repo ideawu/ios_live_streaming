@@ -108,10 +108,12 @@ typedef enum{
 	[_session addInput:audioInput];
 	[_session commitConfiguration];
 
+#if TARGET_OS_IPHONE
 	[self setVideoOrientation:[UIApplication sharedApplication].statusBarOrientation];
+#endif
 }
 
-- (void)setVideoOrientation:(UIInterfaceOrientation)orientation{
+- (void)setVideoOrientation:(AVCaptureVideoOrientation)orientation{
 	AVCaptureConnection *connection =[_videoDataOutput connectionWithMediaType:AVMediaTypeVideo];
 	if([connection videoOrientation ]) {
 		[connection setVideoOrientation:(AVCaptureVideoOrientation)orientation];

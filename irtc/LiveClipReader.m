@@ -8,7 +8,9 @@
 
 #import <AVFoundation/AVFoundation.h>
 #import "LiveClipReader.h"
+#if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
+#endif
 
 typedef enum{
 	LiveClipReaderStatusNone = 0,
