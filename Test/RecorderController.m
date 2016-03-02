@@ -22,6 +22,7 @@ typedef enum{
 	RecordStatus _status;
 	NSMutableArray *_chunks;
 	BOOL _uploading;
+	double _chunkDuration;
 }
 @property LiveRecorder *recorder;
 @property AVCaptureVideoPreviewLayer *previewLayer;
@@ -34,6 +35,7 @@ typedef enum{
 	self = [super initWithWindowNibName:windowNibName];
 	
 	_status = RecordNone;
+	_chunkDuration = 0.5;
 	
 	_chunks = [[NSMutableArray alloc] init];
 	_uploading = false;
@@ -59,7 +61,7 @@ typedef enum{
 	_status = RecordStart;
 
 	_recorder = [LiveRecorder recorderForWidth:360 height:480];
-	_recorder.chunkDuration = 0.5;
+	_recorder.chunkDuration = _chunkDuration;
 	
 	_previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:_recorder.session];
 	_previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;

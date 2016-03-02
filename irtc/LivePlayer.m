@@ -187,13 +187,9 @@
 }
 
 - (void)readAllAudioSamples:(LiveClipReader *)reader{
-	NSLog(@"read all audio samples");
-	while(1){
-		CMSampleBufferRef s = [reader nextAudioSampleBuffer];
-		if(!s){
-			break;
-		}
-		[_audio appendSampleBuffer:s];
+	//NSLog(@"read all audio samples");
+	if(reader.audioData){
+		[_audio appendData:reader.audioData audioFormat:reader.audioFormat];
 	}
 }
 

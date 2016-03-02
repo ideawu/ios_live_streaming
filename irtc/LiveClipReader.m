@@ -6,7 +6,6 @@
 //  Copyright © 2015 ideawu. All rights reserved.
 //
 
-#import <AVFoundation/AVFoundation.h>
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
 #endif
@@ -23,6 +22,9 @@ typedef enum{
 	AVAssetReader *_assetReader;
 	AVAssetReaderTrackOutput *_audioOutput;
 	AVAssetReaderTrackOutput *_videoOutput;
+	
+	AVAssetTrack* audio_track;
+
 
 	int _nextIndex;
 	int _approximatedFrameCount;
@@ -53,7 +55,7 @@ typedef enum{
 
 	NSDictionary *settings;
 	
-	AVAssetTrack* audio_track = [_asset tracksWithMediaType:AVMediaTypeAudio].lastObject;
+	audio_track = [_asset tracksWithMediaType:AVMediaTypeAudio].lastObject;
 	if(audio_track){
 		settings = @{
 					 AVFormatIDKey: @(kAudioFormatLinearPCM),
@@ -89,36 +91,121 @@ typedef enum{
 	}
 
 	[self readMetadata];
+	[self readAudioInfo];
+	
 	return self;
 }
 
-- (CMSampleBufferRef)nextAudioSampleBuffer{
-	CMSampleBufferRef sampleBuffer = [_audioOutput copyNextSampleBuffer];
-	if(!sampleBuffer){
-		return nil;
+- (void)readAudioInfo{
+	AudioFileID fileID  = nil;
+	OSStatus err=noErr;
+	err = AudioFileOpenURL( (__bridge CFURLRef) _URL, kAudioFileReadPermission, 0, &fileID );
+	if( err != noErr ) {
+		NSLog( @"AudioFileOpenURL failed" );
 	}
-	return sampleBuffer;
+	
+	UInt32 size = sizeof(_audioInfo);
+	AudioFileGetProperty(fileID, kAudioFilePropertyPacketTableInfo, &size, &_audioInfo);
+	//NSLog(@"priming: %d remainder: %d total: %d", _audioInfo.mPrimingFrames, _audioInfo.mRemainderFrames, (int)_audioInfo.mNumberValidFrames);
+	
+	AudioFileClose(fileID);
+	
+	NSArray* descs = audio_track.formatDescriptions;
+	for(unsigned int i = 0; i < [descs count]; ++i) {
+		CMAudioFormatDescriptionRef item = (__bridge CMAudioFormatDescriptionRef)[descs objectAtIndex:i];
+		const AudioStreamBasicDescription* fmtDesc = CMAudioFormatDescriptionGetStreamBasicDescription(item);
+		if(fmtDesc){
+			_audioFormat = *fmtDesc;
+			_audioFormat.mFormatID = kAudioFormatLinearPCM;
+			break;
+		}
+	}
+
+	NSMutableData *data = [[NSMutableData alloc] init];
+	while(1){
+		CMSampleBufferRef sampleBuffer = [_audioOutput copyNextSampleBuffer];
+		if(!sampleBuffer){
+			break;
+		}
+		
+		if(_audioFormat.mBytesPerFrame == 0){
+			_audioFormat = *CMAudioFormatDescriptionGetStreamBasicDescription((CMAudioFormatDescriptionRef)CMSampleBufferGetFormatDescription(sampleBuffer));
+//			NSLog(@"format.mSampleRate:       %f", _audioFormat.mSampleRate);
+//			NSLog(@"format.mBitsPerChannel:   %d", _audioFormat.mBitsPerChannel); //
+//			NSLog(@"format.mChannelsPerFrame: %d", _audioFormat.mChannelsPerFrame);
+//			NSLog(@"format.mBytesPerFrame:    %d", _audioFormat.mBytesPerFrame); //
+//			NSLog(@"format.mFramesPerPacket:  %d", _audioFormat.mFramesPerPacket);
+//			NSLog(@"format.mBytesPerPacket:   %d", _audioFormat.mBytesPerPacket); //
+		}
+		
+		CMBlockBufferRef blockBuffer;
+		AudioBufferList audioBufferList;
+		
+		OSStatus err;
+		err = CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(
+																	  sampleBuffer,
+																	  NULL,
+																	  &audioBufferList,
+																	  sizeof(AudioBufferList),
+																	  NULL,
+																	  NULL,
+																	  kCMSampleBufferFlag_AudioBufferList_Assure16ByteAlignment,
+																	  &blockBuffer
+																	  );
+		if(err){
+			NSLog(@"%d error", __LINE__);
+		}
+		
+		for (NSUInteger i = 0; i < audioBufferList.mNumberBuffers; i++) {
+			AudioBuffer audioBuffer = audioBufferList.mBuffers[i];
+			[data appendBytes:audioBuffer.mData length:audioBuffer.mDataByteSize];
+		}
+		
+		CFRelease(blockBuffer);
+		CFRelease(sampleBuffer);
+	}
+	
+	// trim priming/remainder
+	NSUInteger priming = _audioInfo.mPrimingFrames * _audioFormat.mBytesPerFrame;
+	NSUInteger remainder = _audioInfo.mRemainderFrames * _audioFormat.mBytesPerFrame;
+	NSUInteger data_len = data.length - priming - remainder;
+	NSUInteger real_data_len = _audioFrameCount * _audioFormat.mBytesPerFrame;
+	if(real_data_len < data_len){
+		remainder += data_len - real_data_len;
+	}
+	NSRange range;
+	if(remainder > 0){
+		 range = NSMakeRange(data.length - remainder - 1, remainder);
+		[data replaceBytesInRange:range withBytes:NULL length:0];
+	}
+	if(priming > 0){
+		range = NSMakeRange(0, priming);
+		[data replaceBytesInRange:range withBytes:NULL length:0];
+	}
+	_audioData = data;
 }
 
 - (void)readMetadata{
+	int num_records = 6;
 	// read metadata
 	NSFileHandle *file = [NSFileHandle fileHandleForReadingAtPath:_URL.path];
 	[file seekToEndOfFile];
 	uint64_t pos = [file offsetInFile];
-	pos -= @"TIMEINFO,".length + 20 + 1 + 20 + 1 + 10 + 1;
+	pos -= @"TIMEINFO,".length + 21 * num_records;
 	[file seekToFileOffset:pos];
 	NSData *data = [file readDataToEndOfFile];
 	[file closeFile];
 	NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 	if(!str){
 		NSLog(@"empty metadata");
+		return;
 	}
 	if([str rangeOfString:@"TIMEINFO,"].location != 0){
 		NSLog(@"metadata not found");
 		return;
 	}
 	NSArray *ps = [str componentsSeparatedByString:@","];
-	if(ps.count != 4){
+	if(ps.count != num_records + 1){
 		NSLog(@"bad metadata: %@", ps);
 		return;
 	}
@@ -129,7 +216,10 @@ typedef enum{
 	_duration = _endTime - _startTime;
 	_frameDuration = _duration / _frameCount;
 	double fps = (_duration == 0.0)? 0 : _frameCount / _duration;
-	NSLog(@"fps: %.3f, frames: %d, duration: %.3f", fps, _frameCount, _duration);
+	_audioDuration = [ps[5] doubleValue] - [ps[4] doubleValue];
+	_audioFrameCount = [ps[6] intValue];
+	NSLog(@"fps: %.3f, frames: %d, duration: %.3f, audioDuration: %.3f, audioFrames: %d",
+		  fps, _frameCount, _duration, _audioDuration, _audioFrameCount);
 }
 
 - (BOOL)isReading{

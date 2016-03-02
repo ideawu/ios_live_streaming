@@ -15,8 +15,7 @@
 
 @property (nonatomic, readonly) int frameCount;
 @property (nonatomic, readonly) double duration;
-@property (nonatomic, readonly) double startTime;
-@property (nonatomic, readonly) double endTime;
+@property (nonatomic, readonly) int audioFrameCount;
 
 - (id)initWithFilename:(NSString *)filename videoWidth:(int)width videoHeight:(int)height;
 

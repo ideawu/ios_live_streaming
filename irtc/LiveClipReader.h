@@ -7,6 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
+#import <AudioToolbox/AudioToolbox.h>
 
 @interface LiveClipReader : NSObject
 
@@ -16,6 +18,12 @@
 @property (nonatomic, readonly) double startTime;
 @property (nonatomic, readonly) double endTime;
 @property (nonatomic, readonly) double duration;
+
+@property AudioFilePacketTableInfo audioInfo;
+@property AudioStreamBasicDescription audioFormat;
+@property NSData *audioData;
+@property (nonatomic, readonly) double audioDuration;
+@property (nonatomic, readonly) int audioFrameCount;
 
 + (LiveClipReader *)clipReaderWithURL:(NSURL *)url;
 
@@ -28,7 +36,6 @@
 // 调用者负责释放内存
 - (CGImageRef)copyNextFrameForTime:(double)time;
 
-// 调用者负责释放内存
-- (CMSampleBufferRef)nextAudioSampleBuffer;
+- (NSData *)audioData;
 
 @end

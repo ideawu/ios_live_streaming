@@ -28,6 +28,8 @@
 		3187769A1C85AB3500FC417F /* LiveRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776421C85598200FC417F /* LiveRecorder.m */; };
 		3187769B1C85AB3500FC417F /* AudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187765E1C85857400FC417F /* AudioPlayer.m */; };
 		3187769C1C85AB3500FC417F /* LivePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187764B1C855EBD00FC417F /* LivePlayer.m */; };
+		318776A11C86B87F00FC417F /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3187769F1C86B87F00FC417F /* CoreAudio.framework */; };
+		318776A21C86B87F00FC417F /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 318776A01C86B87F00FC417F /* CoreVideo.framework */; };
 		318BA4FD1C85504B000CED2B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA4FC1C85504B000CED2B /* main.m */; };
 		318BA5001C85504B000CED2B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA4FF1C85504B000CED2B /* AppDelegate.m */; };
 		318BA5031C85504B000CED2B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA5021C85504B000CED2B /* ViewController.m */; };
@@ -105,6 +107,8 @@
 		318776901C85AAF600FC417F /* RecorderController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RecorderController.h; sourceTree = "<group>"; };
 		318776911C85AAF600FC417F /* RecorderController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RecorderController.m; sourceTree = "<group>"; };
 		318776921C85AAF600FC417F /* RecorderController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RecorderController.xib; sourceTree = "<group>"; };
+		3187769F1C86B87F00FC417F /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		318776A01C86B87F00FC417F /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		318BA4F91C85504B000CED2B /* Player.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Player.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		318BA4FC1C85504B000CED2B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		318BA4FE1C85504B000CED2B /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -149,6 +153,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				318776A11C86B87F00FC417F /* CoreAudio.framework in Frameworks */,
+				318776A21C86B87F00FC417F /* CoreVideo.framework in Frameworks */,
 				3187764E1C855ED700FC417F /* libirtc.a in Frameworks */,
 				318BA55E1C8554D5000CED2B /* libz.dylib in Frameworks */,
 				318BA55C1C8554CB000CED2B /* libxml2.dylib in Frameworks */,
@@ -263,6 +269,8 @@
 		319207991C854AA60017C818 = {
 			isa = PBXGroup;
 			children = (
+				3187769F1C86B87F00FC417F /* CoreAudio.framework */,
+				318776A01C86B87F00FC417F /* CoreVideo.framework */,
 				319207A41C854AA60017C818 /* irtc */,
 				318BA4FA1C85504B000CED2B /* Player */,
 				318BA5151C85507E000CED2B /* Recorder */,
@@ -785,6 +793,7 @@
 				3187768A1C85AABF00FC417F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		318BA50F1C85504B000CED2B /* Build configuration list for PBXNativeTarget "Player" */ = {
 			isa = XCConfigurationList;

@@ -29,6 +29,8 @@
 	
 	_livePlayer = [LivePlayer playerWithCALayer:_playerLayer];
 	[_livePlayer play];
+	
+	[self onLoad:nil];
 }
 
 - (void)windowWillClose:(NSNotification *)notification{
@@ -41,9 +43,9 @@
 }
 
 - (IBAction)onLoad:(id)sender {
-	[_livePlayer addMovieFile:[NSTemporaryDirectory() stringByAppendingPathComponent:@"m001.mp4"]];
 	[_livePlayer addMovieFile:[NSTemporaryDirectory() stringByAppendingPathComponent:@"m002.mp4"]];
-	[_livePlayer addMovieFile:[NSTemporaryDirectory() stringByAppendingPathComponent:@"m003.mp4"]];
+	//[_livePlayer addMovieFile:[NSTemporaryDirectory() stringByAppendingPathComponent:@"m002.mp4"]];
+	//[_livePlayer addMovieFile:[NSTemporaryDirectory() stringByAppendingPathComponent:@"m003.mp4"]];
 }
 
 - (IBAction)onNextFrame:(id)sender {

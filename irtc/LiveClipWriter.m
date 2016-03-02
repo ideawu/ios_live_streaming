@@ -9,6 +9,7 @@
 #import "LiveClipWriter.h"
 
 @interface LiveClipWriter()
+@property (nonatomic) NSString *filename;
 @property (nonatomic) int width;
 @property (nonatomic) int height;
 @property (nonatomic) int bitrate;
@@ -16,7 +17,10 @@
 @property (nonatomic) AVAssetWriter *writer;
 @property (nonatomic) AVAssetWriterInput *audioInput;
 @property (nonatomic) AVAssetWriterInput *videoInput;
-@property (nonatomic) double videoStartTime;
+@property (nonatomic) double audioStartTime;
+@property (nonatomic) double audioEndTime;
+@property (nonatomic) double startTime;
+@property (nonatomic) double endTime;
 @end
 
 @implementation LiveClipWriter
@@ -34,26 +38,33 @@
 	self = [self init];
 	_width = width;
 	_height = height;
-	
-	if([[NSFileManager defaultManager] fileExistsAtPath:filename]){
-		[[NSFileManager defaultManager] removeItemAtPath:filename error:nil];
+	_filename = filename;
+	[self setup];
+	return self;
+}
+
+- (void)setup{
+	if([[NSFileManager defaultManager] fileExistsAtPath:_filename]){
+		[[NSFileManager defaultManager] removeItemAtPath:_filename error:nil];
 	}
-	NSURL *url = [NSURL fileURLWithPath:filename];
+	NSURL *url = [NSURL fileURLWithPath:_filename];
 	_writer = [AVAssetWriter assetWriterWithURL:url fileType:AVFileTypeMPEG4 error:nil];
-	NSDictionary* settings = @{
-							AVVideoCodecKey: AVVideoCodecH264,
-							AVVideoWidthKey: @(_width),
-							AVVideoHeightKey: @(_height),
-							AVVideoCompressionPropertiesKey: @{
-									AVVideoAverageBitRateKey: [NSNumber numberWithInt:_bitrate],
-									//AVVideoAllowFrameReorderingKey: @YES,
-									//AVVideoProfileLevelKey: AVVideoProfileLevelH264BaselineAutoLevel,
-									},
-							// belows require OS X 10.10+
-							//AVVideoH264EntropyModeKey: AVVideoH264EntropyModeCAVLC,
-							//AVVideoExpectedSourceFrameRateKey: @(30),
-							//AVVideoAllowFrameReorderingKey: @NO,
-							};
+	_writer.metadata = [self getMetadataItems];
+	NSDictionary* settings;
+	settings = @{
+				 AVVideoCodecKey: AVVideoCodecH264,
+				 AVVideoWidthKey: @(_width),
+				 AVVideoHeightKey: @(_height),
+				 AVVideoCompressionPropertiesKey: @{
+						 AVVideoAverageBitRateKey: [NSNumber numberWithInt:_bitrate],
+						 //AVVideoAllowFrameReorderingKey: @YES,
+						 //AVVideoProfileLevelKey: AVVideoProfileLevelH264BaselineAutoLevel,
+						 },
+				 // belows require OS X 10.10+
+				 //AVVideoH264EntropyModeKey: AVVideoH264EntropyModeCAVLC,
+				 //AVVideoExpectedSourceFrameRateKey: @(30),
+				 //AVVideoAllowFrameReorderingKey: @NO,
+				 };
 #if TARGET_OS_MAC
 #ifdef NSFoundationVersionNumber10_9_2
 	if(NSFoundationVersionNumber <= NSFoundationVersionNumber10_9_2){
@@ -74,13 +85,24 @@
 	settings = @{
 				 AVFormatIDKey : @(kAudioFormatMPEG4AAC),
 				 AVSampleRateKey: @(_audioSampleRate),
+				 //AVNumberOfChannelsKey: @(2),
 				 AVChannelLayoutKey: [NSData dataWithBytes:&acl length:sizeof(acl)],
 				 };
 	_audioInput = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeAudio outputSettings:settings];
 	_audioInput.expectsMediaDataInRealTime = YES;
 	[_writer addInput:_audioInput];
+	
+	if(![_writer startWriting]){
+		NSLog(@"start writer failed: %@", _writer.error.description);
+	}
+}
 
-	return self;
+- (void)encodeAudioSampleBuffer:(CMSampleBufferRef)sampleBuffer{
+	[self encodeSampleBuffer:sampleBuffer ofMediaType:AVMediaTypeAudio];
+}
+
+- (void)encodeVideoSampleBuffer:(CMSampleBufferRef)sampleBuffer{
+	[self encodeSampleBuffer:sampleBuffer ofMediaType:AVMediaTypeVideo];
 }
 
 - (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer ofMediaType:(NSString *)mediaType{
@@ -92,42 +114,41 @@
 	double time = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
 	AVAssetWriterInput *input = (mediaType == AVMediaTypeVideo)? _videoInput : _audioInput;
 	
-	if (_writer.status == AVAssetWriterStatusUnknown){
+	if(_startTime == 0 && _audioStartTime == 0){
 		NSLog(@"start %@", _writer.outputURL.lastPathComponent);
-		_writer.metadata = [self getMetadataItems];
-		if(![_writer startWriting]){
-			NSLog(@"start writer failed: %@", _writer.error.description);
-		}
 		[_writer startSessionAtSourceTime:CMTimeMakeWithSeconds(time, 1)];
 	}
 	if (_writer.status == AVAssetWriterStatusFailed){
-		NSLog(@"writer error %@", _writer.error.localizedDescription);
+		//NSLog(@"writer error %@", _writer.error.localizedDescription);
 		// TODO: set status
 	}else if(input.readyForMoreMediaData == YES){
+		int count = (int)CMSampleBufferGetNumSamples(sampleBuffer);
 		if(mediaType == AVMediaTypeVideo){
-			_frameCount ++;
+			_frameCount += count;
+		}else{
+			_audioFrameCount += count;
 		}
 		[input appendSampleBuffer:sampleBuffer];
 	}else{
-		NSLog(@"!readyForMoreMediaData");
+		NSLog(@"!readyForMoreMediaData %d", (int)_writer.status);
 	}
 	
+	double frameDuration = CMTimeGetSeconds(CMSampleBufferGetDuration(sampleBuffer));
 	if(mediaType == AVMediaTypeVideo){
 		if(_startTime == 0){
 			_startTime = time;
 		}
 		_endTime = time;
-		_duration = _endTime - _startTime;
+		_endTime += frameDuration;
+	}else{
+		if(_audioStartTime == 0){
+			_audioStartTime = time;
+		}
+		_audioEndTime = time;
+		_audioEndTime += frameDuration;
 	}
-}
-
-- (void)encodeAudioSampleBuffer:(CMSampleBufferRef)sampleBuffer{
-	[self encodeSampleBuffer:sampleBuffer ofMediaType:AVMediaTypeAudio];
-}
-
-
-- (void)encodeVideoSampleBuffer:(CMSampleBufferRef)sampleBuffer{
-	[self encodeSampleBuffer:sampleBuffer ofMediaType:AVMediaTypeVideo];
+	
+	_duration = _endTime - _startTime;
 }
 
 - (NSArray *)getMetadataItems{
@@ -154,9 +175,14 @@
 	[file closeFile];
 }
 
++ (NSString *)metadataFormat{
+	// %20.5f 只占用 20 宽度
+	return @"TIMEINFO,%20.5f,%20.5f,%20d,%20.5f,%20.5f,%20d";
+}
+
 - (NSString *)metastr{
-	return [NSString stringWithFormat:@"TIMEINFO,%20.5f,%20.5f,%10d",
-					 _startTime, _endTime, _frameCount];
+	return [NSString stringWithFormat:[LiveClipWriter metadataFormat],
+					 _startTime, _endTime, _frameCount, _audioStartTime, _audioEndTime, _audioFrameCount];
 }
 
 - (void)updateMetadata:(NSMutableData *)data{
@@ -189,8 +215,8 @@
 		}
 
 		double fps = (_duration == 0.0)? 0 : _frameCount / _duration;
-		NSLog(@"stime: %.3f, etime: %.3f, frames: %d, duration: %.3f, fps: %.3f",
-			  _startTime, _endTime, _frameCount, _duration, fps);
+		NSLog(@"frames: %d, fps: %.3f, duration: %.4f, audioDuration: %.4f, audioSampleCount: %d",
+			  _frameCount, fps, _duration, _audioEndTime - _audioStartTime, _audioFrameCount);
 	}];
 }
 
