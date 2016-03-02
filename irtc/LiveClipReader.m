@@ -120,6 +120,49 @@ typedef enum{
 			break;
 		}
 	}
+	
+	
+//	CMTime startTime = CMTimeMake(10000, 44100);
+//	CMTimeRange range = CMTimeRangeMake(startTime, kCMTimePositiveInfinity);
+//	[assetReader setTimeRange:range];
+//	AVAssetTrack* track = [[asset tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0];
+//	
+//	
+//	AVAssetReaderTrackOutput* output = [AVAssetReaderTrackOutput assetReaderTrackOutputWithTrack:track outputSettings:nil];
+//	[assetReader addOutput:output];
+//	[assetReader startReading];
+//	
+//	
+//	if ([assetReader status] == AVAssetReaderStatusReading)
+//	{
+//		if (CMSampleBufferRef buffer = [output copyNextSampleBuffer])
+//		{
+//			if (::CMSampleBufferGetDataBuffer(buffer))
+//			{
+//				// The time of the buffer we received, which should preceed the time we requested
+//				CMTime presentationTime = ::CMSampleBufferGetPresentationTimeStamp(buffer);
+//				
+//				
+//				// The time we requested in presentation units
+//				CMTime requestedTime = [track samplePresentationTimeForTrackTime:startTime];
+//				
+//				
+//				// trim = priming frames + offset into buffer to satisfy our requested time
+//				CFDictionaryRef trimAtStartDictionary = (CFDictionaryRef)::CMGetAttachment(buffer, kCMSampleBufferAttachmentKey_TrimDurationAtStart, NULL);
+//				CMTime trimAtStart = trimAtStartDictionary ? ::CMTimeMakeFromDictionary(trimAtStartDictionary) : kCMTimeZero;
+//				
+//				
+//				// Therefore, priming frames = trim - offset
+//				CMTime offset = ::CMTimeSubtract(requestedTime, presentationTime);
+//				CMTime primingFrames = CMTimeSubtract(trimAtStart, offset);
+//				printf("Priming frames: ");
+//				CMTimeShow(primingFrames);
+//			}
+//			
+//			
+//			CFRelease(buffer);
+//		}
+//	}
 
 	NSMutableData *data = [[NSMutableData alloc] init];
 	while(1){
@@ -155,6 +198,9 @@ typedef enum{
 		if(err){
 			NSLog(@"%d error", __LINE__);
 		}
+		
+//		CFDictionaryRef trimAtStartDictionary = (CFDictionaryRef)CMGetAttachment(sampleBuffer, kCMSampleBufferAttachmentKey_TrimDurationAtStart, NULL);
+//		CMTime trimAtStart = trimAtStartDictionary ? CMTimeMakeFromDictionary(trimAtStartDictionary) : kCMTimeZero;
 		
 		for (NSUInteger i = 0; i < audioBufferList.mNumberBuffers; i++) {
 			AudioBuffer audioBuffer = audioBufferList.mBuffers[i];
