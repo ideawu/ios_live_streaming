@@ -9,10 +9,12 @@
 #import "AppDelegate.h"
 #import "PlayerController.h"
 #import "RecorderController.h"
+#import "VideoRecorder.h"
 
 @interface AppDelegate (){
 	PlayerController *_player;
 	RecorderController *_recorder;
+	VideoRecorder *_vr;
 }
 
 @property (weak) IBOutlet NSWindow *window;
@@ -23,11 +25,14 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 	NSLog(@"NSTemporaryDirectory: %@", NSTemporaryDirectory());
 	// Insert code here to initialize your application
-	_player = [[PlayerController alloc] initWithWindowNibName:@"PlayerController"];
-	_recorder = [[RecorderController alloc] initWithWindowNibName:@"RecorderController"];
-
-	[_player showWindow:self];
-	[_recorder showWindow:self];
+//	_player = [[PlayerController alloc] initWithWindowNibName:@"PlayerController"];
+//	_recorder = [[RecorderController alloc] initWithWindowNibName:@"RecorderController"];
+//
+//	[_player showWindow:self];
+//	[_recorder showWindow:self];
+	
+	_vr = [[VideoRecorder alloc] init];
+	[_vr start];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {

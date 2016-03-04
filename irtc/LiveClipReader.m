@@ -89,6 +89,35 @@ typedef enum{
 		_nextIndex = 0;
 		_approximatedFrameCount = (int)ceil(CMTimeGetSeconds(video_track.timeRange.duration) / _frameDuration);
 	}
+	
+	
+	
+//	CMTime startTime = CMTimeMake(0, 44100);
+//	CMTimeRange range = CMTimeRangeMake(startTime, kCMTimePositiveInfinity);
+//	[_assetReader setTimeRange:range];
+//	[_assetReader startReading];
+//	if ([_assetReader status] == AVAssetReaderStatusReading){
+//		CMSampleBufferRef buffer = [_audioOutput copyNextSampleBuffer];
+//		if (buffer){
+//			if (CMSampleBufferGetDataBuffer(buffer)){
+//				NSLog(@"wwww");
+//				// The time of the buffer we received, which should preceed the time we requested
+//				CMTime presentationTime = CMSampleBufferGetPresentationTimeStamp(buffer);
+//				// The time we requested in presentation units
+//				CMTime requestedTime = [audio_track samplePresentationTimeForTrackTime:startTime];
+//				// trim = priming frames + offset into buffer to satisfy our requested time
+//				CFDictionaryRef trimAtStartDictionary = (CFDictionaryRef)CMGetAttachment(buffer, kCMSampleBufferAttachmentKey_TrimDurationAtStart, NULL);
+//				CMTime trimAtStart = trimAtStartDictionary ? CMTimeMakeFromDictionary(trimAtStartDictionary) : kCMTimeZero;
+//				// Therefore, priming frames = trim - offset
+//				CMTime offset = CMTimeSubtract(requestedTime, presentationTime);
+//				CMTime primingFrames = CMTimeSubtract(trimAtStart, offset);
+//				NSLog(@"Priming frames: %f", CMTimeGetSeconds(trimAtStart));
+//				CMTimeShow(primingFrames);
+//			}
+//			CFRelease(buffer);
+//		}
+//	}
+
 
 	[self readMetadata];
 	[self readAudioInfo];
@@ -106,7 +135,7 @@ typedef enum{
 	
 	UInt32 size = sizeof(_audioInfo);
 	AudioFileGetProperty(fileID, kAudioFilePropertyPacketTableInfo, &size, &_audioInfo);
-	//NSLog(@"priming: %d remainder: %d total: %d", _audioInfo.mPrimingFrames, _audioInfo.mRemainderFrames, (int)_audioInfo.mNumberValidFrames);
+	NSLog(@"priming: %d remainder: %d total: %d", _audioInfo.mPrimingFrames, _audioInfo.mRemainderFrames, (int)_audioInfo.mNumberValidFrames);
 	
 	AudioFileClose(fileID);
 	
@@ -117,52 +146,15 @@ typedef enum{
 		if(fmtDesc){
 			_audioFormat = *fmtDesc;
 			_audioFormat.mFormatID = kAudioFormatLinearPCM;
+			NSLog(@"format.mSampleRate:       %f", _audioFormat.mSampleRate);
+			NSLog(@"format.mBitsPerChannel:   %d", _audioFormat.mBitsPerChannel);
+			NSLog(@"format.mChannelsPerFrame: %d", _audioFormat.mChannelsPerFrame);
+			NSLog(@"format.mBytesPerFrame:    %d", _audioFormat.mBytesPerFrame);
+			NSLog(@"format.mFramesPerPacket:  %d", _audioFormat.mFramesPerPacket);
+			NSLog(@"format.mBytesPerPacket:   %d", _audioFormat.mBytesPerPacket);
 			break;
 		}
 	}
-	
-	
-//	CMTime startTime = CMTimeMake(10000, 44100);
-//	CMTimeRange range = CMTimeRangeMake(startTime, kCMTimePositiveInfinity);
-//	[assetReader setTimeRange:range];
-//	AVAssetTrack* track = [[asset tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0];
-//	
-//	
-//	AVAssetReaderTrackOutput* output = [AVAssetReaderTrackOutput assetReaderTrackOutputWithTrack:track outputSettings:nil];
-//	[assetReader addOutput:output];
-//	[assetReader startReading];
-//	
-//	
-//	if ([assetReader status] == AVAssetReaderStatusReading)
-//	{
-//		if (CMSampleBufferRef buffer = [output copyNextSampleBuffer])
-//		{
-//			if (::CMSampleBufferGetDataBuffer(buffer))
-//			{
-//				// The time of the buffer we received, which should preceed the time we requested
-//				CMTime presentationTime = ::CMSampleBufferGetPresentationTimeStamp(buffer);
-//				
-//				
-//				// The time we requested in presentation units
-//				CMTime requestedTime = [track samplePresentationTimeForTrackTime:startTime];
-//				
-//				
-//				// trim = priming frames + offset into buffer to satisfy our requested time
-//				CFDictionaryRef trimAtStartDictionary = (CFDictionaryRef)::CMGetAttachment(buffer, kCMSampleBufferAttachmentKey_TrimDurationAtStart, NULL);
-//				CMTime trimAtStart = trimAtStartDictionary ? ::CMTimeMakeFromDictionary(trimAtStartDictionary) : kCMTimeZero;
-//				
-//				
-//				// Therefore, priming frames = trim - offset
-//				CMTime offset = ::CMTimeSubtract(requestedTime, presentationTime);
-//				CMTime primingFrames = CMTimeSubtract(trimAtStart, offset);
-//				printf("Priming frames: ");
-//				CMTimeShow(primingFrames);
-//			}
-//			
-//			
-//			CFRelease(buffer);
-//		}
-//	}
 
 	NSMutableData *data = [[NSMutableData alloc] init];
 	while(1){
@@ -173,18 +165,19 @@ typedef enum{
 		
 		if(_audioFormat.mBytesPerFrame == 0){
 			_audioFormat = *CMAudioFormatDescriptionGetStreamBasicDescription((CMAudioFormatDescriptionRef)CMSampleBufferGetFormatDescription(sampleBuffer));
-//			NSLog(@"format.mSampleRate:       %f", _audioFormat.mSampleRate);
-//			NSLog(@"format.mBitsPerChannel:   %d", _audioFormat.mBitsPerChannel); //
-//			NSLog(@"format.mChannelsPerFrame: %d", _audioFormat.mChannelsPerFrame);
-//			NSLog(@"format.mBytesPerFrame:    %d", _audioFormat.mBytesPerFrame); //
-//			NSLog(@"format.mFramesPerPacket:  %d", _audioFormat.mFramesPerPacket);
-//			NSLog(@"format.mBytesPerPacket:   %d", _audioFormat.mBytesPerPacket); //
 		}
 		
-		CMBlockBufferRef blockBuffer;
-		AudioBufferList audioBufferList;
+//		CFDictionaryRef startDict = (CFDictionaryRef)CMGetAttachment(sampleBuffer, kCMSampleBufferAttachmentKey_TrimDurationAtStart, NULL);
+//		CMTime trimAtStart = startDict ? CMTimeMakeFromDictionary(startDict) : kCMTimeZero;
+//		NSLog(@"Priming frames:   %f", CMTimeGetSeconds(trimAtStart));
+//		
+//		CFDictionaryRef endDict = CMGetAttachment(sampleBuffer, kCMSampleBufferAttachmentKey_TrimDurationAtEnd, NULL);
+//		CMTime trimAtEnd = endDict ? CMTimeMakeFromDictionary(endDict) : kCMTimeZero;
+//		NSLog(@"Remainder frames: %f", CMTimeGetSeconds(trimAtEnd));
 		
 		OSStatus err;
+		AudioBufferList audioBufferList;
+		CMBlockBufferRef blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer);
 		err = CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(
 																	  sampleBuffer,
 																	  NULL,
@@ -198,14 +191,14 @@ typedef enum{
 		if(err){
 			NSLog(@"%d error", __LINE__);
 		}
-		
-//		CFDictionaryRef trimAtStartDictionary = (CFDictionaryRef)CMGetAttachment(sampleBuffer, kCMSampleBufferAttachmentKey_TrimDurationAtStart, NULL);
-//		CMTime trimAtStart = trimAtStartDictionary ? CMTimeMakeFromDictionary(trimAtStartDictionary) : kCMTimeZero;
-		
+	
 		for (NSUInteger i = 0; i < audioBufferList.mNumberBuffers; i++) {
 			AudioBuffer audioBuffer = audioBufferList.mBuffers[i];
 			[data appendBytes:audioBuffer.mData length:audioBuffer.mDataByteSize];
 		}
+		
+//		CMItemCount numSamplesInBuffer = CMSampleBufferGetNumSamples(sampleBuffer);
+//		NSLog(@"numSamplesInBuffer: %d", (int)numSamplesInBuffer);
 		
 		CFRelease(blockBuffer);
 		CFRelease(sampleBuffer);
@@ -219,12 +212,13 @@ typedef enum{
 	if(real_data_len < data_len){
 		remainder += data_len - real_data_len;
 	}
+	NSLog(@"data frames: %d, data len: %d, real len: %d", (int)data_len/_audioFormat.mBytesPerFrame, (int)data_len, (int)real_data_len);
 	NSRange range;
-	if(remainder > 0){
+	if(remainder > 0 && remainder < data.length){
 		 range = NSMakeRange(data.length - remainder - 1, remainder);
 		[data replaceBytesInRange:range withBytes:NULL length:0];
 	}
-	if(priming > 0){
+	if(priming > 0 && remainder < data.length){
 		range = NSMakeRange(0, priming);
 		[data replaceBytesInRange:range withBytes:NULL length:0];
 	}

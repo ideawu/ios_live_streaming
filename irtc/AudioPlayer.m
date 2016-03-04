@@ -87,7 +87,9 @@ static void callback(void *custom_data, AudioQueueRef _queue, AudioQueueBufferRe
 		//[self addSilence];
 	}
 	if(_buffering_count == 0){
-		_playing = NO;
+		@synchronized(self){
+			_playing = NO;
+		}
 		NSLog(@"AQ paused");
 		AudioQueuePause(_queue);
 	}
@@ -165,7 +167,9 @@ static void callback(void *custom_data, AudioQueueRef _queue, AudioQueueBufferRe
 	_buffering_count ++;
 
 	if(!_playing){
-		_playing = YES;
+		@synchronized(self){
+			_playing = YES;
+		}
 		
 		err = AudioQueueStart(_queue, NULL);
 		if(err){
