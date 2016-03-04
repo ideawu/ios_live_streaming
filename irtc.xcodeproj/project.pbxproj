@@ -34,8 +34,8 @@
 		318777191C89B21700FC417F /* MP4Atom.m in Sources */ = {isa = PBXBuildFile; fileRef = 318777131C89B21700FC417F /* MP4Atom.m */; };
 		3187771A1C89B21700FC417F /* NALUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318777141C89B21700FC417F /* NALUnit.cpp */; };
 		3187771B1C89B21700FC417F /* VideoEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 318777171C89B21700FC417F /* VideoEncoder.m */; };
-		3187771E1C89B2BB00FC417F /* VideoRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187771D1C89B2BB00FC417F /* VideoRecorder.m */; };
-		318777201C89B90000FC417F /* VideoRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187771D1C89B2BB00FC417F /* VideoRecorder.m */; };
+		3187771E1C89B2BB00FC417F /* VideoRecorder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3187771D1C89B2BB00FC417F /* VideoRecorder.mm */; };
+		318777201C89B90000FC417F /* VideoRecorder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3187771D1C89B2BB00FC417F /* VideoRecorder.mm */; };
 		318777211C89BA9900FC417F /* AVEncoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 318777111C89B21700FC417F /* AVEncoder.mm */; };
 		318777221C89BA9900FC417F /* MP4Atom.m in Sources */ = {isa = PBXBuildFile; fileRef = 318777131C89B21700FC417F /* MP4Atom.m */; };
 		318777231C89BA9900FC417F /* NALUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318777141C89B21700FC417F /* NALUnit.cpp */; };
@@ -128,7 +128,7 @@
 		318777161C89B21700FC417F /* VideoEncoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoEncoder.h; sourceTree = "<group>"; };
 		318777171C89B21700FC417F /* VideoEncoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoEncoder.m; sourceTree = "<group>"; };
 		3187771C1C89B2BB00FC417F /* VideoRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoRecorder.h; sourceTree = "<group>"; };
-		3187771D1C89B2BB00FC417F /* VideoRecorder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoRecorder.m; sourceTree = "<group>"; };
+		3187771D1C89B2BB00FC417F /* VideoRecorder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VideoRecorder.mm; sourceTree = "<group>"; };
 		318BA4F91C85504B000CED2B /* Player.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Player.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		318BA4FC1C85504B000CED2B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		318BA4FE1C85504B000CED2B /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -346,7 +346,7 @@
 				318776411C85598200FC417F /* LiveRecorder.h */,
 				318776421C85598200FC417F /* LiveRecorder.m */,
 				3187771C1C89B2BB00FC417F /* VideoRecorder.h */,
-				3187771D1C89B2BB00FC417F /* VideoRecorder.m */,
+				3187771D1C89B2BB00FC417F /* VideoRecorder.mm */,
 				3187770F1C89B21700FC417F /* h264 */,
 			);
 			path = irtc;
@@ -515,7 +515,7 @@
 				318777221C89BA9900FC417F /* MP4Atom.m in Sources */,
 				318777231C89BA9900FC417F /* NALUnit.cpp in Sources */,
 				318777241C89BA9900FC417F /* VideoEncoder.m in Sources */,
-				318777201C89B90000FC417F /* VideoRecorder.m in Sources */,
+				318777201C89B90000FC417F /* VideoRecorder.mm in Sources */,
 				318776981C85AB3500FC417F /* LiveClipWriter.m in Sources */,
 				318776991C85AB3500FC417F /* LiveClipReader.m in Sources */,
 				3187769A1C85AB3500FC417F /* LiveRecorder.m in Sources */,
@@ -558,7 +558,7 @@
 				318777181C89B21700FC417F /* AVEncoder.mm in Sources */,
 				3187765F1C85857400FC417F /* AudioPlayer.m in Sources */,
 				318776431C85598200FC417F /* LiveClipWriter.m in Sources */,
-				3187771E1C89B2BB00FC417F /* VideoRecorder.m in Sources */,
+				3187771E1C89B2BB00FC417F /* VideoRecorder.mm in Sources */,
 				3187764C1C855EBD00FC417F /* LiveClipReader.m in Sources */,
 				319207A81C854AA60017C818 /* irtc.m in Sources */,
 				318777191C89B21700FC417F /* MP4Atom.m in Sources */,
@@ -629,7 +629,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = Test/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ideawu.test.Test;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -645,7 +645,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = Test/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ideawu.test.Test;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;

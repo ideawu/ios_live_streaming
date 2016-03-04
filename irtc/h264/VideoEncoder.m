@@ -12,25 +12,22 @@
 
 @synthesize path = _path;
 
-+ (VideoEncoder*) encoderForPath:(NSString*) path Height:(int) height andWidth:(int) width
-{
++ (VideoEncoder*) encoderForPath:(NSString*)path Height:(int)height andWidth:(int)width bitrate:(int)bitrate{
     VideoEncoder* enc = [VideoEncoder alloc];
+	enc.bitrate = bitrate;
     [enc initPath:path Height:height andWidth:width];
     return enc;
 }
 
 
-- (void) initPath:(NSString*)path Height:(int) height andWidth:(int) width
-{
+- (void) initPath:(NSString*)path Height:(int) height andWidth:(int) width{
     self.path = path;
-	_bitrate = 44100.0;
-    
+
     [[NSFileManager defaultManager] removeItemAtPath:self.path error:nil];
     NSURL* url = [NSURL fileURLWithPath:self.path];
 	
 	NSLog(@"encoder %@", url.absoluteString);
     _writer = [AVAssetWriter assetWriterWithURL:url fileType:AVFileTypeMPEG4 error:nil];
-	//_writer = [AVAssetWriter assetWriterWithURL:url fileType:AVFileTypeMPEG4 error:nil];
 	NSDictionary* settings;
 	settings = @{
 				 AVVideoCodecKey: AVVideoCodecH264,
@@ -38,25 +35,26 @@
 				 AVVideoHeightKey: @(height),
 				 AVVideoCompressionPropertiesKey: @{
 						 AVVideoAverageBitRateKey: @(_bitrate),
-						 AVVideoMaxKeyFrameIntervalKey: @(150),
+						 AVVideoMaxKeyFrameIntervalKey: @(90),
+#if !TARGET_OS_MAC
 						 AVVideoAllowFrameReorderingKey: @YES,
+#endif
 						 AVVideoProfileLevelKey: AVVideoProfileLevelH264BaselineAutoLevel,
+						 // belows require OS X 10.10+
+						 //AVVideoH264EntropyModeKey: AVVideoH264EntropyModeCAVLC,
+						 //AVVideoExpectedSourceFrameRateKey: @(30),
 						 },
-				 // belows require OS X 10.10+
-				 //AVVideoH264EntropyModeKey: AVVideoH264EntropyModeCAVLC,
-				 //AVVideoExpectedSourceFrameRateKey: @(30),
-				 //AVVideoAllowFrameReorderingKey: @NO,
 				 };
-#if TARGET_OS_MAC
-#ifdef NSFoundationVersionNumber10_9_2
-	if(NSFoundationVersionNumber <= NSFoundationVersionNumber10_9_2){
+//#if TARGET_OS_MAC
+//#ifdef NSFoundationVersionNumber10_9_2
+//	if(NSFoundationVersionNumber <= NSFoundationVersionNumber10_9_2){
 //		NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:settings];
 //		// AVVideoCodecH264 not working right with OS X 10.9-
 //		[dict setObject:AVVideoCodecJPEG forKey:AVVideoCodecKey];
 //		settings = dict;
-	}
-#endif
-#endif
+//	}
+//#endif
+//#endif
     _writerInput = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:settings];
     _writerInput.expectsMediaDataInRealTime = YES;
     [_writer addInput:_writerInput];

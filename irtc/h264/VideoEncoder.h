@@ -17,12 +17,12 @@
     AVAssetWriter* _writer;
     AVAssetWriterInput* _writerInput;
     NSString* _path;
-	double _bitrate;
 }
 
 @property NSString* path;
+@property int bitrate;
 
-+ (VideoEncoder*) encoderForPath:(NSString*) path Height:(int) height andWidth:(int) width;
++ (VideoEncoder*) encoderForPath:(NSString*)path Height:(int)height andWidth:(int)width bitrate:(int)bitrate;
 
 - (void) initPath:(NSString*)path Height:(int) height andWidth:(int) width;
 - (void) finishWithCompletionHandler:(void (^)(void))handler;

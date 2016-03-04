@@ -14,8 +14,8 @@ static unsigned int to_host(unsigned char* p)
     return (p[0] << 24) + (p[1] << 16) + (p[2] << 8) + p[3];
 }
 
-#define OUTPUT_FILE_SWITCH_POINT (50 * 1024 * 1024)  // 50 MB switch point
-#define MAX_FILENAME_INDEX  5                       // filenames "capture1.mp4" wraps at capture5.mp4
+#define OUTPUT_FILE_SWITCH_POINT (50 * 1024 * 1024)  // 10 MB switch point
+#define MAX_FILENAME_INDEX  5                        // filenames "capture1.mp4" wraps at capture5.mp4
 
 // store the calculated POC with a frame ready for timestamp assessment
 // (recalculating POC out of order will get an incorrect result)
@@ -24,6 +24,7 @@ static unsigned int to_host(unsigned char* p)
 - (EncodedFrame*) initWithData:(NSArray*) nalus andPOC:(int) poc;
 
 @property int poc;
+// 包含 1 或 2 帧
 @property NSArray* frame;
 
 @end
@@ -105,9 +106,10 @@ static unsigned int to_host(unsigned char* p)
 
 @synthesize bitspersecond = _bitspersecond;
 
-+ (AVEncoder*) encoderForHeight:(int) height andWidth:(int) width
++ (AVEncoder*) encoderForHeight:(int) height andWidth:(int) width bitrate:(int)bitrate
 {
     AVEncoder* enc = [AVEncoder alloc];
+	enc.bitrate = bitrate;
     [enc initForHeight:height andWidth:width];
     return enc;
 }
@@ -123,12 +125,12 @@ static unsigned int to_host(unsigned char* p)
     _height = height;
     _width = width;
     NSString* path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"params.mp4"];
-    _headerWriter = [VideoEncoder encoderForPath:path Height:height andWidth:width];
+    _headerWriter = [VideoEncoder encoderForPath:path Height:height andWidth:width bitrate:_bitrate];
     _times = [NSMutableArray arrayWithCapacity:10];
     
     // swap between 3 filenames
     _currentFile = 1;
-    _writer = [VideoEncoder encoderForPath:[self makeFilename] Height:height andWidth:width];
+    _writer = [VideoEncoder encoderForPath:[self makeFilename] Height:height andWidth:width bitrate:_bitrate];
 }
 
 - (void) encodeWithBlock:(encoder_handler_t) block onParams: (param_handler_t) paramsHandler
@@ -263,9 +265,8 @@ static unsigned int to_host(unsigned char* p)
             }
         }
     }
-    CMTime prestime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-    double dPTS = (double)(prestime.value) / prestime.timescale;
-    NSNumber* pts = [NSNumber numberWithDouble:dPTS];
+    double prestime = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
+    NSNumber* pts = [NSNumber numberWithDouble:prestime];
     
     @synchronized(_times)
     {
@@ -290,7 +291,7 @@ static unsigned int to_host(unsigned char* p)
                     _currentFile = 1;
                 }
                 NSLog(@"Swap to file %d", _currentFile);
-                _writer = [VideoEncoder encoderForPath:[self makeFilename] Height:_height andWidth:_width];
+                _writer = [VideoEncoder encoderForPath:[self makeFilename] Height:_height andWidth:_width bitrate:_bitrate];
                 
                 
                 // to do this seamlessly requires a few steps in the right order
