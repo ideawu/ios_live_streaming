@@ -243,6 +243,7 @@ static unsigned int to_host(unsigned char* p)
     }
 }
 
+// rename encodeSampleBuffer
 - (void) encodeFrame:(CMSampleBufferRef) sampleBuffer
 {
     @synchronized(self)
