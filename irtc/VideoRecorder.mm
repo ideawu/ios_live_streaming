@@ -8,6 +8,7 @@
 
 #import "VideoRecorder.h"
 #import "AVEncoder.h"
+#import "VideoClip.h"
 
 @interface VideoRecorder()<AVCaptureVideoDataOutputSampleBufferDelegate>{
 	AVCaptureDevice *videoDevice;
@@ -19,14 +20,13 @@
 
 	double _pts_start;
 	double _pts_end;
+	
+	VideoClip *_clip;
 }
 @property (nonatomic) int fps;
 @property (nonatomic) int width;
 @property (nonatomic) int height;
 @property (nonatomic) AVEncoder* encoder;
-@property (nonatomic) NSData *naluStartCode;
-@property (nonatomic) NSMutableData *videoSPSandPPS;
-@property (nonatomic) NSMutableArray *frames;
 @end
 
 @implementation VideoRecorder
@@ -36,7 +36,7 @@
 	_fps = 30; // 需要在设备初始化之后更新为实际的值
 	_width = 360;
 	_height = 480;
-	_frames = [[NSMutableArray alloc] init];
+	_clip = [[VideoClip alloc] init];
 	[self setupDevices];
 	return self;
 }
@@ -93,92 +93,57 @@
 	}
 }
 
-- (void) initializeNALUnitStartCode {
-	char codes[4];
-	codes[0] = 0x00;
-	codes[1] = 0x00;
-	codes[2] = 0x00;
-	codes[3] = 0x01;
-	_naluStartCode = [NSData dataWithBytes:codes length:4];
-}
-
 - (void)start{
-	[self initializeNALUnitStartCode];
-
 	_encoder = [AVEncoder encoderForHeight:_height andWidth:_width bitrate:100*1024];
 	[_encoder encodeWithBlock:^int(NSArray *frames, double pts) {
 		[self processFrames:frames pts:pts];
 		return 0;
 	} onParams:^int(NSData *params) {
-		NSLog(@"params: %@", params);
-		[self generateSPSandPPS];
+		[self processParams:params];
 		return 0;
 	}];
 
 	[_session startRunning];
 }
 
-- (void)generateSPSandPPS {
-	NSData* config = _encoder.getConfigData;
-	if (!config) {
-		return;
+- (void)processParams:(NSData *)params{
+	NSLog(@"params: %@", params);
+	avcCHeader avcC((const BYTE*)[params bytes], (int)[params length]);
+	//	SeqParamSet seqParams;
+	//	seqParams.Parse(avcC.sps());
+	_clip.sps = [NSData dataWithBytes:avcC.sps()->Start() length:avcC.sps()->Length()];
+	_clip.pps = [NSData dataWithBytes:avcC.pps()->Start() length:avcC.pps()->Length()];
+	
+	NSMutableString *desc = [[NSMutableString alloc] init];
+	[desc appendString:@"sps:"];
+	for(int i=0; i<_clip.sps.length; i++){
+		unsigned char c = ((const unsigned char *)_clip.sps.bytes)[i];
+		[desc appendFormat:@" %02x", c];
 	}
-	avcCHeader avcC((const BYTE*)[config bytes], (int)[config length]);
-	SeqParamSet seqParams;
-	seqParams.Parse(avcC.sps());
-
-	NSData* spsData = [NSData dataWithBytes:avcC.sps()->Start() length:avcC.sps()->Length()];
-	NSData *ppsData = [NSData dataWithBytes:avcC.pps()->Start() length:avcC.pps()->Length()];
-
-	_videoSPSandPPS = [NSMutableData dataWithCapacity:avcC.sps()->Length() + avcC.pps()->Length() + _naluStartCode.length * 2];
-	[_videoSPSandPPS appendData:_naluStartCode];
-	[_videoSPSandPPS appendData:spsData];
-	[_videoSPSandPPS appendData:_naluStartCode];
-	[_videoSPSandPPS appendData:ppsData];
-	NSLog(@"_videoSPSandPPS: %@", _videoSPSandPPS);
+	[desc appendString:@" pps:"];
+	for(int i=0; i<_clip.pps.length; i++){
+		unsigned char c = ((const unsigned char *)_clip.pps.bytes)[i];
+		[desc appendFormat:@" %02x", c];
+	}
+	NSLog(@"%@", desc);
 }
 
 - (void)processFrames:(NSArray *)frames pts:(double)pts{
-	//NSLog(@"pts: %f", pts);
-	if(_frames.count == 0){
-		_pts_start = pts;
+	for (NSData *data in frames){
+		[_clip appendFrame:data pts:pts];
 	}
-	[_frames addObjectsFromArray:frames];
-	_pts_end = pts;
 
-	// 根据时间, 计算出 chunk 应该包含的帧数
-	double chunk_duration = 0.3;
-	if(_pts_end - _pts_start > chunk_duration){
-		NSMutableData *bytes = [NSMutableData data];
-		NSData *sei = nil; // Supplemental enhancement information
-		BOOL hasKeyframe = NO;
-		for (NSData *data in _frames) {
-			unsigned char* pNal = (unsigned char*)[data bytes];
-			int nal_ref_bit = pNal[0] & 0x60;
-			int nal_type = pNal[0] & 0x1f;
-			if (nal_ref_bit == 0 && nal_type == 6) { // SEI
-				sei = data;
-				continue;
-			} else if (nal_type == 5) { // IDR
-				hasKeyframe = YES;
-				[bytes appendData:_videoSPSandPPS];
-				if (sei) {
-					[self appendNALUWithFrame:sei toData:bytes];
-					sei = nil;
-				}
-				[self appendNALUWithFrame:data toData:bytes];
-			} else {
-				[self appendNALUWithFrame:data toData:bytes];
-			}
-		}
-		NSLog(@"%2d frames[%.3f ~ %.3f] to send, %5d bytes, has_key_frame: %@", (int)_frames.count, _pts_start, _pts_end, (int)bytes.length, hasKeyframe?@"yes":@"no");
-		[_frames removeAllObjects];
+	double max_chunk_duration = 0.3;
+	if(_clip.duration >= max_chunk_duration){
+		NSData *data = _clip.data;
+		NSLog(@"%2d frames[%.3f ~ %.3f] to send, %5d bytes, has_i_frame: %@",
+			  _clip.frameCount, _clip.startTime, _clip.endTime, (int)data.length,
+			  _clip.hasIFrame?@"yes":@"no");
+		
+		VideoClip *c = [VideoClip clipFromData:data];
+		
+		[_clip reset];
 	}
-}
-
-- (void)appendNALUWithFrame:(NSData *)frame toData:(NSMutableData *)data{
-	[data appendData:_naluStartCode];
-	[data appendData:frame];
 }
 
 #pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate

@@ -45,7 +45,6 @@ static unsigned int to_host(unsigned char* p)
 
 
 @interface AVEncoder ()
-
 {
     // initial writer, used to obtain SPS/PPS from header
     VideoEncoder* _headerWriter;
@@ -131,6 +130,8 @@ static unsigned int to_host(unsigned char* p)
     // swap between 3 filenames
     _currentFile = 1;
     _writer = [VideoEncoder encoderForPath:[self makeFilename] Height:height andWidth:width bitrate:_bitrate];
+
+	_frames = [NSMutableArray arrayWithCapacity:2];
 }
 
 - (void) encodeWithBlock:(encoder_handler_t) block onParams: (param_handler_t) paramsHandler
@@ -509,10 +510,6 @@ static unsigned int to_host(unsigned char* p)
             // timestamps in order of POC
             [self processStoredFrames];
             _prevPOC = poc;
-        }
-        if (_frames == nil)
-        {
-            _frames = [NSMutableArray arrayWithCapacity:2];
         }
         [_frames addObject:f];
     }
