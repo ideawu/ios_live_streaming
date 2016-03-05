@@ -46,6 +46,9 @@
 
 @property (nonatomic, readonly) AVCaptureSession *session;
 
+// TODO
+@property (nonatomic, retain) AVSampleBufferDisplayLayer *videoLayer;
+
 - (void)start;
 
 @end

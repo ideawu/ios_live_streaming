@@ -9,12 +9,12 @@
 #import "AppDelegate.h"
 #import "PlayerController.h"
 #import "RecorderController.h"
-#import "VideoRecorder.h"
+#import "TestController.h"
 
 @interface AppDelegate (){
 	PlayerController *_player;
 	RecorderController *_recorder;
-	VideoRecorder *_vr;
+	TestController *_test;
 }
 
 @property (weak) IBOutlet NSWindow *window;
@@ -31,8 +31,8 @@
 //	[_player showWindow:self];
 //	[_recorder showWindow:self];
 	
-	_vr = [[VideoRecorder alloc] init];
-	[_vr start];
+	_test = [[TestController alloc] initWithWindowNibName:@"TestController"];
+	[_test showWindow:self];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {

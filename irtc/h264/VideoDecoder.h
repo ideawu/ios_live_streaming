@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
 #import <VideoToolbox/VideoToolbox.h>
 
 /*
@@ -18,5 +19,10 @@
  */
 
 @interface VideoDecoder : NSObject
+
+@property (nonatomic, retain) AVSampleBufferDisplayLayer *videoLayer;
+
+- (void)setSps:(NSData *)sps pps:(NSData *)pps;
+- (void)processFrame:(NSData *)frame pts:(double)pts;
 
 @end

@@ -9,6 +9,7 @@
 #import "VideoRecorder.h"
 #import "AVEncoder.h"
 #import "VideoClip.h"
+#import "VideoDecoder.h"
 
 @interface VideoRecorder()<AVCaptureVideoDataOutputSampleBufferDelegate>{
 	AVCaptureDevice *videoDevice;
@@ -23,7 +24,6 @@
 	
 	VideoClip *_clip;
 }
-@property (nonatomic) int fps;
 @property (nonatomic) int width;
 @property (nonatomic) int height;
 @property (nonatomic) AVEncoder* encoder;
@@ -33,7 +33,6 @@
 
 - (id)init{
 	self = [super init];
-	_fps = 30; // 需要在设备初始化之后更新为实际的值
 	_width = 360;
 	_height = 480;
 	_clip = [[VideoClip alloc] init];
@@ -47,7 +46,8 @@
 	_processQueue = dispatch_queue_create("process", DISPATCH_QUEUE_SERIAL);
 	
 	_session = [[AVCaptureSession alloc] init];
-	
+	[_session setSessionPreset:AVCaptureSessionPreset640x480];
+
 	videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
 	for(AVCaptureDevice *dev in [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo]){
 		if(dev.position == AVCaptureDevicePositionFront){
@@ -56,17 +56,6 @@
 		}
 	}
 	videoInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
-	
-	for(AVFrameRateRange *range in videoDevice.activeFormat.videoSupportedFrameRateRanges){
-		if(range.minFrameRate <= _fps && range.maxFrameRate >= _fps){
-			if([videoDevice lockForConfiguration:nil]){
-				videoDevice.activeVideoMinFrameDuration = CMTimeMake(1, _fps);
-				videoDevice.activeVideoMaxFrameDuration = CMTimeMake(1, _fps);
-				[videoDevice unlockForConfiguration];
-				break;
-			}
-		}
-	}
 
 	_videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
 	[_videoDataOutput setSampleBufferDelegate:self queue:_captureQueue];
@@ -74,9 +63,8 @@
 							   (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
 							   };
 	_videoDataOutput.videoSettings = settings;
-	
+
 	[_session beginConfiguration];
-	[_session setSessionPreset:AVCaptureSessionPresetMedium];
 	[_session addOutput:_videoDataOutput];
 	[_session addInput:videoInput];
 	[_session commitConfiguration];
@@ -94,7 +82,7 @@
 }
 
 - (void)start{
-	_encoder = [AVEncoder encoderForHeight:_height andWidth:_width bitrate:100*1024];
+	_encoder = [AVEncoder encoderForHeight:_height andWidth:_width bitrate:200*1024];
 	[_encoder encodeWithBlock:^int(NSArray *frames, double pts) {
 		[self processFrames:frames pts:pts];
 		return 0;
@@ -139,9 +127,23 @@
 		NSLog(@"%2d frames[%.3f ~ %.3f] to send, %5d bytes, has_i_frame: %@",
 			  _clip.frameCount, _clip.startTime, _clip.endTime, (int)data.length,
 			  _clip.hasIFrame?@"yes":@"no");
-		
+
+		static VideoClip *last_c = NULL;
 		VideoClip *c = [VideoClip clipFromData:data];
-		
+		if(c.sps){
+			last_c = c;
+		}
+		VideoDecoder *decoder = [[VideoDecoder alloc] init];
+		decoder.videoLayer = _videoLayer;
+		[decoder setSps:last_c.sps pps:last_c.pps];
+
+		double pts = 0;
+		double frameDuration = c.duration / c.frameCount;
+		for(NSData *frame in c.frames){
+			[decoder processFrame:frame pts:pts];
+			pts += frameDuration;
+		}
+
 		[_clip reset];
 	}
 }

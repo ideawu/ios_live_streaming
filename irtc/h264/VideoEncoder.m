@@ -37,7 +37,7 @@
 						 AVVideoAverageBitRateKey: @(_bitrate),
 						 AVVideoMaxKeyFrameIntervalKey: @(90),
 #if !TARGET_OS_MAC
-						 AVVideoAllowFrameReorderingKey: @YES,
+						 AVVideoAllowFrameReorderingKey: @(YES)),
 #endif
 						 AVVideoProfileLevelKey: AVVideoProfileLevelH264BaselineAutoLevel,
 						 // belows require OS X 10.10+
@@ -45,16 +45,6 @@
 						 //AVVideoExpectedSourceFrameRateKey: @(30),
 						 },
 				 };
-//#if TARGET_OS_MAC
-//#ifdef NSFoundationVersionNumber10_9_2
-//	if(NSFoundationVersionNumber <= NSFoundationVersionNumber10_9_2){
-//		NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:settings];
-//		// AVVideoCodecH264 not working right with OS X 10.9-
-//		[dict setObject:AVVideoCodecJPEG forKey:AVVideoCodecKey];
-//		settings = dict;
-//	}
-//#endif
-//#endif
     _writerInput = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:settings];
     _writerInput.expectsMediaDataInRealTime = YES;
     [_writer addInput:_writerInput];

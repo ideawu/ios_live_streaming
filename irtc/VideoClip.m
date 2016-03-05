@@ -11,7 +11,6 @@
 @interface VideoClip(){
 	NSData *_naluStartCode;
 }
-@property NSMutableArray *frames;
 @end
 
 @implementation VideoClip
@@ -91,13 +90,12 @@
 	[ret appendData:[[self metastr] dataUsingEncoding:NSUTF8StringEncoding]];
 	
 	for (NSData *frame in _frames) {
-		unsigned char* pNal = (unsigned char*)[frame bytes];
+		uint8_t *pNal = (uint8_t*)[frame bytes];
 		int nal_ref_idc = pNal[0] & 0x60;
 		int nal_type = pNal[0] & 0x1f;
 		if (nal_ref_idc == 0 && nal_type == 6) { // SEI
 			_sei = frame;
 		} else if (nal_type == 5) { // I Frame
-			// build IDR
 			[self appendNALUWithFrame:_sps toData:ret];
 			[self appendNALUWithFrame:_pps toData:ret];
 			if (_sei) {
@@ -152,7 +150,7 @@
 		NSData *frame = [data subdataWithRange:NSMakeRange(pos, range.location - pos)];
 		//NSLog(@"parsed frame: %d", (int)frame.length);
 		
-		unsigned char* pNal = (unsigned char*)[frame bytes];
+		uint8_t *pNal = (uint8_t*)[frame bytes];
 		int nal_ref_idc = pNal[0] & 0x60;
 		int nal_type = pNal[0] & 0x1f;
 		if(nal_type == 7){

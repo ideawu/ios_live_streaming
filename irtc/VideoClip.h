@@ -18,6 +18,7 @@
 
 @property NSData *sps;
 @property NSData *pps;
+@property NSMutableArray *frames;
 
 + (VideoClip *)clipFromData:(NSData *)data;
 
