@@ -136,13 +136,10 @@
 	[_videoSPSandPPS appendData:_naluStartCode];
 	[_videoSPSandPPS appendData:ppsData];
 	NSLog(@"_videoSPSandPPS: %@", _videoSPSandPPS);
-	for(int i=0; i<_videoSPSandPPS.length; i++){
-		NSLog(@"%02X", ((char *)_videoSPSandPPS.bytes)[i]);
-	}
 }
 
 - (void)processFrames:(NSArray *)frames pts:(double)pts{
-	NSLog(@"pts: %f", pts);
+	//NSLog(@"pts: %f", pts);
 	if(_frames.count == 0){
 		_pts_start = pts;
 	}
@@ -152,39 +149,36 @@
 	// 根据时间, 计算出 chunk 应该包含的帧数
 	double chunk_duration = 0.3;
 	if(_pts_end - _pts_start > chunk_duration){
-		NSMutableData *aggregateFrameData = [NSMutableData data];
+		NSMutableData *bytes = [NSMutableData data];
 		NSData *sei = nil; // Supplemental enhancement information
 		BOOL hasKeyframe = NO;
 		for (NSData *data in _frames) {
 			unsigned char* pNal = (unsigned char*)[data bytes];
-			int idc = pNal[0] & 0x60;
-			int naltype = pNal[0] & 0x1f;
-			NSData *videoData = nil;
-
-			if (idc == 0 && naltype == 6) { // SEI
+			int nal_ref_bit = pNal[0] & 0x60;
+			int nal_type = pNal[0] & 0x1f;
+			if (nal_ref_bit == 0 && nal_type == 6) { // SEI
 				sei = data;
 				continue;
-			} else if (naltype == 5) { // IDR
+			} else if (nal_type == 5) { // IDR
 				hasKeyframe = YES;
-				NSMutableData *IDRData = [NSMutableData dataWithData:_videoSPSandPPS];
+				[bytes appendData:_videoSPSandPPS];
 				if (sei) {
-					[IDRData appendData:_naluStartCode];
-					[IDRData appendData:sei];
+					[self appendNALUWithFrame:sei toData:bytes];
 					sei = nil;
 				}
-				[IDRData appendData:_naluStartCode];
-				[IDRData appendData:data];
-				videoData = IDRData;
+				[self appendNALUWithFrame:data toData:bytes];
 			} else {
-				NSMutableData *regularData = [NSMutableData dataWithData:_naluStartCode];
-				[regularData appendData:data];
-				videoData = regularData;
+				[self appendNALUWithFrame:data toData:bytes];
 			}
-			[aggregateFrameData appendData:videoData];
 		}
+		NSLog(@"%2d frames[%.3f ~ %.3f] to send, %5d bytes, has_key_frame: %@", (int)_frames.count, _pts_start, _pts_end, (int)bytes.length, hasKeyframe?@"yes":@"no");
 		[_frames removeAllObjects];
-		NSLog(@"%d frames[%.3f ~ %.3f] to send", (int)aggregateFrameData.length, _pts_start, _pts_end);
 	}
+}
+
+- (void)appendNALUWithFrame:(NSData *)frame toData:(NSMutableData *)data{
+	[data appendData:_naluStartCode];
+	[data appendData:frame];
 }
 
 #pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate

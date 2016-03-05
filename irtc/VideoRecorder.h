@@ -19,6 +19,9 @@
  PPS: Picture Parameter Set
  NAL: Network Abstract Layer
  POC: ?
+ IDR: Instantaneous Decoder Refresh
+	IDR = SPS + PPS + I frame + frames
+ SEI: Supplemental Enhancement Information
 
  NAL Unit 格式: 帧分隔符(3) + type(1) + ...
 	type:
