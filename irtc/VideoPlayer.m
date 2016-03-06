@@ -43,7 +43,16 @@
 	double pts = 0;
 	double frameDuration = clip.duration / clip.frameCount;
 	for(NSData *frame in clip.frames){
-		[self processFrame:frame pts:pts];
+		CMSampleBufferRef sampleBuffer = [self processFrame:frame];
+		if(sampleBuffer){
+			double delay = pts;
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[_videoLayer performSelector:@selector(enqueueSampleBuffer:)
+								  withObject:(__bridge id)(sampleBuffer)
+								  afterDelay:delay];
+				CFRelease(sampleBuffer);
+			});
+		}
 		pts += frameDuration;
 	}
 }
@@ -61,7 +70,8 @@
 	if(status != noErr) NSLog(@"Create Format Description ERROR: %d", (int)status);
 }
 
-- (void)processFrame:(NSData *)frame pts:(double)pts{
+// 调用者负责释放内存
+- (CMSampleBufferRef)processFrame:(NSData *)frame{
 	uint8_t *pNal = (uint8_t*)[frame bytes];
 	//int nal_ref_idc = pNal[0] & 0x60;
 	int nal_type = pNal[0] & 0x1f;
@@ -91,9 +101,6 @@
 													0, // offsetToData
 													nalu_len, // dataLength of relevant bytes, starting at offsetToData
 													0, &blockBuffer);
-
-		//		NSLog(@"\t\t BlockBufferCreation: \t %@", (status == kCMBlockBufferNoErr) ? @"successful!" : @"failed...");
-
 		if(status == noErr){
 			const size_t sampleSize = nalu_len;
 			status = CMSampleBufferCreate(kCFAllocatorDefault,
@@ -106,20 +113,20 @@
 			//			NSLog(@"\t\t SampleBufferCreate: \t %@", (status == noErr) ? @"successful!" : @"failed...");
 		}
 
+		//free(data); //由 blockBuffer 释放
+		// 在这里可以放心地 release blockBuffer, 而且必须 release, 因为 sampleBuffer 已经 retain 了
+		CFRelease(blockBuffer);
+
 		if(status == noErr){
 			// set some values of the sample buffer's attachments
 			CFArrayRef attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, YES);
 			CFMutableDictionaryRef dict = (CFMutableDictionaryRef)CFArrayGetValueAtIndex(attachments, 0);
 			CFDictionarySetValue(dict, kCMSampleAttachmentKey_DisplayImmediately, kCFBooleanTrue);
 			// either send the samplebuffer to a VTDecompressionSession or to an AVSampleBufferDisplayLayer
+			return sampleBuffer;
 		}
-
-		dispatch_async(dispatch_get_main_queue(), ^{
-			[_videoLayer performSelector:@selector(enqueueSampleBuffer:) withObject:(__bridge id)(sampleBuffer) afterDelay:pts];
-			CFRelease(blockBuffer);
-			CFRelease(sampleBuffer);
-		});
 	}
+	return NULL;
 }
 
 //- (void)receivedRawVideoFrame:(uint8_t *)frame withSize:(uint32_t)frameSize isIFrame:(int)isIFrame{
