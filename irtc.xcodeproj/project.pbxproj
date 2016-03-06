@@ -11,6 +11,7 @@
 		0814205A1C8B287800A2B03E /* VideoDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 318777311C8AD26B00FC417F /* VideoDecoder.m */; };
 		0814205E1C8B2F9500A2B03E /* TestController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0814205C1C8B2F9500A2B03E /* TestController.m */; };
 		0814205F1C8B2F9500A2B03E /* TestController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0814205D1C8B2F9500A2B03E /* TestController.xib */; };
+		081420621C8C37CF00A2B03E /* VideoPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 081420611C8C37CF00A2B03E /* VideoPlayer.m */; };
 		318776431C85598200FC417F /* LiveClipWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776401C85598200FC417F /* LiveClipWriter.m */; };
 		318776441C85598200FC417F /* LiveRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776421C85598200FC417F /* LiveRecorder.m */; };
 		318776471C855A3600FC417F /* libirtc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 319207A21C854AA60017C818 /* libirtc.a */; };
@@ -103,6 +104,8 @@
 		0814205B1C8B2F9500A2B03E /* TestController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestController.h; sourceTree = "<group>"; };
 		0814205C1C8B2F9500A2B03E /* TestController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestController.m; sourceTree = "<group>"; };
 		0814205D1C8B2F9500A2B03E /* TestController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TestController.xib; sourceTree = "<group>"; };
+		081420601C8C37CF00A2B03E /* VideoPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPlayer.h; sourceTree = "<group>"; };
+		081420611C8C37CF00A2B03E /* VideoPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoPlayer.m; sourceTree = "<group>"; };
 		3187763F1C85598200FC417F /* LiveClipWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveClipWriter.h; sourceTree = "<group>"; };
 		318776401C85598200FC417F /* LiveClipWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveClipWriter.m; sourceTree = "<group>"; };
 		318776411C85598200FC417F /* LiveRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveRecorder.h; sourceTree = "<group>"; };
@@ -377,6 +380,8 @@
 				318776421C85598200FC417F /* LiveRecorder.m */,
 				3187771C1C89B2BB00FC417F /* VideoRecorder.h */,
 				3187771D1C89B2BB00FC417F /* VideoRecorder.mm */,
+				081420601C8C37CF00A2B03E /* VideoPlayer.h */,
+				081420611C8C37CF00A2B03E /* VideoPlayer.m */,
 				318777331C8AE33100FC417F /* VideoClip.h */,
 				318777341C8AE33100FC417F /* VideoClip.m */,
 				3187770F1C89B21700FC417F /* h264 */,
@@ -597,6 +602,7 @@
 				318776431C85598200FC417F /* LiveClipWriter.m in Sources */,
 				3187771E1C89B2BB00FC417F /* VideoRecorder.mm in Sources */,
 				3187764C1C855EBD00FC417F /* LiveClipReader.m in Sources */,
+				081420621C8C37CF00A2B03E /* VideoPlayer.m in Sources */,
 				319207A81C854AA60017C818 /* irtc.m in Sources */,
 				318777191C89B21700FC417F /* MP4Atom.m in Sources */,
 				3187771B1C89B21700FC417F /* VideoEncoder.m in Sources */,

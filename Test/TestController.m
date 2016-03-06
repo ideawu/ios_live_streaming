@@ -9,10 +9,11 @@
 #import "TestController.h"
 #import <AVFoundation/AVFoundation.h>
 #import "VideoRecorder.h"
+#import "VideoDecoder.h"
 
 @interface TestController (){
 	AVSampleBufferDisplayLayer *videoLayer;
-	VideoRecorder *_vr;
+	VideoRecorder *_recorder;
 }
 
 @end
@@ -41,9 +42,36 @@
 	[[self.videoView layer] addSublayer:videoLayer];
 
 
-	_vr = [[VideoRecorder alloc] init];
-	_vr.videoLayer = videoLayer;
-	[_vr start];
+	VideoDecoder *decoder = [[VideoDecoder alloc] init];
+	decoder.videoLayer = videoLayer;
+
+	_recorder = [[VideoRecorder alloc] init];
+
+	[_recorder start:^(VideoClip *clip) {
+		NSData *data = clip.data;
+		NSLog(@"%2d frames[%.3f ~ %.3f] to send, %5d bytes, has_i_frame: %@",
+			  clip.frameCount, clip.startTime, clip.endTime, (int)data.length,
+			  clip.hasIFrame?@"yes":@"no");
+
+		VideoClip *c = [VideoClip clipFromData:data];
+		static BOOL started = NO;
+		if(!started){
+			if(c.sps){
+				[decoder setSps:c.sps pps:c.pps];
+				started = YES;
+			}else{
+				NSLog(@"not started, expecting sps and pps");
+				return;
+			}
+		}
+
+		double pts = 0;
+		double frameDuration = c.duration / c.frameCount;
+		for(NSData *frame in c.frames){
+			[decoder processFrame:frame pts:pts];
+			pts += frameDuration;
+		}
+	}];
 
 
 }

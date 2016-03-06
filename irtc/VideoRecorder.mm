@@ -23,7 +23,12 @@
 	double _pts_end;
 	
 	VideoClip *_clip;
+	void (^_clipCallback)(VideoClip *clip);
+
+	NSData *_sps;
+	NSData *_pps;
 }
+@property (nonatomic, readonly) AVCaptureSession *session;
 @property (nonatomic) int width;
 @property (nonatomic) int height;
 @property (nonatomic) AVEncoder* encoder;
@@ -35,7 +40,7 @@
 	self = [super init];
 	_width = 360;
 	_height = 480;
-	_clip = [[VideoClip alloc] init];
+	_maxClipDuration = 0.3;
 	[self setupDevices];
 	return self;
 }
@@ -81,7 +86,9 @@
 	}
 }
 
-- (void)start{
+- (void)start:(void (^)(VideoClip *clip))callback{
+	_clipCallback = callback;
+	
 	_encoder = [AVEncoder encoderForHeight:_height andWidth:_width bitrate:200*1024];
 	[_encoder encodeWithBlock:^int(NSArray *frames, double pts) {
 		[self processFrames:frames pts:pts];
@@ -99,52 +106,38 @@
 	avcCHeader avcC((const BYTE*)[params bytes], (int)[params length]);
 	//	SeqParamSet seqParams;
 	//	seqParams.Parse(avcC.sps());
-	_clip.sps = [NSData dataWithBytes:avcC.sps()->Start() length:avcC.sps()->Length()];
-	_clip.pps = [NSData dataWithBytes:avcC.pps()->Start() length:avcC.pps()->Length()];
+	_sps = [NSData dataWithBytes:avcC.sps()->Start() length:avcC.sps()->Length()];
+	_pps = [NSData dataWithBytes:avcC.pps()->Start() length:avcC.pps()->Length()];
 	
 	NSMutableString *desc = [[NSMutableString alloc] init];
 	[desc appendString:@"sps:"];
-	for(int i=0; i<_clip.sps.length; i++){
-		unsigned char c = ((const unsigned char *)_clip.sps.bytes)[i];
+	for(int i=0; i<_sps.length; i++){
+		unsigned char c = ((const unsigned char *)_sps.bytes)[i];
 		[desc appendFormat:@" %02x", c];
 	}
 	[desc appendString:@" pps:"];
-	for(int i=0; i<_clip.pps.length; i++){
-		unsigned char c = ((const unsigned char *)_clip.pps.bytes)[i];
+	for(int i=0; i<_pps.length; i++){
+		unsigned char c = ((const unsigned char *)_pps.bytes)[i];
 		[desc appendFormat:@" %02x", c];
 	}
 	NSLog(@"%@", desc);
 }
 
 - (void)processFrames:(NSArray *)frames pts:(double)pts{
+	if(!_clip){
+		_clip = [[VideoClip alloc] init];
+		_clip.sps = _sps;
+		_clip.pps = _pps;
+	}
 	for (NSData *data in frames){
 		[_clip appendFrame:data pts:pts];
 	}
 
-	double max_chunk_duration = 0.3;
-	if(_clip.duration >= max_chunk_duration){
-		NSData *data = _clip.data;
-		NSLog(@"%2d frames[%.3f ~ %.3f] to send, %5d bytes, has_i_frame: %@",
-			  _clip.frameCount, _clip.startTime, _clip.endTime, (int)data.length,
-			  _clip.hasIFrame?@"yes":@"no");
-
-		static VideoClip *last_c = NULL;
-		VideoClip *c = [VideoClip clipFromData:data];
-		if(c.sps){
-			last_c = c;
+	if(_clip.duration >= _maxClipDuration){
+		if(_clipCallback){
+			_clipCallback(_clip);
 		}
-		VideoDecoder *decoder = [[VideoDecoder alloc] init];
-		decoder.videoLayer = _videoLayer;
-		[decoder setSps:last_c.sps pps:last_c.pps];
-
-		double pts = 0;
-		double frameDuration = c.duration / c.frameCount;
-		for(NSData *frame in c.frames){
-			[decoder processFrame:frame pts:pts];
-			pts += frameDuration;
-		}
-
-		[_clip reset];
+		_clip = nil;
 	}
 }
 

@@ -10,6 +10,7 @@
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
 #endif
+#import "VideoClip.h"
 
 /*
  // H.264
@@ -44,11 +45,8 @@
 
 @interface VideoRecorder : NSObject
 
-@property (nonatomic, readonly) AVCaptureSession *session;
+@property (nonatomic) double maxClipDuration;
 
-// TODO
-@property (nonatomic, retain) AVSampleBufferDisplayLayer *videoLayer;
-
-- (void)start;
+- (void)start:(void (^)(VideoClip *clip))callback;
 
 @end
