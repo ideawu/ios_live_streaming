@@ -8,12 +8,9 @@
 
 #import <AVFoundation/AVFoundation.h>
 #import "sys/stat.h"
-#import "VideoEncoder.h"
-#import "MP4Atom.h"
-#import "NALUnit.h"
 
 typedef int (^encoder_handler_t)(NSArray* frames, double pts);
-typedef int (^param_handler_t)(NSData* params);
+typedef int (^param_handler_t)(NSData* sps, NSData *pps);
 
 @interface AVEncoder : NSObject
 

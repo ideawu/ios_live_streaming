@@ -7,9 +7,8 @@
 //
 
 #import "VideoRecorder.h"
-#import "AVEncoder.h"
 #import "VideoClip.h"
-#import "VideoDecoder.h"
+#import "AVEncoder.h"
 
 @interface VideoRecorder()<AVCaptureVideoDataOutputSampleBufferDelegate>{
 	AVCaptureDevice *videoDevice;
@@ -93,21 +92,17 @@
 	[_encoder encodeWithBlock:^int(NSArray *frames, double pts) {
 		[self processFrames:frames pts:pts];
 		return 0;
-	} onParams:^int(NSData *params) {
-		[self processParams:params];
+	} onParams:^int(NSData *sps, NSData *pps) {
+		[self processSps:sps pps:pps];
 		return 0;
 	}];
 
 	[_session startRunning];
 }
 
-- (void)processParams:(NSData *)params{
-	NSLog(@"params: %@", params);
-	avcCHeader avcC((const BYTE*)[params bytes], (int)[params length]);
-	//	SeqParamSet seqParams;
-	//	seqParams.Parse(avcC.sps());
-	_sps = [NSData dataWithBytes:avcC.sps()->Start() length:avcC.sps()->Length()];
-	_pps = [NSData dataWithBytes:avcC.pps()->Start() length:avcC.pps()->Length()];
+- (void)processSps:(NSData *)sps pps:(NSData *)pps{
+	_sps = sps;
+	_pps = pps;
 	
 	NSMutableString *desc = [[NSMutableString alloc] init];
 	[desc appendString:@"sps:"];

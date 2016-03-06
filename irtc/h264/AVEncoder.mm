@@ -8,6 +8,8 @@
 
 #import "AVEncoder.h"
 #import "NALUnit.h"
+#import "MP4Atom.h"
+#import "VideoEncoder.h"
 
 static unsigned int to_host(unsigned char* p)
 {
@@ -229,9 +231,13 @@ static unsigned int to_host(unsigned char* p)
     // main file to extract video from the mdat chunk.
     if ([self parseParams:_headerWriter.path])
     {
-        if (_paramsBlock)
-        {
-            _paramsBlock(_avcC);
+        if (_paramsBlock){
+			avcCHeader avcC((const BYTE*)[_avcC bytes], (int)[_avcC length]);
+			//	SeqParamSet seqParams;
+			//	seqParams.Parse(avcC.sps());
+			NSData *sps = [NSData dataWithBytes:avcC.sps()->Start() length:avcC.sps()->Length()];
+			NSData *pps = [NSData dataWithBytes:avcC.pps()->Start() length:avcC.pps()->Length()];
+            _paramsBlock(sps, pps);
         }
         _headerWriter = nil;
         _swapping = NO;
