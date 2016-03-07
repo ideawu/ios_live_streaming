@@ -10,6 +10,8 @@
 
 @interface VideoClip(){
 	NSData *_naluStartCode;
+	int _nextFrameIndex;
+	double _nextFramePTS;
 }
 @end
 
@@ -33,11 +35,20 @@
 	return _endTime - _startTime;
 }
 
+- (double)frameDuration{
+	if(_frameCount == 0){
+		return 0;
+	}
+	return self.duration / _frameCount;
+}
+
 - (void)reset{
 	_startTime = -1;
 	_endTime = -1;
 	_frameCount = 0;
 	_hasIFrame = NO;
+	_nextFrameIndex = 0;
+	_nextFramePTS = 0;
 	[_frames removeAllObjects];
 }
 
@@ -67,12 +78,6 @@
 
 - (void)appendFrame:(NSData *)frame pts:(double)pts{
 	//NSLog(@"append frame %d", (int)frame.length);
-	if(_startTime == -1){
-		_startTime = pts;
-	}
-	_endTime = pts;
-	[_frames addObject:frame];
-	
 	unsigned char* pNal = (unsigned char*)[frame bytes];
 	int nal_type = pNal[0] & 0x1f;
 	if (nal_type == 5){
@@ -80,8 +85,53 @@
 		_frameCount ++;
 	}else if(nal_type == 1){
 		_frameCount ++;
+	}else if(nal_type == 6){ // SEI
+		// ?
+		NSLog(@"SEI");
+	}else if(nal_type == 7){
+		_sps = frame;
+		return;
+	}else if(nal_type == 8){
+		_pps = frame;
+		return;
+	}else{
+		NSLog(@"unknown nal_type: %d", nal_type);
+		return;
 	}
+	
+	if(_startTime == -1){
+		_startTime = pts;
+	}
+	_endTime = pts;
+	[_frames addObject:frame];
 }
+
+- (NSData *)nextFrame:(double *)pts{
+	if(_nextFrameIndex >= _frames.count){
+		return nil;
+	}
+	if(_nextFramePTS == 0){
+		_nextFramePTS = _startTime;
+	}
+	NSData *frame = [_frames objectAtIndex:_nextFrameIndex];
+	_nextFrameIndex ++;
+	*pts = _nextFramePTS;
+	
+	uint8_t *pNal = (uint8_t*)[frame bytes];
+	int nal_ref_idc = pNal[0] & 0x60;
+	int nal_type = pNal[0] & 0x1f;
+	if (nal_ref_idc == 0 && nal_type == 6) { // SEI
+		//
+	}else{
+		if(_nextFrameIndex == _frames.count - 1){
+			_nextFramePTS = _endTime;
+		}else{
+			_nextFramePTS += self.frameDuration;
+		}
+	}
+	return frame;
+}
+
 
 - (NSData *)data{
 	NSData *_sei = nil;
@@ -151,28 +201,13 @@
 		//NSLog(@"parsed frame: %d", (int)frame.length);
 		
 		uint8_t *pNal = (uint8_t*)[frame bytes];
-		int nal_ref_idc = pNal[0] & 0x60;
 		int nal_type = pNal[0] & 0x1f;
-		if(nal_type == 7){
-			_sps = frame;
-		}else if(nal_type == 8){
-			_pps = frame;
-		}else{
-			if(range.location == data.length){
-				pts = etime;
-			}
-			//NSLog(@"pts: %f, type: %d", pts, nal_type);
-			[self appendFrame:frame pts:pts];
-			if (nal_ref_idc == 0 && nal_type == 6) { // SEI
-				//
-			}else{
-				pts += frameDuration;
-			}
+		[self appendFrame:frame pts:pts];
+		if(nal_type == 1 || nal_type == 5){
+			pts += frameDuration;
 		}
-		
 		pos = range.location + range.length;
 	}
 }
-
 
 @end

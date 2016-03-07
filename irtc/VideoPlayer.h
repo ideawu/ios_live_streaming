@@ -9,14 +9,6 @@
 #import <AVFoundation/AVFoundation.h>
 #import "VideoClip.h"
 
-/*
- http://stackoverflow.com/questions/29525000/how-to-use-videotoolbox-to-decompress-h-264-video-stream/
-
-
- Video Deocde Acceleration Framework for Mac
- https://developer.apple.com/library/mac/technotes/tn2267/_index.html
- */
-
 @interface VideoPlayer : NSObject
 
 @property (nonatomic, retain) AVSampleBufferDisplayLayer *videoLayer;

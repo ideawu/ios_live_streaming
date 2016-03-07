@@ -6,7 +6,7 @@
 //  Copyright © 2016 ideawu. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
 
 @interface VideoClip : NSObject
 
@@ -14,6 +14,7 @@
 @property (readonly) double startTime;
 @property (readonly) double endTime;
 @property (readonly) int frameCount;
+@property (readonly) double frameDuration;
 @property (readonly) BOOL hasIFrame;
 
 @property NSData *sps;
@@ -22,10 +23,11 @@
 
 + (VideoClip *)clipFromData:(NSData *)data;
 
-
 - (NSData *)data;
 
 - (void)reset;
 - (void)appendFrame:(NSData *)frames pts:(double)pts;
+
+- (NSData *)nextFrame:(double *)pts;
 
 @end
