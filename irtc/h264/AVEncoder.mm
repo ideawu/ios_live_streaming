@@ -10,6 +10,7 @@
 #import "NALUnit.h"
 #import "MP4Atom.h"
 #import "VideoEncoder.h"
+#import <sys/stat.h>
 
 static unsigned int to_host(unsigned char* p)
 {
@@ -92,13 +93,15 @@ static unsigned int to_host(unsigned char* p)
     NSMutableArray* _frames;
     
     encoder_handler_t _outputBlock;
-    param_handler_t _paramsBlock;
+	void (^_paramsBlock)(NSData *sps, NSData *pps);
     
     // estimate bitrate over first second
     int _bitspersecond;
     double _firstpts;
 }
 
+@property (readonly, atomic) int bitspersecond;
+@property int bitrate;
 - (void) initForHeight:(int) height andWidth:(int) width;
 
 @end
@@ -136,7 +139,7 @@ static unsigned int to_host(unsigned char* p)
 	_frames = [NSMutableArray arrayWithCapacity:2];
 }
 
-- (void) encodeWithBlock:(encoder_handler_t) block onParams: (param_handler_t) paramsHandler
+- (void) encodeWithBlock:(encoder_handler_t) block onParams:(void (^)(NSData *sps, NSData *pps))paramsHandler
 {
     _outputBlock = block;
     _paramsBlock = paramsHandler;

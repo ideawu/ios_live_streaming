@@ -30,6 +30,7 @@
 @property (nonatomic, readonly) AVCaptureSession *session;
 @property (nonatomic) int width;
 @property (nonatomic) int height;
+@property (nonatomic) double bitrate;
 @property (nonatomic) AVEncoder* encoder;
 @end
 
@@ -39,9 +40,24 @@
 	self = [super init];
 	_width = 360;
 	_height = 480;
+	_bitrate = 200*1024;
 	_maxClipDuration = 0.3;
-	[self setupDevices];
 	return self;
+}
+
+- (void)start:(void (^)(VideoClip *clip))callback{
+	_clipCallback = callback;
+	[self setupDevices];
+	
+	_encoder = [AVEncoder encoderForHeight:_height andWidth:_width bitrate:_bitrate];
+	[_encoder encodeWithBlock:^int(NSArray *frames, double pts) {
+		[self processFrames:frames pts:pts];
+		return 0;
+	} onParams:^(NSData *sps, NSData *pps) {
+		[self processSps:sps pps:pps];
+	}];
+	
+	[_session startRunning];
 }
 
 - (void)setupDevices{
@@ -83,21 +99,6 @@
 	if([connection videoOrientation ]) {
 		[connection setVideoOrientation:(AVCaptureVideoOrientation)orientation];
 	}
-}
-
-- (void)start:(void (^)(VideoClip *clip))callback{
-	_clipCallback = callback;
-	
-	_encoder = [AVEncoder encoderForHeight:_height andWidth:_width bitrate:200*1024];
-	[_encoder encodeWithBlock:^int(NSArray *frames, double pts) {
-		[self processFrames:frames pts:pts];
-		return 0;
-	} onParams:^int(NSData *sps, NSData *pps) {
-		[self processSps:sps pps:pps];
-		return 0;
-	}];
-
-	[_session startRunning];
 }
 
 - (void)processSps:(NSData *)sps pps:(NSData *)pps{
