@@ -121,7 +121,7 @@ static unsigned int to_host(unsigned char* p)
 
 - (NSString*) makeFilename
 {
-    NSString* filename = [NSString stringWithFormat:@"capture%d.mp4", _currentFile];
+    NSString* filename = [NSString stringWithFormat:@"m%d.mp4", _currentFile];
     NSString* path = [NSTemporaryDirectory() stringByAppendingPathComponent:filename];
     return path;
 }
@@ -129,7 +129,7 @@ static unsigned int to_host(unsigned char* p)
 {
     _height = height;
     _width = width;
-    NSString* path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"params.mp4"];
+    NSString* path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"m.mp4"];
     _headerWriter = [VideoEncoder encoderForPath:path Height:height andWidth:width bitrate:_bitrate];
     _times = [NSMutableArray arrayWithCapacity:10];
 	

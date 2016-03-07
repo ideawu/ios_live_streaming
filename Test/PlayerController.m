@@ -8,13 +8,13 @@
 
 #import "PlayerController.h"
 #import <AVFoundation/AVFoundation.h>
-#import "LivePlayer.h"
+#import "VideoPlayer.h"
 
 @interface PlayerController (){
 	BOOL _playing;
 }
-@property CALayer *playerLayer;
-@property LivePlayer *livePlayer;
+@property AVSampleBufferDisplayLayer *videoLayer;
+@property VideoPlayer *player;
 @end
 
 @implementation PlayerController
@@ -23,12 +23,17 @@
     [super windowDidLoad];
 	_videoView.layer.backgroundColor = [NSColor blackColor].CGColor;
 
-	_playerLayer = [CALayer layer];
-	[_playerLayer setFrame:[_videoView bounds]];
-	[_videoView.layer addSublayer:_playerLayer];
+	_videoLayer = [[AVSampleBufferDisplayLayer alloc] init];
+	_videoLayer.frame = self.videoView.frame;
+	_videoLayer.bounds = self.videoView.bounds;
+	_videoLayer.videoGravity = AVLayerVideoGravityResizeAspect;
+
+	[_videoView.layer addSublayer:_videoLayer];
 	
-	_livePlayer = [LivePlayer playerWithCALayer:_playerLayer];
-	[_livePlayer play];
+	_player = [[VideoPlayer alloc] init];
+	_player.videoLayer = _videoLayer;
+
+	[_player play];
 	
 	[self onLoad:nil];
 }
@@ -43,7 +48,6 @@
 }
 
 - (IBAction)onLoad:(id)sender {
-	[_livePlayer addMovieFile:[NSTemporaryDirectory() stringByAppendingPathComponent:@"m002.mp4"]];
 	//[_livePlayer addMovieFile:[NSTemporaryDirectory() stringByAppendingPathComponent:@"m002.mp4"]];
 	//[_livePlayer addMovieFile:[NSTemporaryDirectory() stringByAppendingPathComponent:@"m003.mp4"]];
 }

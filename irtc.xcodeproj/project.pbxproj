@@ -12,6 +12,16 @@
 		0814205F1C8B2F9500A2B03E /* TestController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0814205D1C8B2F9500A2B03E /* TestController.xib */; };
 		081420621C8C37CF00A2B03E /* VideoPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 081420611C8C37CF00A2B03E /* VideoPlayer.m */; };
 		081420631C8C652600A2B03E /* VideoPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 081420611C8C37CF00A2B03E /* VideoPlayer.m */; };
+		081420641C8DCE9700A2B03E /* PlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187768E1C85AAF600FC417F /* PlayerController.m */; };
+		081420671C8DD07A00A2B03E /* LiveStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 081420661C8DD07A00A2B03E /* LiveStream.m */; };
+		081420681C8DD1C700A2B03E /* LiveStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 081420661C8DD07A00A2B03E /* LiveStream.m */; };
+		081420691C8DD70700A2B03E /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA5551C8554B3000CED2B /* libcurl.a */; };
+		0814206B1C8DD71900A2B03E /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 0814206A1C8DD71900A2B03E /* libz.dylib */; };
+		081420701C8DD98500A2B03E /* Info.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0814206E1C8DD98500A2B03E /* Info.xib */; };
+		081420731C8DD9AF00A2B03E /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 081420711C8DD9AF00A2B03E /* LaunchScreen.xib */; };
+		081420741C8DDA5E00A2B03E /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 318776A01C86B87F00FC417F /* CoreVideo.framework */; };
+		081420751C8DDA6500A2B03E /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3187769F1C86B87F00FC417F /* CoreAudio.framework */; };
+		081420771C8DDA7000A2B03E /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 081420761C8DDA7000A2B03E /* VideoToolbox.framework */; };
 		318776471C855A3600FC417F /* libirtc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 319207A21C854AA60017C818 /* libirtc.a */; };
 		3187764E1C855ED700FC417F /* libirtc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 319207A21C854AA60017C818 /* libirtc.a */; };
 		3187767E1C85AABF00FC417F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187767D1C85AABF00FC417F /* AppDelegate.m */; };
@@ -48,13 +58,11 @@
 		318BA5031C85504B000CED2B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA5021C85504B000CED2B /* ViewController.m */; };
 		318BA5061C85504B000CED2B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 318BA5041C85504B000CED2B /* Main.storyboard */; };
 		318BA5081C85504B000CED2B /* Player-Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 318BA5071C85504B000CED2B /* Player-Assets.xcassets */; };
-		318BA50B1C85504B000CED2B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 318BA5091C85504B000CED2B /* LaunchScreen.storyboard */; };
 		318BA5181C85507E000CED2B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA5171C85507E000CED2B /* main.m */; };
 		318BA51B1C85507E000CED2B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA51A1C85507E000CED2B /* AppDelegate.m */; };
 		318BA51E1C85507E000CED2B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA51D1C85507E000CED2B /* ViewController.m */; };
 		318BA5211C85507E000CED2B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 318BA51F1C85507E000CED2B /* Main.storyboard */; };
 		318BA5231C85507E000CED2B /* Recorder-Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 318BA5221C85507E000CED2B /* Recorder-Assets.xcassets */; };
-		318BA5261C85507E000CED2B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 318BA5241C85507E000CED2B /* LaunchScreen.storyboard */; };
 		318BA5581C8554B3000CED2B /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA5551C8554B3000CED2B /* libcurl.a */; };
 		318BA5591C8554B3000CED2B /* libIKit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA5561C8554B3000CED2B /* libIKit.a */; };
 		318BA55A1C8554B3000CED2B /* libIObj.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA5571C8554B3000CED2B /* libIObj.a */; };
@@ -101,6 +109,13 @@
 		0814205D1C8B2F9500A2B03E /* TestController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TestController.xib; sourceTree = "<group>"; };
 		081420601C8C37CF00A2B03E /* VideoPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPlayer.h; sourceTree = "<group>"; };
 		081420611C8C37CF00A2B03E /* VideoPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoPlayer.m; sourceTree = "<group>"; };
+		081420651C8DD07A00A2B03E /* LiveStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveStream.h; sourceTree = "<group>"; };
+		081420661C8DD07A00A2B03E /* LiveStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveStream.m; sourceTree = "<group>"; };
+		0814206A1C8DD71900A2B03E /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/lib/libz.dylib; sourceTree = DEVELOPER_DIR; };
+		0814206D1C8DD8B100A2B03E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Player/Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		0814206F1C8DD98500A2B03E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/Info.xib; sourceTree = "<group>"; };
+		081420721C8DD9AF00A2B03E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		081420761C8DDA7000A2B03E /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 		3187767A1C85AABF00FC417F /* Test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Test.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3187767C1C85AABF00FC417F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		3187767D1C85AABF00FC417F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -145,7 +160,6 @@
 		318BA5021C85504B000CED2B /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		318BA5051C85504B000CED2B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		318BA5071C85504B000CED2B /* Player-Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Player-Assets.xcassets"; sourceTree = "<group>"; };
-		318BA50A1C85504B000CED2B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		318BA50C1C85504B000CED2B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		318BA5141C85507E000CED2B /* Recorder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Recorder.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		318BA5171C85507E000CED2B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -155,7 +169,6 @@
 		318BA51D1C85507E000CED2B /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		318BA5201C85507E000CED2B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		318BA5221C85507E000CED2B /* Recorder-Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Recorder-Assets.xcassets"; sourceTree = "<group>"; };
-		318BA5251C85507E000CED2B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		318BA5271C85507E000CED2B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		318BA5551C8554B3000CED2B /* libcurl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcurl.a; path = deps/libcurl.a; sourceTree = "<group>"; };
 		318BA5561C8554B3000CED2B /* libIKit.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libIKit.a; path = deps/libIKit.a; sourceTree = "<group>"; };
@@ -174,6 +187,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0814206B1C8DD71900A2B03E /* libz.dylib in Frameworks */,
+				081420691C8DD70700A2B03E /* libcurl.a in Frameworks */,
 				318777441C8DA30800FC417F /* VideoToolbox.framework in Frameworks */,
 				081420581C8B1F0400A2B03E /* VideoToolbox.framework in Frameworks */,
 			);
@@ -198,6 +213,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				081420771C8DDA7000A2B03E /* VideoToolbox.framework in Frameworks */,
+				081420751C8DDA6500A2B03E /* CoreAudio.framework in Frameworks */,
+				081420741C8DDA5E00A2B03E /* CoreVideo.framework in Frameworks */,
 				318776471C855A3600FC417F /* libirtc.a in Frameworks */,
 				318BA5731C855657000CED2B /* libxml2.dylib in Frameworks */,
 				318BA5721C855653000CED2B /* libz.dylib in Frameworks */,
@@ -221,6 +239,8 @@
 			isa = PBXGroup;
 			children = (
 				318777431C8DA30800FC417F /* VideoToolbox.framework */,
+				0814206A1C8DD71900A2B03E /* libz.dylib */,
+				081420761C8DDA7000A2B03E /* VideoToolbox.framework */,
 				081420571C8B1F0400A2B03E /* VideoToolbox.framework */,
 				3187769F1C86B87F00FC417F /* CoreAudio.framework */,
 				318776A01C86B87F00FC417F /* CoreVideo.framework */,
@@ -301,8 +321,8 @@
 			isa = PBXGroup;
 			children = (
 				318BA5071C85504B000CED2B /* Player-Assets.xcassets */,
+				0814206C1C8DD8B100A2B03E /* LaunchScreen.xib */,
 				318BA50C1C85504B000CED2B /* Info.plist */,
-				318BA5091C85504B000CED2B /* LaunchScreen.storyboard */,
 				318BA5041C85504B000CED2B /* Main.storyboard */,
 				318BA4FC1C85504B000CED2B /* main.m */,
 			);
@@ -326,8 +346,9 @@
 			isa = PBXGroup;
 			children = (
 				318BA5221C85507E000CED2B /* Recorder-Assets.xcassets */,
+				081420711C8DD9AF00A2B03E /* LaunchScreen.xib */,
+				0814206E1C8DD98500A2B03E /* Info.xib */,
 				318BA51F1C85507E000CED2B /* Main.storyboard */,
-				318BA5241C85507E000CED2B /* LaunchScreen.storyboard */,
 				318BA5271C85507E000CED2B /* Info.plist */,
 				318BA5171C85507E000CED2B /* main.m */,
 			);
@@ -370,6 +391,8 @@
 				318777401C8D645900FC417F /* PlayerItem.m */,
 				3187773B1C8D60B900FC417F /* Clock.h */,
 				3187773C1C8D60B900FC417F /* Clock.m */,
+				081420651C8DD07A00A2B03E /* LiveStream.h */,
+				081420661C8DD07A00A2B03E /* LiveStream.m */,
 				3187770F1C89B21700FC417F /* h264 */,
 			);
 			path = irtc;
@@ -511,7 +534,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				318BA5661C8554F6000CED2B /* main.xml in Resources */,
-				318BA50B1C85504B000CED2B /* LaunchScreen.storyboard in Resources */,
 				318BA5081C85504B000CED2B /* Player-Assets.xcassets in Resources */,
 				318BA5061C85504B000CED2B /* Main.storyboard in Resources */,
 			);
@@ -521,8 +543,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				081420731C8DD9AF00A2B03E /* LaunchScreen.xib in Resources */,
 				318BA56E1C8555B3000CED2B /* main.xml in Resources */,
-				318BA5261C85507E000CED2B /* LaunchScreen.storyboard in Resources */,
+				081420701C8DD98500A2B03E /* Info.xib in Resources */,
 				318BA5231C85507E000CED2B /* Recorder-Assets.xcassets in Resources */,
 				318BA5211C85507E000CED2B /* Main.storyboard in Resources */,
 			);
@@ -539,6 +562,7 @@
 				3187774C1C8DA8EC00FC417F /* VideoDecoder.m in Sources */,
 				318777421C8D646500FC417F /* PlayerItem.m in Sources */,
 				3187773E1C8D60EB00FC417F /* Clock.m in Sources */,
+				081420681C8DD1C700A2B03E /* LiveStream.m in Sources */,
 				081420631C8C652600A2B03E /* VideoPlayer.m in Sources */,
 				318777211C89BA9900FC417F /* AVEncoder.mm in Sources */,
 				318777221C89BA9900FC417F /* MP4Atom.m in Sources */,
@@ -549,6 +573,7 @@
 				318776811C85AABF00FC417F /* main.m in Sources */,
 				3187767E1C85AABF00FC417F /* AppDelegate.m in Sources */,
 				318776961C85AAF600FC417F /* RecorderController.m in Sources */,
+				081420641C8DCE9700A2B03E /* PlayerController.m in Sources */,
 				318776931C85AAF600FC417F /* Http.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -584,6 +609,7 @@
 				3187771E1C89B2BB00FC417F /* VideoRecorder.m in Sources */,
 				081420621C8C37CF00A2B03E /* VideoPlayer.m in Sources */,
 				3187773D1C8D60B900FC417F /* Clock.m in Sources */,
+				081420671C8DD07A00A2B03E /* LiveStream.m in Sources */,
 				319207A81C854AA60017C818 /* irtc.m in Sources */,
 				318777491C8DA78800FC417F /* VideoClip.m in Sources */,
 				318777191C89B21700FC417F /* MP4Atom.m in Sources */,
@@ -602,6 +628,31 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		0814206C1C8DD8B100A2B03E /* LaunchScreen.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0814206D1C8DD8B100A2B03E /* Base */,
+			);
+			name = LaunchScreen.xib;
+			path = ..;
+			sourceTree = "<group>";
+		};
+		0814206E1C8DD98500A2B03E /* Info.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0814206F1C8DD98500A2B03E /* Base */,
+			);
+			name = Info.xib;
+			sourceTree = "<group>";
+		};
+		081420711C8DD9AF00A2B03E /* LaunchScreen.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				081420721C8DD9AF00A2B03E /* Base */,
+			);
+			name = LaunchScreen.xib;
+			sourceTree = "<group>";
+		};
 		318776841C85AABF00FC417F /* MainMenu.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -618,28 +669,12 @@
 			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
-		318BA5091C85504B000CED2B /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				318BA50A1C85504B000CED2B /* Base */,
-			);
-			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
 		318BA51F1C85507E000CED2B /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
 				318BA5201C85507E000CED2B /* Base */,
 			);
 			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		318BA5241C85507E000CED2B /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				318BA5251C85507E000CED2B /* Base */,
-			);
-			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -653,6 +688,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = Test/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/deps",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ideawu.test.Test;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -669,6 +708,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = Test/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/deps",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ideawu.test.Test;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -842,6 +885,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SYMROOT = build;
+				USER_HEADER_SEARCH_PATHS = ./deps/include;
 			};
 			name = Debug;
 		};
@@ -852,6 +896,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SYMROOT = build;
+				USER_HEADER_SEARCH_PATHS = ./deps/include;
 			};
 			name = Release;
 		};

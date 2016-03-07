@@ -121,6 +121,7 @@
 }
 
 - (void)processFrames:(NSArray *)frames pts:(double)pts{
+	NSLog(@"pts: %f.3f", pts);
 	if(!_clip){
 		_clip = [[VideoClip alloc] init];
 		_clip.sps = _sps;

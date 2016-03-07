@@ -8,7 +8,7 @@
 #import <AVFoundation/AVFoundation.h>
 
 #import "ViewController.h"
-#import "LiveRecorder.h"
+#import "VideoRecorder.h"
 #import "IKit/IKit.h"
 #import "IObj/Http.h"
 
@@ -17,7 +17,7 @@
 	BOOL _uploading;
 }
 
-@property LiveRecorder *recorder;
+@property VideoRecorder *recorder;
 @property AVCaptureVideoPreviewLayer *previewLayer;
 @property IView *mainView;
 @property IView *videoView;
@@ -74,18 +74,18 @@
 	_submit.button.enabled = NO;
 	[self loadIp];
 	
-	_recorder = [LiveRecorder recorderForWidth:360 height:480];
-	_recorder.chunkDuration = 0.5;
-	
+	_recorder = [[VideoRecorder alloc] init];
+	_recorder.clipDuration = 0.5;
+
 	_previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:_recorder.session];
 	_previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
 	[_previewLayer setFrame:[_videoView bounds]];
 	[_videoView.layer addSublayer:_previewLayer];
 	
-	__weak typeof(self) me = self;
-	[_recorder start:^(NSData *data) {
-		[me onChunkReady:data];
-	}];
+//	__weak typeof(self) me = self;
+//	[_recorder start:^(NSData *data) {
+//		[me onChunkReady:data];
+//	}];
 }
 
 static NSString *base64_encode_data(NSData *data){

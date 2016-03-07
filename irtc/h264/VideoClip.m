@@ -54,7 +54,7 @@
 	_startTime = -1;
 	_endTime = -1;
 	_frameCount = 0;
-	_hasIFrame = NO;
+	_hasKeyFrame = NO;
 	_nextFrameIndex = 0;
 	_nextFramePTS = 0;
 	[_frames removeAllObjects];
@@ -89,7 +89,7 @@
 	int nal_type = pNal[0] & 0x1f;
 //	NSLog(@"append frame %d, pts: %f, type: %d", (int)frame.length, pts, nal_type);
 	if (nal_type == 5){
-		_hasIFrame = YES;
+		_hasKeyFrame = YES;
 		_frameCount ++;
 	}else if(nal_type == 1){
 		_frameCount ++;

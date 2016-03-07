@@ -15,7 +15,7 @@
 @property (readonly) double endTime;
 @property (readonly) int frameCount;
 @property (readonly) double frameDuration;
-@property (readonly) BOOL hasIFrame;
+@property (readonly) BOOL hasKeyFrame;
 
 @property (readonly) double nextFramePTS;
 

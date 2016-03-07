@@ -71,9 +71,9 @@ typedef enum{
 	__weak typeof(self) me = self;
 	[_recorder start:^(VideoClip *clip) {
 		NSData *data = clip.data;
-		NSLog(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, has_i_frame: %@",
+		NSLog(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, has_key_frame: %@",
 			  clip.frameCount, clip.startTime, clip.endTime, clip.duration, (int)data.length,
-			  clip.hasIFrame?@"yes":@"no");
+			  clip.hasKeyFrame?@"yes":@"no");
 		
 		[me onChunkReady:data];
 	}];

@@ -114,7 +114,8 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 				NSLog(@"init sps and pps");
 				[_decoder setSps:item.clip.sps pps:item.clip.pps];
 			}else{
-				NSLog(@"not started, expecting sps and pps");
+				NSLog(@"not started, expecting sps and pps, drop clip");
+				[_items removeObjectAtIndex:0];
 				return;
 			}
 		}

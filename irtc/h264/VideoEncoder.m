@@ -28,22 +28,25 @@
 	
 	NSLog(@"encoder %@", url.absoluteString);
     _writer = [AVAssetWriter assetWriterWithURL:url fileType:AVFileTypeMPEG4 error:nil];
+	NSMutableDictionary *cs = [[NSMutableDictionary alloc] init];
+	[cs setObject:@(_bitrate) forKey:AVVideoAverageBitRateKey];
+	[cs setObject:@(90) forKey:AVVideoMaxKeyFrameIntervalKey];
+#if !TARGET_OS_MAC
+	[cs setObject:@(NO) forKey:AVVideoAllowFrameReorderingKey];
+#else
+#ifdef NSFoundationVersionNumber10_10
+	if(NSFoundationVersionNumber > NSFoundationVersionNumber10_10){
+		[cs setObject:@(NO) forKey:AVVideoAllowFrameReorderingKey];
+	}
+#endif
+#endif
+	//AVVideoProfileLevelKey: AVVideoProfileLevelH264BaselineAutoLevel, // failed OS X 10.10+
 	NSDictionary* settings;
 	settings = @{
 				 AVVideoCodecKey: AVVideoCodecH264,
 				 AVVideoWidthKey: @(width),
 				 AVVideoHeightKey: @(height),
-				 AVVideoCompressionPropertiesKey: @{
-						 AVVideoAverageBitRateKey: @(_bitrate),
-						 AVVideoMaxKeyFrameIntervalKey: @(90),
-						 AVVideoAllowFrameReorderingKey: @(NO),
-#if !TARGET_OS_MAC
-#endif
-						 //AVVideoProfileLevelKey: AVVideoProfileLevelH264BaselineAutoLevel, // failed OS X 10.10+
-						 // belows require OS X 10.10+
-						 //AVVideoH264EntropyModeKey: AVVideoH264EntropyModeCAVLC,
-						 //AVVideoExpectedSourceFrameRateKey: @(30),
-						 },
+				 AVVideoCompressionPropertiesKey: cs,
 				 };
     _writerInput = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:settings];
     _writerInput.expectsMediaDataInRealTime = YES;

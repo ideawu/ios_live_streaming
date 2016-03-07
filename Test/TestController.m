@@ -50,9 +50,9 @@
 
 	[_recorder start:^(VideoClip *clip) {
 		NSData *data = clip.data;
-		NSLog(@"%2d frames[%.3f ~ %.3f] to send, %5d bytes, has_i_frame: %@",
-			  clip.frameCount, clip.startTime, clip.endTime, (int)data.length,
-			  clip.hasIFrame?@"yes":@"no");
+		NSLog(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, has_key_frame: %@",
+			  clip.frameCount, clip.startTime, clip.endTime, clip.duration, (int)data.length,
+			  clip.hasKeyFrame?@"yes":@"no");
 
 		VideoClip *c = [VideoClip clipFromData:data];
 		[player addClip:c];
