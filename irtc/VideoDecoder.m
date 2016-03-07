@@ -40,7 +40,7 @@
 	uint8_t *pNal = (uint8_t*)[frame bytes];
 	//int nal_ref_idc = pNal[0] & 0x60;
 	int nal_type = pNal[0] & 0x1f;
-	//NSLog(@"NALU Type \"%@\"", naluTypesStrings[nal_type]);
+//	NSLog(@"NALU Type \"%d\"", nal_type);
 	
 	CMSampleBufferRef sampleBuffer = NULL;
 	CMBlockBufferRef blockBuffer = NULL;

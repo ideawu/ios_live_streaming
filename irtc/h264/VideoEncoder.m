@@ -36,8 +36,8 @@
 				 AVVideoCompressionPropertiesKey: @{
 						 AVVideoAverageBitRateKey: @(_bitrate),
 						 AVVideoMaxKeyFrameIntervalKey: @(90),
+						 AVVideoAllowFrameReorderingKey: @(NO),
 #if !TARGET_OS_MAC
-						 AVVideoAllowFrameReorderingKey: @(YES),
 #endif
 						 //AVVideoProfileLevelKey: AVVideoProfileLevelH264BaselineAutoLevel, // failed OS X 10.10+
 						 // belows require OS X 10.10+

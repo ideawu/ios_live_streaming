@@ -27,6 +27,7 @@ static unsigned int to_host(unsigned char* p)
 - (EncodedFrame*) initWithData:(NSArray*) nalus andPOC:(int) poc;
 
 @property int poc;
+@property double pts;
 // 包含 1 或 2 帧
 @property NSArray* frame;
 
@@ -131,7 +132,7 @@ static unsigned int to_host(unsigned char* p)
     NSString* path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"params.mp4"];
     _headerWriter = [VideoEncoder encoderForPath:path Height:height andWidth:width bitrate:_bitrate];
     _times = [NSMutableArray arrayWithCapacity:10];
-    
+	
     // swap between 3 filenames
     _currentFile = 1;
     _writer = [VideoEncoder encoderForPath:[self makeFilename] Height:height andWidth:width bitrate:_bitrate];
@@ -144,7 +145,7 @@ static unsigned int to_host(unsigned char* p)
     _outputBlock = block;
     _paramsBlock = paramsHandler;
     _needParams = YES;
-    _pendingNALU = nil;
+	_pendingNALU = [NSMutableArray arrayWithCapacity:2];
     _firstpts = -1;
     _bitspersecond = 0;
 }
@@ -453,30 +454,23 @@ static unsigned int to_host(unsigned char* p)
 {
     // first has the last timestamp and rest use up timestamps from the start
     int n = 0;
-    for (EncodedFrame* f in _frames)
-    {
+    for (EncodedFrame* f in _frames){
         int index = 0;
-        if (n == 0)
-        {
+        if (n == 0){
             index = (int) [_frames count] - 1;
-        }
-        else
-        {
+        }else{
             index = n-1;
         }
         double pts = 0;
-        @synchronized(_times)
-        {
-            if ([_times count] > 0)
-            {
+        @synchronized(_times){
+            if ([_times count] > 0){
                 pts = [_times[index] doubleValue];
             }
         }
         [self deliverFrame:f.frame withTime:pts];
         n++;
     }
-    @synchronized(_times)
-    {
+    @synchronized(_times){
         [_times removeObjectsInRange:NSMakeRange(0, [_frames count])];
     }
     [_frames removeAllObjects];
@@ -485,36 +479,29 @@ static unsigned int to_host(unsigned char* p)
 - (void) onEncodedFrame
 {
     int poc = 0;
-    for (NSData* d in _pendingNALU)
-    {
+    for (NSData* d in _pendingNALU){
         NALUnit nal((const BYTE*)[d bytes], (int)[d length]);
-        if (_pocState.GetPOC(&nal, &poc))
-        {
+        if (_pocState.GetPOC(&nal, &poc)){
             break;
         }
     }
     
-    if (poc == 0)
-    {
+    if (poc == 0){
         [self processStoredFrames];
         double pts = 0;
         int index = 0;
         @synchronized(_times)
         {
-            if ([_times count] > 0)
-            {
+            if ([_times count] > 0){
                 pts = [_times[index] doubleValue];
                 [_times removeObjectAtIndex:index];
             }
         }
         [self deliverFrame:_pendingNALU withTime:pts];
         _prevPOC = 0;
-    }
-    else
-    {
+    }else{
         EncodedFrame* f = [[EncodedFrame alloc] initWithData:_pendingNALU andPOC:poc];
-        if (poc > _prevPOC)
-        {
+        if (poc > _prevPOC){
             // all pending frames come before this, so share out the
             // timestamps in order of POC
             [self processStoredFrames];
@@ -532,8 +519,7 @@ static unsigned int to_host(unsigned char* p)
     int idc = pNal[0] & 0x60;
     int naltype = pNal[0] & 0x1f;
 
-    if (_pendingNALU)
-    {
+    if (_pendingNALU.count > 0){
         NALUnit nal(pNal, (int)[nalu length]);
         
         // we have existing data —is this the same frame?
@@ -542,43 +528,29 @@ static unsigned int to_host(unsigned char* p)
         BOOL bNew = NO;
         
         // sei and param sets go with following nalu
-        if (_prev_nal_type < 6)
-        {
-            if (naltype >= 6)
-            {
+        if (_prev_nal_type < 6){
+            if (naltype >= 6){
                 bNew = YES;
-            }
-            else if ((idc != _prev_nal_idc) && ((idc == 0) || (_prev_nal_idc == 0)))
-            {
+            }else if ((idc != _prev_nal_idc) && ((idc == 0) || (_prev_nal_idc == 0))){
                 bNew = YES;
-            }
-            else if ((naltype != _prev_nal_type) && (naltype == 5))
-            {
+            }else if ((naltype != _prev_nal_type) && (naltype == 5)){
                 bNew = YES;
-            }
-            else if ((naltype >= 1) && (naltype <= 5))
-            {
+            }else if ((naltype >= 1) && (naltype <= 5)){
                 nal.Skip(8);
                 int first_mb = (int)nal.GetUE();
-                if (first_mb == 0)
-                {
+                if (first_mb == 0){
                     bNew = YES;
                 }
             }
         }
         
-        if (bNew)
-        {
+        if (bNew){
             [self onEncodedFrame];
-            _pendingNALU = nil;
+			[_pendingNALU removeAllObjects];
         }
     }
     _prev_nal_type = naltype;
     _prev_nal_idc = idc;
-    if (_pendingNALU == nil)
-    {
-        _pendingNALU = [NSMutableArray arrayWithCapacity:2];
-    }
     [_pendingNALU addObject:nalu];
 }
 

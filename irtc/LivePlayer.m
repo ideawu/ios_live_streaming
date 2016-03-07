@@ -2,53 +2,7 @@
 #import "LivePlayer.h"
 #import "LiveClipReader.h"
 #import "AudioPlayer.h"
-
-@interface Clock : NSObject{
-	double _tick_zero;
-	double _tick_last;
-	double _speed;
-	double _change_speed_tick;
-}
-@property (nonatomic, readonly) double now;
-// default: 1.0
-@property (nonatomic) double speed;
-@end
-
-@implementation Clock
-- (id)init{
-	self = [super init];
-	_speed = 1;
-	[self reset];
-	return self;
-}
-
-- (void)reset{
-	_now = -1;
-	_tick_zero = -1;
-}
-
-- (double)speed{
-	return _speed;
-}
-
-- (void)setSpeed:(double)speed{
-	if(speed < 0){
-		return;
-	}
-	_speed = speed;
-	_change_speed_tick = _tick_last;
-}
-
-- (void)tick:(double)real_tick{
-	_tick_last = real_tick;
-	if(_tick_zero == -1){
-		_tick_zero = real_tick;
-		_change_speed_tick = _tick_last;
-	}
-	double df = _speed * (real_tick - _change_speed_tick);
-	_now =  df + (_change_speed_tick - _tick_zero);
-}
-@end
+#import "Clock.h"
 
 
 @interface LivePlayer (){

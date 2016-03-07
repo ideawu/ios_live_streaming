@@ -44,6 +44,7 @@
 
 	VideoPlayer *player = [[VideoPlayer alloc] init];
 	player.videoLayer = videoLayer;
+	[player play];
 
 	_recorder = [[VideoRecorder alloc] init];
 

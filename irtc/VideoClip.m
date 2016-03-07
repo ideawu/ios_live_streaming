@@ -10,9 +10,9 @@
 
 @interface VideoClip(){
 	NSData *_naluStartCode;
-	int _nextFrameIndex;
 	double _nextFramePTS;
 }
+@property (readonly) int nextFrameIndex;
 @end
 
 @implementation VideoClip
@@ -36,10 +36,18 @@
 }
 
 - (double)frameDuration{
-	if(_frameCount == 0){
+	if(_frameCount <= 1){
 		return 0;
 	}
-	return self.duration / _frameCount;
+	return self.duration / (_frameCount - 1);
+}
+
+- (double)nextFramePTS{
+	if(_nextFramePTS == 0){
+		return _startTime;
+	}else{
+		return _nextFramePTS;
+	}
 }
 
 - (void)reset{
@@ -77,9 +85,9 @@
 }
 
 - (void)appendFrame:(NSData *)frame pts:(double)pts{
-	//NSLog(@"append frame %d", (int)frame.length);
 	unsigned char* pNal = (unsigned char*)[frame bytes];
 	int nal_type = pNal[0] & 0x1f;
+//	NSLog(@"append frame %d, pts: %f, type: %d", (int)frame.length, pts, nal_type);
 	if (nal_type == 5){
 		_hasIFrame = YES;
 		_frameCount ++;
@@ -87,7 +95,7 @@
 		_frameCount ++;
 	}else if(nal_type == 6){ // SEI
 		// ?
-		NSLog(@"SEI");
+//		NSLog(@"SEI");
 	}else if(nal_type == 7){
 		_sps = frame;
 		return;
@@ -178,7 +186,7 @@
 	double stime = [ps[1] doubleValue];
 	double etime = [ps[2] doubleValue];
 	int frameCount = [ps[3] intValue];
-	NSLog(@"parsed stime: %.3f, etime: %.3f, frames: %d", stime, etime, frameCount);
+	NSLog(@"parsed stime: %.3f, etime: %.3f, duration: %.3f, frames: %d", stime, etime, (etime-stime), frameCount);
 	
 	NSUInteger pos = range.location + range.length;
 	NSUInteger len = data.length - pos;
@@ -188,8 +196,6 @@
 		return;
 	}
 	pos = range.location + range.length;
-	double pts = stime;
-	double frameDuration = (etime - stime) / frameCount;
 	while(pos < data.length){
 		len = data.length - pos;
 		range = [data rangeOfData:_naluStartCode options:0 range:NSMakeRange(pos, len)];
@@ -200,14 +206,11 @@
 		NSData *frame = [data subdataWithRange:NSMakeRange(pos, range.location - pos)];
 		//NSLog(@"parsed frame: %d", (int)frame.length);
 		
-		uint8_t *pNal = (uint8_t*)[frame bytes];
-		int nal_type = pNal[0] & 0x1f;
-		[self appendFrame:frame pts:pts];
-		if(nal_type == 1 || nal_type == 5){
-			pts += frameDuration;
-		}
+		[self appendFrame:frame pts:0];
 		pos = range.location + range.length;
 	}
+	_startTime = stime;
+	_endTime = etime;
 }
 
 @end

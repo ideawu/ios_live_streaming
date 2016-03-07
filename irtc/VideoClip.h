@@ -17,6 +17,8 @@
 @property (readonly) double frameDuration;
 @property (readonly) BOOL hasIFrame;
 
+@property (readonly) double nextFramePTS;
+
 @property NSData *sps;
 @property NSData *pps;
 @property NSMutableArray *frames;

@@ -49,6 +49,10 @@
 		318777361C8AED9000FC417F /* VideoClip.m in Sources */ = {isa = PBXBuildFile; fileRef = 318777341C8AE33100FC417F /* VideoClip.m */; };
 		318777391C8D497300FC417F /* VideoDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 318777381C8D497300FC417F /* VideoDecoder.m */; };
 		3187773A1C8D4AA700FC417F /* VideoDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 318777381C8D497300FC417F /* VideoDecoder.m */; };
+		3187773D1C8D60B900FC417F /* Clock.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187773C1C8D60B900FC417F /* Clock.m */; };
+		3187773E1C8D60EB00FC417F /* Clock.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187773C1C8D60B900FC417F /* Clock.m */; };
+		318777411C8D645900FC417F /* PlayerItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 318777401C8D645900FC417F /* PlayerItem.m */; };
+		318777421C8D646500FC417F /* PlayerItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 318777401C8D645900FC417F /* PlayerItem.m */; };
 		318BA4FD1C85504B000CED2B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA4FC1C85504B000CED2B /* main.m */; };
 		318BA5001C85504B000CED2B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA4FF1C85504B000CED2B /* AppDelegate.m */; };
 		318BA5031C85504B000CED2B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA5021C85504B000CED2B /* ViewController.m */; };
@@ -148,6 +152,10 @@
 		318777341C8AE33100FC417F /* VideoClip.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoClip.m; sourceTree = "<group>"; };
 		318777371C8D497300FC417F /* VideoDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoDecoder.h; sourceTree = "<group>"; };
 		318777381C8D497300FC417F /* VideoDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoDecoder.m; sourceTree = "<group>"; };
+		3187773B1C8D60B900FC417F /* Clock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Clock.h; sourceTree = "<group>"; };
+		3187773C1C8D60B900FC417F /* Clock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Clock.m; sourceTree = "<group>"; };
+		3187773F1C8D645900FC417F /* PlayerItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayerItem.h; sourceTree = "<group>"; };
+		318777401C8D645900FC417F /* PlayerItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayerItem.m; sourceTree = "<group>"; };
 		318BA4F91C85504B000CED2B /* Player.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Player.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		318BA4FC1C85504B000CED2B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		318BA4FE1C85504B000CED2B /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -379,8 +387,12 @@
 				318776421C85598200FC417F /* LiveRecorder.m */,
 				3187771C1C89B2BB00FC417F /* VideoRecorder.h */,
 				3187771D1C89B2BB00FC417F /* VideoRecorder.m */,
+				3187773B1C8D60B900FC417F /* Clock.h */,
+				3187773C1C8D60B900FC417F /* Clock.m */,
 				081420601C8C37CF00A2B03E /* VideoPlayer.h */,
 				081420611C8C37CF00A2B03E /* VideoPlayer.m */,
+				3187773F1C8D645900FC417F /* PlayerItem.h */,
+				318777401C8D645900FC417F /* PlayerItem.m */,
 				318777371C8D497300FC417F /* VideoDecoder.h */,
 				318777381C8D497300FC417F /* VideoDecoder.m */,
 				318777331C8AE33100FC417F /* VideoClip.h */,
@@ -550,6 +562,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				318777421C8D646500FC417F /* PlayerItem.m in Sources */,
+				3187773E1C8D60EB00FC417F /* Clock.m in Sources */,
 				3187773A1C8D4AA700FC417F /* VideoDecoder.m in Sources */,
 				081420631C8C652600A2B03E /* VideoPlayer.m in Sources */,
 				318777361C8AED9000FC417F /* VideoClip.m in Sources */,
@@ -599,12 +613,14 @@
 				318776441C85598200FC417F /* LiveRecorder.m in Sources */,
 				3187771A1C89B21700FC417F /* NALUnit.cpp in Sources */,
 				318777181C89B21700FC417F /* AVEncoder.mm in Sources */,
+				318777411C8D645900FC417F /* PlayerItem.m in Sources */,
 				3187765F1C85857400FC417F /* AudioPlayer.m in Sources */,
 				318776431C85598200FC417F /* LiveClipWriter.m in Sources */,
 				3187771E1C89B2BB00FC417F /* VideoRecorder.m in Sources */,
 				3187764C1C855EBD00FC417F /* LiveClipReader.m in Sources */,
 				081420621C8C37CF00A2B03E /* VideoPlayer.m in Sources */,
 				318777391C8D497300FC417F /* VideoDecoder.m in Sources */,
+				3187773D1C8D60B900FC417F /* Clock.m in Sources */,
 				319207A81C854AA60017C818 /* irtc.m in Sources */,
 				318777191C89B21700FC417F /* MP4Atom.m in Sources */,
 				3187771B1C89B21700FC417F /* VideoEncoder.m in Sources */,
