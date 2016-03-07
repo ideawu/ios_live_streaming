@@ -34,7 +34,7 @@ typedef enum{
 	self = [super initWithWindowNibName:windowNibName];
 	
 	_status = RecordNone;
-	_chunkDuration = 0.3;
+	_chunkDuration = 0.2;
 	
 	_chunks = [[NSMutableArray alloc] init];
 	_uploading = false;

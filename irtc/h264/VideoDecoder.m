@@ -11,7 +11,7 @@
 
 @interface VideoDecoder(){
 }
-//@property (nonatomic, assign) VTDecompressionSessionRef decompressionSession;
+//@property (nonatomic, assign) VTDecompressionSessionRef decodeSession;
 @property (nonatomic, assign) CMVideoFormatDescriptionRef formatDesc;
 @end
 
@@ -36,6 +36,7 @@
 	if(status != noErr) NSLog(@"Create Format Description ERROR: %d", (int)status);
 }
 
+// TODO: 改用 VTDecompressionSessionRef, 处理 reordering
 // 调用者负责释放内存
 - (CMSampleBufferRef)processFrame:(NSData *)frame{
 	uint8_t *pNal = (uint8_t*)[frame bytes];

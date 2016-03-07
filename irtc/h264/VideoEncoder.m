@@ -32,11 +32,11 @@
 	[cs setObject:@(_bitrate) forKey:AVVideoAverageBitRateKey];
 	[cs setObject:@(90) forKey:AVVideoMaxKeyFrameIntervalKey];
 #if !TARGET_OS_MAC
-	[cs setObject:@(NO) forKey:AVVideoAllowFrameReorderingKey];
+	[cs setObject:@(YES) forKey:AVVideoAllowFrameReorderingKey];
 #else
 #ifdef NSFoundationVersionNumber10_10
 	if(NSFoundationVersionNumber > NSFoundationVersionNumber10_10){
-		[cs setObject:@(NO) forKey:AVVideoAllowFrameReorderingKey];
+		[cs setObject:@(YES) forKey:AVVideoAllowFrameReorderingKey];
 	}
 #endif
 #endif

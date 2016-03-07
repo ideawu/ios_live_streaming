@@ -426,7 +426,7 @@ static unsigned int to_host(unsigned char* p)
     [self readAndDeliver:cReady];
 }
 
-- (void) deliverFrame: (NSArray*) frame withTime:(double) pts
+- (void) deliverFrame: (NSArray*) frame withTime:(double) pts poc:(int)poc
 {
 
     if (_firstpts < 0)
@@ -445,7 +445,7 @@ static unsigned int to_host(unsigned char* p)
  
     if (_outputBlock != nil)
     {
-        _outputBlock(frame, pts);
+        _outputBlock(frame, pts, poc);
     }
     
 }
@@ -467,7 +467,7 @@ static unsigned int to_host(unsigned char* p)
                 pts = [_times[index] doubleValue];
             }
         }
-        [self deliverFrame:f.frame withTime:pts];
+		[self deliverFrame:f.frame withTime:pts poc:f.poc];
         n++;
     }
     @synchronized(_times){
@@ -497,7 +497,7 @@ static unsigned int to_host(unsigned char* p)
                 [_times removeObjectAtIndex:index];
             }
         }
-        [self deliverFrame:_pendingNALU withTime:pts];
+		[self deliverFrame:_pendingNALU withTime:pts poc:0];
         _prevPOC = 0;
     }else{
         EncodedFrame* f = [[EncodedFrame alloc] initWithData:_pendingNALU andPOC:poc];

@@ -288,10 +288,6 @@
 		3187770F1C89B21700FC417F /* h264 */ = {
 			isa = PBXGroup;
 			children = (
-				318777451C8DA78800FC417F /* VideoClip.h */,
-				318777461C8DA78800FC417F /* VideoClip.m */,
-				318777471C8DA78800FC417F /* VideoDecoder.h */,
-				318777481C8DA78800FC417F /* VideoDecoder.m */,
 				318777101C89B21700FC417F /* AVEncoder.h */,
 				318777111C89B21700FC417F /* AVEncoder.mm */,
 				318777161C89B21700FC417F /* VideoEncoder.h */,
@@ -300,6 +296,10 @@
 				318777131C89B21700FC417F /* MP4Atom.m */,
 				318777151C89B21700FC417F /* NALUnit.h */,
 				318777141C89B21700FC417F /* NALUnit.cpp */,
+				318777451C8DA78800FC417F /* VideoClip.h */,
+				318777461C8DA78800FC417F /* VideoClip.m */,
+				318777471C8DA78800FC417F /* VideoDecoder.h */,
+				318777481C8DA78800FC417F /* VideoDecoder.m */,
 			);
 			path = h264;
 			sourceTree = "<group>";

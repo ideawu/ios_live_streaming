@@ -110,7 +110,8 @@
 	if(_startTime == -1){
 		_startTime = pts;
 	}
-	_endTime = pts;
+	_startTime = MIN(_startTime, pts);
+	_endTime = MAX(_endTime, pts);
 	[_frames addObject:frame];
 }
 
