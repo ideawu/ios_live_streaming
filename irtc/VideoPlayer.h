@@ -17,6 +17,8 @@
 //- (void)pause;
 //- (void)stop;
 
+- (void)setSpeed:(double)speed;
+
 - (void)addClip:(VideoClip *)clip;
 
 @end

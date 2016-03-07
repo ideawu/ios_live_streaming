@@ -95,7 +95,7 @@
 		_frameCount ++;
 	}else if(nal_type == 6){ // SEI
 		// ?
-//		NSLog(@"SEI");
+		//NSLog(@"SEI");
 	}else if(nal_type == 7){
 		_sps = frame;
 		return;

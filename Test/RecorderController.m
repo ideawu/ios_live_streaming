@@ -8,8 +8,8 @@
 
 #import <AVFoundation/AVFoundation.h>
 #import "RecorderController.h"
-#import "LiveRecorder.h"
 #import "IObj/Http.h"
+#import "VideoRecorder.h"
 
 typedef enum{
 	RecordNone,
@@ -24,18 +24,17 @@ typedef enum{
 	BOOL _uploading;
 	double _chunkDuration;
 }
-@property LiveRecorder *recorder;
+@property VideoRecorder *recorder;
 @property AVCaptureVideoPreviewLayer *previewLayer;
 @end
 
 @implementation RecorderController
 
 - (id)initWithWindowNibName:(NSString *)windowNibName{
-	NSLog(@"%s", __func__);
 	self = [super initWithWindowNibName:windowNibName];
 	
 	_status = RecordNone;
-	_chunkDuration = 0.5;
+	_chunkDuration = 0.3;
 	
 	_chunks = [[NSMutableArray alloc] init];
 	_uploading = false;
@@ -53,23 +52,29 @@ typedef enum{
 }
 
 - (IBAction)start:(id)sender {
-	if(_status != RecordNone){
+	if(_status == RecordStart){
 		NSLog(@"already started");
 		return;
 	}
-	NSLog(@"NSTemporaryDirectory: %@", NSTemporaryDirectory());
 	_status = RecordStart;
 
-	_recorder = [LiveRecorder recorderForWidth:360 height:480];
-	_recorder.chunkDuration = _chunkDuration;
-	
-	_previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:_recorder.session];
-	_previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-	[_previewLayer setFrame:[_videoView bounds]];
-	[_videoView.layer addSublayer:_previewLayer];
+	if(!_recorder){
+		_recorder = [[VideoRecorder alloc] init];
+		_recorder.clipDuration = _chunkDuration;
+		
+		_previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:_recorder.session];
+		_previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+		[_previewLayer setFrame:[_videoView bounds]];
+		[_videoView.layer addSublayer:_previewLayer];
+	}
 	
 	__weak typeof(self) me = self;
-	[_recorder start:^(NSData *data) {
+	[_recorder start:^(VideoClip *clip) {
+		NSData *data = clip.data;
+		NSLog(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, has_i_frame: %@",
+			  clip.frameCount, clip.startTime, clip.endTime, clip.duration, (int)data.length,
+			  clip.hasIFrame?@"yes":@"no");
+		
 		[me onChunkReady:data];
 	}];
 }

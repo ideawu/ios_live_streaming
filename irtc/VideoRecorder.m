@@ -27,10 +27,6 @@
 	NSData *_sps;
 	NSData *_pps;
 }
-@property (nonatomic, readonly) AVCaptureSession *session;
-@property (nonatomic) int width;
-@property (nonatomic) int height;
-@property (nonatomic) double bitrate;
 @property (nonatomic) AVEncoder* encoder;
 @end
 
@@ -38,16 +34,16 @@
 
 - (id)init{
 	self = [super init];
-	_width = 360;
+	_width = 340;
 	_height = 480;
 	_bitrate = 200*1024;
-	_maxClipDuration = 0.3;
+	_clipDuration = 0.3;
+	[self setupDevices];
 	return self;
 }
 
 - (void)start:(void (^)(VideoClip *clip))callback{
 	_clipCallback = callback;
-	[self setupDevices];
 	
 	_encoder = [AVEncoder encoderForHeight:_height andWidth:_width bitrate:_bitrate];
 	[_encoder encodeWithBlock:^int(NSArray *frames, double pts) {
@@ -58,6 +54,11 @@
 	}];
 	
 	[_session startRunning];
+}
+
+- (void)stop{
+	[_session stopRunning];
+	[_encoder shutdown];
 }
 
 - (void)setupDevices{
@@ -129,7 +130,7 @@
 		[_clip appendFrame:data pts:pts];
 	}
 
-	if(_clip.duration >= _maxClipDuration){
+	if(_clip.duration >= _clipDuration){
 		if(_clipCallback){
 			_clipCallback(_clip);
 		}

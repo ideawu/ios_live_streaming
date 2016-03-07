@@ -50,6 +50,10 @@
 	});
 }
 
+- (void)setSpeed:(double)speed{
+	_clock.speed = speed;
+}
+
 - (void)play{
 	if(!_clock){
 		_clock = [[Clock alloc] init];
@@ -153,7 +157,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 			last_time_e = item.clip.endTime;
 			
 			double stime = _clock.now - delay;
-			NSLog(@"start session at %.3f, clip[%.3f~%.3f], delay: %.3f, now: %f", stime, clip_s, clip_e, delay, _clock.now);
+			NSLog(@"start session at %.3f, clip[%.3f~%.3f], delay: %.3f, now: %.3f", stime, clip_s, clip_e, delay, _clock.now);
 			//NSLog(@"start session at %.3f, clip[%.3f~%.3f], delay: %.3f", stime, clip_s, clip_e, delay);
 			[item startSessionAtSourceTime:stime];
 		}
@@ -162,7 +166,8 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 			return;
 		}
 		
-		double expect = item.clip.nextFramePTS - item.clip.startTime + item.sessionStartTime;
+		double expect = 0;
+		expect = item.clip.nextFramePTS - item.clip.startTime + item.sessionStartTime;
 		
 		NSData *frame = [item nextFrame];
 		if(!frame || item.isCompleted){
@@ -176,12 +181,12 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 		int nal_type = pNal[0] & 0x1f;
 		// TODO: 到底应该怎么处理 SEI?
 		if (nal_ref_idc == 0 && nal_type == 6) { // SEI
-			NSLog(@"ignore SEI");
+			//NSLog(@"ignore SEI");
 			continue;
 		}
 
-		double delay = _clock.now - expect;
-		NSLog(@"time: %.3f, expect: %.3f, delay: %+.3f", _clock.now, expect, delay);
+//		double delay = _clock.now - expect;
+//		NSLog(@"time: %.3f, expect: %.3f, delay: %+.3f", _clock.now, expect, delay);
 
 		CMSampleBufferRef sampleBuffer = [_decoder processFrame:frame];
 		if(sampleBuffer){

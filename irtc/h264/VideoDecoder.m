@@ -7,6 +7,7 @@
 //
 
 #import "VideoDecoder.h"
+#import <VideoToolbox/VideoToolbox.h>
 
 @interface VideoDecoder(){
 }
@@ -114,26 +115,6 @@
 //			}
 //		}
 //
-//		// allocate enough data to fit the SPS and PPS parameters into our data objects.
-//		// VTD doesn't want you to include the start code header (4 bytes long) so we add the - 4 here
-//		sps = malloc(_spsSize - 4);
-//		pps = malloc(_ppsSize - 4);
-//
-//		// copy in the actual sps and pps values, again ignoring the 4 byte header
-//		memcpy (sps, &frame[4], _spsSize-4);
-//		memcpy (pps, &frame[_spsSize+4], _ppsSize-4);
-//
-//		// now we set our H264 parameters
-//		uint8_t*  parameterSetPointers[2] = {sps, pps};
-//		size_t parameterSetSizes[2] = {_spsSize-4, _ppsSize-4};
-//
-//		status = CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault, 2,
-//																	 (const uint8_t *const*)parameterSetPointers,
-//																	 parameterSetSizes, 4,
-//																	 &_formatDesc);
-//
-//		NSLog(@"\t\t Creation of CMVideoFormatDescription: %@", (status == noErr) ? @"successful!" : @"failed...");
-//		if(status != noErr) NSLog(@"\t\t Format Description ERROR type: %d", (int)status);
 //
 //		// See if decomp session can convert from previous format description
 //		// to the new one, if not we need to remake the decomp session.
