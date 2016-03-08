@@ -157,7 +157,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 	while(1){
 		VideoClip *clip = _items.firstObject;
 		
-		if(!_decoder.readyForFrame){
+		if(!_decoder.isReadyForFrame){
 			if(!clip){
 				return;
 			}

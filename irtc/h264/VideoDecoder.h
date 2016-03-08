@@ -18,7 +18,7 @@
 
 @interface VideoDecoder : NSObject
 
-- (BOOL)readyForFrame;
+- (BOOL)isReadyForFrame;
 
 - (void)setCallback:(void (^)(CVImageBufferRef imageBuffer))callback;
 - (void)setSps:(NSData *)sps pps:(NSData *)pps;

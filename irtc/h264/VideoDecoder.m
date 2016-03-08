@@ -27,7 +27,7 @@
 	return self;
 }
 
-- (BOOL)readyForFrame{
+- (BOOL)isReadyForFrame{
 	return _decodeSession != NULL;
 }
 
