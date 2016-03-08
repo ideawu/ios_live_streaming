@@ -76,6 +76,7 @@
 		31E5BDDB1C8EDF36007E0503 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 318777521C8ED95600FC417F /* libxml2.tbd */; };
 		31E5BDDC1C8EDF3F007E0503 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 318777501C8ED95000FC417F /* libz.tbd */; };
 		31E5BDDF1C8EE328007E0503 /* NALUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318777141C89B21700FC417F /* NALUnit.cpp */; };
+		31E5BDE31C8EE6F5007E0503 /* AAPLEAGLLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 31E5BDE21C8EE6F5007E0503 /* AAPLEAGLLayer.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -177,6 +178,8 @@
 		319207A21C854AA60017C818 /* libirtc.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libirtc.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		319207A51C854AA60017C818 /* irtc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = irtc.h; sourceTree = "<group>"; };
 		319207A71C854AA60017C818 /* irtc.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = irtc.m; sourceTree = "<group>"; };
+		31E5BDE11C8EE6F5007E0503 /* AAPLEAGLLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLEAGLLayer.h; sourceTree = "<group>"; };
+		31E5BDE21C8EE6F5007E0503 /* AAPLEAGLLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAPLEAGLLayer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -388,9 +391,19 @@
 				3187773C1C8D60B900FC417F /* PlayerState.m */,
 				081420651C8DD07A00A2B03E /* LiveStream.h */,
 				081420661C8DD07A00A2B03E /* LiveStream.m */,
+				31E5BDE01C8EE6F5007E0503 /* etc */,
 				3187770F1C89B21700FC417F /* h264 */,
 			);
 			path = irtc;
+			sourceTree = "<group>";
+		};
+		31E5BDE01C8EE6F5007E0503 /* etc */ = {
+			isa = PBXGroup;
+			children = (
+				31E5BDE11C8EE6F5007E0503 /* AAPLEAGLLayer.h */,
+				31E5BDE21C8EE6F5007E0503 /* AAPLEAGLLayer.m */,
+			);
+			path = etc;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -605,6 +618,7 @@
 				081420671C8DD07A00A2B03E /* LiveStream.m in Sources */,
 				31E5BDDF1C8EE328007E0503 /* NALUnit.cpp in Sources */,
 				319207A81C854AA60017C818 /* irtc.m in Sources */,
+				31E5BDE31C8EE6F5007E0503 /* AAPLEAGLLayer.m in Sources */,
 				318777491C8DA78800FC417F /* VideoClip.m in Sources */,
 				318777191C89B21700FC417F /* MP4Atom.m in Sources */,
 				3187771B1C89B21700FC417F /* VideoEncoder.m in Sources */,
