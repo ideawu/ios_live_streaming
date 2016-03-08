@@ -10,7 +10,12 @@
 
 @interface PlayerState : NSObject{
 }
+// 播放器时间
 @property (nonatomic, readonly) double time;
+// 影片时间(相对时间)
+@property (nonatomic, readonly) double movieTime;
+// 影片时间(绝对时间), 用于音频和视频的同步
+@property (nonatomic, readonly) double pts;
 // default: 1.0
 @property (nonatomic) double speed;
 
@@ -27,7 +32,7 @@
 
 - (double)delay;
 - (double)nextFrameTime;
-- (BOOL)readyForNextFrame;
-- (void)nextFrame;
+- (BOOL)isReadyForNextFrame;
+- (void)displayFramePTS:(double)pts;
 
 @end

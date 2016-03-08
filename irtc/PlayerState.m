@@ -20,6 +20,8 @@ typedef enum{
 	double _last_tick;
 	double _speed;
 	PlayerStateState _state;
+	double _nextFrameTime;
+	double _first_pts;
 }
 @end
 
@@ -37,6 +39,8 @@ typedef enum{
 - (void)reset{
 	_time = 0;
 	_last_tick = -1;
+	_nextFrameTime = 0;
+	_first_pts = -1;
 }
 
 - (double)speed{
@@ -79,15 +83,25 @@ typedef enum{
 	return _time - self.nextFrameTime;
 }
 
-- (void)nextFrame{
+- (double)movieTime{
+	return _pts - _first_pts;
+}
+
+- (void)displayFramePTS:(double)pts{
 	_frameCount ++;
+	if(_first_pts == -1){
+		_first_pts = pts;
+	}
+	_pts = pts;
+	_nextFrameTime = _pts - _first_pts + _frameDuration;
+	//_nextFrameTime += _frameDuration;
 }
 
 - (double)nextFrameTime{
-	return _frameCount * _frameDuration;
+	return _nextFrameTime;
 }
 
-- (BOOL)readyForNextFrame{
+- (BOOL)isReadyForNextFrame{
 	if(!self.isPlaying){
 		return NO;
 	}

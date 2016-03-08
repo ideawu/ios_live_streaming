@@ -20,6 +20,7 @@
 		081420741C8DDA5E00A2B03E /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 318776A01C86B87F00FC417F /* CoreVideo.framework */; };
 		081420751C8DDA6500A2B03E /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3187769F1C86B87F00FC417F /* CoreAudio.framework */; };
 		081420771C8DDA7000A2B03E /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 081420761C8DDA7000A2B03E /* VideoToolbox.framework */; };
+		081420791C8F3DDC00A2B03E /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 081420781C8F3DDC00A2B03E /* libz.dylib */; };
 		3187764E1C855ED700FC417F /* libirtc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 319207A21C854AA60017C818 /* libirtc.a */; };
 		3187767E1C85AABF00FC417F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187767D1C85AABF00FC417F /* AppDelegate.m */; };
 		318776811C85AABF00FC417F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776801C85AABF00FC417F /* main.m */; };
@@ -115,6 +116,7 @@
 		0814206D1C8DD8B100A2B03E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Player/Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		081420721C8DD9AF00A2B03E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		081420761C8DDA7000A2B03E /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
+		081420781C8F3DDC00A2B03E /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/lib/libz.dylib; sourceTree = DEVELOPER_DIR; };
 		3187767A1C85AABF00FC417F /* Test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Test.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3187767C1C85AABF00FC417F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		3187767D1C85AABF00FC417F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -189,6 +191,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				081420791C8F3DDC00A2B03E /* libz.dylib in Frameworks */,
 				31E5BDE51C8EF884007E0503 /* libz.tbd in Frameworks */,
 				081420691C8DD70700A2B03E /* libcurl.a in Frameworks */,
 				318777441C8DA30800FC417F /* VideoToolbox.framework in Frameworks */,
@@ -242,6 +245,7 @@
 			isa = PBXGroup;
 			children = (
 				31E5BDE41C8EF884007E0503 /* libz.tbd */,
+				081420781C8F3DDC00A2B03E /* libz.dylib */,
 				318777431C8DA30800FC417F /* VideoToolbox.framework */,
 				081420761C8DDA7000A2B03E /* VideoToolbox.framework */,
 				081420571C8B1F0400A2B03E /* VideoToolbox.framework */,

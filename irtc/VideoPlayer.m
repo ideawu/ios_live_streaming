@@ -63,8 +63,8 @@
 
 		_decoder = [[VideoDecoder alloc] init];
 		__weak typeof(self) me = self;
-		[_decoder setCallback:^(CVImageBufferRef imageBuffer) {
-			[me onDecompressFrame:imageBuffer];
+		[_decoder setCallback:^(CVImageBufferRef imageBuffer, double pts) {
+			[me onDecompressFrame:imageBuffer pts:pts];
 		}];
 		
 		[self setupDisplayLink];
@@ -122,11 +122,30 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 	});
 }
 
-- (void)onDecompressFrame:(CVImageBufferRef)imageBuffer{
+- (void)onDecompressFrame:(CVImageBufferRef)imageBuffer pts:(double)pts{
 	CFRetain(imageBuffer);
 	dispatch_async(_processQueue, ^{
-		[_frames addObject:(__bridge id)(imageBuffer)];
+		[_frames addObject:@[(__bridge id)(imageBuffer), @(pts)]];
 		//NSLog(@"decompressed frames: %d", (int)_frames.count);
+	});
+}
+
+- (void)prepareFrames{
+	dispatch_async(_processQueue, ^{
+		VideoClip *clip = _items.firstObject;
+		if(!clip){
+			return;
+		}
+		for(int i=0; i<3; i++){
+			double pts;
+			NSData *frame = [clip nextFrame:&pts];
+			if(!frame){
+				[_items removeObjectAtIndex:0];
+				break;
+			}else{
+				[_decoder appendFrame:frame pts:pts];
+			}
+		}
 	});
 }
 
@@ -155,6 +174,8 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 
 - (void)displayFrameForTickTime:(double)tick{
 	while(1){
+		// TODO: 如果clip数量太多, 应该丢弃一些
+
 		VideoClip *clip = _items.firstObject;
 		
 		if(!_decoder.isReadyForFrame){
@@ -170,55 +191,56 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 			}
 			continue;
 		}
-		
 		if(clip){
 			_state.frameDuration = clip.frameDuration;
+			if(_frames.count < 10){
+				[self prepareFrames];
+			}
 		}
-		
-		[_state tick:tick];
-		
 		if(_frames.count >= 5){
 			if(!_state.isPlaying){
-				NSLog(@"start playing");
+				NSLog(@"resume");
 				[_state resume];
 			}
-			// TODO: 如果缓冲数据太多, 丢弃一些
 		}
-		if(_frames.count < 10){
-			if(clip){
-				double pts;
-				NSData *frame = [clip nextFrame:&pts];
-				if(!frame){
-					[_items removeObjectAtIndex:0];
-				}else{
-					[_decoder appendFrame:frame];
-				}
-			}
+
+		// 更新时钟
+		[_state tick:tick];
+
+		if(!_state.isReadyForNextFrame){
+			return;
 		}
-		
-		if(_state.readyForNextFrame){
-			if(_frames.count == 0){
-				NSLog(@"buffering...");
-				[_state pause];
-			}else{
-//				NSLog(@"  time: %.3f expect: %.3f, delay: %+.3f, frameDuration: %.3f",
-//					  _state.time, _state.nextFrameTime, _state.delay, _state.frameDuration);
-				[_state nextFrame];
-				
-				CVImageBufferRef imageBuffer = (__bridge CVImageBufferRef)(_frames.firstObject);
-				[_frames removeObjectAtIndex:0];
-				CGImageRef image = [self pixelBufferToImageRef:imageBuffer];
-				if(!image){
-					CFRelease(imageBuffer);
-				}else{
-					dispatch_async(dispatch_get_main_queue(), ^{
-						self.layer.contents = (__bridge id)(image);
-						CFRelease(image);
-					});
-				}
-			}
+		if(_frames.count == 0){
+			NSLog(@"buffering...");
+			[_state pause];
+			return;
 		}
-		
+
+		NSArray *arr = _frames.firstObject;
+		CVImageBufferRef imageBuffer = (__bridge CVImageBufferRef)(arr.firstObject);
+		double pts = [(NSNumber *)arr.lastObject doubleValue];
+		[_frames removeObjectAtIndex:0];
+
+		// TODO: 如果太超前或者太落后, 需要重置 _state
+		if(ABS(pts - _state.pts) > 15){
+			NSLog(@"reset state");
+			[_state reset];
+		}
+
+		NSLog(@"  time: %.3f expect: %.3f, delay: %+.3f, duration: %.3f",
+			  _state.time, _state.nextFrameTime, _state.delay, _state.frameDuration);
+		[_state displayFramePTS:pts];
+
+		CGImageRef image = [self pixelBufferToImageRef:imageBuffer];
+		if(!image){
+			CFRelease(imageBuffer);
+		}else{
+			dispatch_async(dispatch_get_main_queue(), ^{
+				self.layer.contents = (__bridge id)(image);
+				CFRelease(image);
+			});
+		}
+
 		return;
 		
 		

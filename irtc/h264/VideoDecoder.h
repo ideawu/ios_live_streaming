@@ -20,9 +20,9 @@
 
 - (BOOL)isReadyForFrame;
 
-- (void)setCallback:(void (^)(CVImageBufferRef imageBuffer))callback;
+- (void)setCallback:(void (^)(CVImageBufferRef imageBuffer, double pts))callback;
 - (void)setSps:(NSData *)sps pps:(NSData *)pps;
 
-- (void)appendFrame:(NSData *)frame;
+- (void)appendFrame:(NSData *)frame pts:(double)pts;
 
 @end

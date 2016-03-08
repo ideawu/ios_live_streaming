@@ -10,7 +10,7 @@
 #import <VideoToolbox/VideoToolbox.h>
 
 @interface VideoDecoder(){
-	void (^_callback)(CVImageBufferRef imageBuffer);
+	void (^_callback)(CVImageBufferRef imageBuffer, double pts);
 }
 @property (nonatomic, assign) VTDecompressionSessionRef decodeSession;
 @property (nonatomic, assign) CMVideoFormatDescriptionRef formatDesc;
@@ -31,7 +31,7 @@
 	return _decodeSession != NULL;
 }
 
-- (void)setCallback:(void (^)(CVImageBufferRef imageBuffer))callback{
+- (void)setCallback:(void (^)(CVImageBufferRef imageBuffer, double pts))callback{
 	_callback = callback;
 }
 
@@ -62,17 +62,17 @@
 	callBackRecord.decompressionOutputCallback = decompressionSessionDecodeFrameCallback;
 	callBackRecord.decompressionOutputRefCon = (__bridge void *)self;
 
-	NSDictionary *decoderParameters = @{
-										(id)kVTDecompressionPropertyKey_RealTime: @(YES),
-										};
-	
 	// you can set some desired attributes for the destination pixel buffer.  I didn't use this but you may
 	// if you need to set some attributes, be sure to uncomment the dictionary in VTDecompressionSessionCreate
 #if !TARGET_OS_MAC
+	NSDictionary *decoderParameters = @{
+										(id)kVTDecompressionPropertyKey_RealTime: @(YES),
+										};
 	NSDictionary *pixelBufferAttrs = @{
 									   (id)kCVPixelBufferOpenGLESCompatibilityKey: @(YES),
 									   };
 #else
+	NSDictionary *decoderParameters = nil;
 	NSDictionary *pixelBufferAttrs = @{
 									   (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
 									   //(id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange),
@@ -99,16 +99,16 @@ void decompressionSessionDecodeFrameCallback(void *decompressionOutputRefCon,
 	}
 	//NSLog(@"%f %f", CMTimeGetSeconds(presentationTimeStamp), CMTimeGetSeconds(presentationDuration));
 	VideoDecoder *decoder = (__bridge VideoDecoder *)decompressionOutputRefCon;
-	[decoder callbackImageBuffer:imageBuffer];
+	[decoder callbackImageBuffer:imageBuffer pts:[(__bridge NSNumber *)sourceFrameRefCon doubleValue]];
 }
 
-- (void)callbackImageBuffer:(CVImageBufferRef)imageBuffer{
+- (void)callbackImageBuffer:(CVImageBufferRef)imageBuffer pts:(double)pts{
 	if(_callback){
-		_callback(imageBuffer);
+		_callback(imageBuffer, pts);
 	}
 }
 
-- (void)appendFrame:(NSData *)frame{
+- (void)appendFrame:(NSData *)frame pts:(double)pts{
 	uint8_t *pNal = (uint8_t*)[frame bytes];
 	//int nal_ref_idc = pNal[0] & 0x60;
 	int nal_type = pNal[0] & 0x1f;
@@ -158,12 +158,14 @@ void decompressionSessionDecodeFrameCallback(void *decompressionOutputRefCon,
 		CFRelease(blockBuffer);
 		
 		if(status == noErr){
-			VTDecodeFrameFlags flags = kVTDecodeFrame_EnableAsynchronousDecompression;
+			// 不能异步, 否则会乱序
+			//VTDecodeFrameFlags flags = kVTDecodeFrame_EnableAsynchronousDecompression;
+			VTDecodeFrameFlags flags = 0;
 			VTDecodeInfoFlags flagOut;
-			NSDate* currentTime = [NSDate date];
+			NSNumber *framePTS = @(pts);
 			//NSLog(@"sampleBuffer: %d", (int)CFGetRetainCount(sampleBuffer));
 			VTDecompressionSessionDecodeFrame(_decodeSession, sampleBuffer, flags,
-											  (void*)CFBridgingRetain(currentTime), &flagOut);
+											  (void*)CFBridgingRetain(framePTS), &flagOut);
 			CFRelease(sampleBuffer);
 			
 			//NSLog(@"sampleBuffer: %d", (int)CFGetRetainCount(sampleBuffer));
