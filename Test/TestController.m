@@ -12,7 +12,7 @@
 #import "VideoPlayer.h"
 
 @interface TestController (){
-	CALayer *videoLayer;
+	CALayer *_videoLayer;
 	VideoRecorder *_recorder;
 }
 
@@ -22,26 +22,26 @@
 
 - (void)windowDidLoad {
     [super windowDidLoad];
+
+	_videoLayer = [[CALayer alloc] init];
+	_videoLayer.frame = self.videoView.bounds;
+	_videoLayer.bounds = self.videoView.bounds;
+
+	[[self.videoView layer] addSublayer:_videoLayer];
 	_videoView.layer.backgroundColor = [NSColor blackColor].CGColor;
-
-	// create our AVSampleBufferDisplayLayer and add it to the view
-	videoLayer = [[CALayer alloc] init];
-	videoLayer.frame = self.videoView.frame;
-	videoLayer.bounds = self.videoView.bounds;
-
-	[[self.videoView layer] addSublayer:videoLayer];
 
 
 	VideoPlayer *player = [[VideoPlayer alloc] init];
-	player.layer = videoLayer;
+	player.layer = _videoLayer;
 	[player play];
 
 	_recorder = [[VideoRecorder alloc] init];
 	_recorder.clipDuration = 0.2;
+	_recorder.bitrate = 800 * 1024;
 
 	[_recorder start:^(VideoClip *clip) {
 		NSData *data = clip.data;
-		NSLog(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, has_key_frame: %@",
+		NSLog(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, key_frame: %@",
 			  clip.frameCount, clip.startTime, clip.endTime, clip.duration, (int)data.length,
 			  clip.hasKeyFrame?@"yes":@"no");
 

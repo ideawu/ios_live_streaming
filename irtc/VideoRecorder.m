@@ -38,7 +38,7 @@
 	self = [super init];
 	_width = 340;
 	_height = 480;
-	_bitrate = 200*1024;
+	_bitrate = 400 * 1024;
 	_clipDuration = 0.3;
 	_prevPOC = -1;
 	[self setupDevices];
@@ -49,8 +49,8 @@
 	_clipCallback = callback;
 	
 	_encoder = [AVEncoder encoderForHeight:_height andWidth:_width bitrate:_bitrate];
-	[_encoder encodeWithBlock:^int(NSArray *frames, double pts, int poc) {
-		[self processFrames:frames pts:pts poc:poc];
+	[_encoder encodeWithBlock:^int(NSArray *frames, double pts) {
+		[self processFrames:frames pts:pts];
 		return 0;
 	} onParams:^(NSData *sps, NSData *pps) {
 		[self processSps:sps pps:pps];
@@ -123,32 +123,21 @@
 	NSLog(@"%@", desc);
 }
 
-- (void)processFrames:(NSArray *)frames pts:(double)pts poc:(int)poc{
+- (void)processFrames:(NSArray *)frames pts:(double)pts{
 	//NSLog(@"pts: %.3f", pts);
-	while(1){
-		if(!_clip){
-			_clip = [[VideoClip alloc] init];
-			_clip.sps = _sps;
-			_clip.pps = _pps;
+	if(!_clip){
+		_clip = [[VideoClip alloc] init];
+		_clip.sps = _sps;
+		_clip.pps = _pps;
+	}
+	for (NSData *data in frames){
+		[_clip appendFrame:data pts:pts];
+	}
+	if(_clip.duration >= _clipDuration){
+		if(_clipCallback){
+			_clipCallback(_clip);
 		}
-
-		// 处理 reordering 相关
-		if(poc > _prevPOC){
-			if(_clip.duration >= _clipDuration){
-				if(_clipCallback){
-					_clipCallback(_clip);
-				}
-				_clip = nil;
-				continue;
-			}
-		}
-
-		for (NSData *data in frames){
-			[_clip appendFrame:data pts:pts];
-		}
-		
-		_prevPOC = poc;
-		break;
+		_clip = nil;
 	}
 }
 

@@ -13,7 +13,7 @@
 @interface PlayerController (){
 	BOOL _playing;
 }
-@property AVSampleBufferDisplayLayer *videoLayer;
+@property CALayer *videoLayer;
 @property VideoPlayer *player;
 @end
 
@@ -21,14 +21,13 @@
 
 - (void)windowDidLoad {
     [super windowDidLoad];
-	_videoView.layer.backgroundColor = [NSColor blackColor].CGColor;
-
-	_videoLayer = [[AVSampleBufferDisplayLayer alloc] init];
-	_videoLayer.frame = self.videoView.frame;
+	
+	_videoLayer = [[CALayer alloc] init];
+	_videoLayer.frame = self.videoView.bounds;
 	_videoLayer.bounds = self.videoView.bounds;
-	_videoLayer.videoGravity = AVLayerVideoGravityResizeAspect;
-
-	[_videoView.layer addSublayer:_videoLayer];
+	
+	[[self.videoView layer] addSublayer:_videoLayer];
+	_videoView.layer.backgroundColor = [NSColor blackColor].CGColor;
 	
 	_player = [[VideoPlayer alloc] init];
 	_player.layer = _videoLayer;

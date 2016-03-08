@@ -36,7 +36,7 @@
 #else
 #ifdef NSFoundationVersionNumber10_10
 	if(NSFoundationVersionNumber > NSFoundationVersionNumber10_10){
-		[cs setObject:@(YES) forKey:AVVideoAllowFrameReorderingKey];
+		[cs setObject:@(NO) forKey:AVVideoAllowFrameReorderingKey];
 	}
 #endif
 #endif

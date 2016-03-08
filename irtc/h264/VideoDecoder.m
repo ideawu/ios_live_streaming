@@ -82,8 +82,6 @@
 													(__bridge CFDictionaryRef)(decoderParameters),
 													(__bridge CFDictionaryRef)(pixelBufferAttrs),
 													&callBackRecord, &_decodeSession);
-	
-	NSLog(@"Video Decompression Session Create: \t %@", (status == noErr) ? @"successful!" : @"failed...");
 	if(status != noErr) NSLog(@"\t\t VTD ERROR type: %d", (int)status);
 }
 
@@ -152,7 +150,6 @@ void decompressionSessionDecodeFrameCallback(void *decompressionOutputRefCon,
 										  0, NULL,
 										  1, &sampleSize,
 										  &sampleBuffer);
-			//			NSLog(@"\t\t SampleBufferCreate: \t %@", (status == noErr) ? @"successful!" : @"failed...");
 			//NSLog(@"blockBuffer: %d", (int)CFGetRetainCount(blockBuffer));
 		}
 		

@@ -445,13 +445,15 @@ static unsigned int to_host(unsigned char* p)
  
     if (_outputBlock != nil)
     {
-        _outputBlock(frame, pts, poc);
+        _outputBlock(frame, pts);
     }
     
 }
 
 - (void) processStoredFrames
 {
+	// 处理reordering相关
+	EncodedFrame *first = nil;
     // first has the last timestamp and rest use up timestamps from the start
     int n = 0;
     for (EncodedFrame* f in _frames){
@@ -467,13 +469,21 @@ static unsigned int to_host(unsigned char* p)
                 pts = [_times[index] doubleValue];
             }
         }
-		[self deliverFrame:f.frame withTime:pts poc:f.poc];
+		f.pts = pts;
+		if(n == 0){
+			first = f;
+		}else{
+			[self deliverFrame:f.frame withTime:pts poc:f.poc];
+		}
         n++;
     }
     @synchronized(_times){
         [_times removeObjectsInRange:NSMakeRange(0, [_frames count])];
     }
     [_frames removeAllObjects];
+	if(first){
+		[self deliverFrame:first.frame withTime:first.pts poc:first.poc];
+	}
 }
 
 - (void) onEncodedFrame
@@ -500,6 +510,7 @@ static unsigned int to_host(unsigned char* p)
 		[self deliverFrame:_pendingNALU withTime:pts poc:0];
         _prevPOC = 0;
     }else{
+		//NSLog(@"poc: %d", poc);
         EncodedFrame* f = [[EncodedFrame alloc] initWithData:_pendingNALU andPOC:poc];
         if (poc > _prevPOC){
             // all pending frames come before this, so share out the

@@ -186,8 +186,8 @@
 	}
 	double stime = [ps[1] doubleValue];
 	double etime = [ps[2] doubleValue];
-	int frameCount = [ps[3] intValue];
-	NSLog(@"parsed stime: %.3f, etime: %.3f, duration: %.3f, frames: %d", stime, etime, (etime-stime), frameCount);
+	//int frameCount = [ps[3] intValue];
+	//NSLog(@"parsed stime: %.3f, etime: %.3f, duration: %.3f, frames: %d", stime, etime, (etime-stime), frameCount);
 	
 	NSUInteger pos = range.location + range.length;
 	NSUInteger len = data.length - pos;

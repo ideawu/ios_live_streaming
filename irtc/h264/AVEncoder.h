@@ -8,7 +8,7 @@
 
 #import <AVFoundation/AVFoundation.h>
 
-typedef int (^encoder_handler_t)(NSArray* frames, double pts, int poc);
+typedef int (^encoder_handler_t)(NSArray* frames, double pts);
 
 @interface AVEncoder : NSObject
 
