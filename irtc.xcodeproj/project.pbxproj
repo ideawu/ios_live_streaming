@@ -77,6 +77,7 @@
 		31E5BDDC1C8EDF3F007E0503 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 318777501C8ED95000FC417F /* libz.tbd */; };
 		31E5BDDF1C8EE328007E0503 /* NALUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318777141C89B21700FC417F /* NALUnit.cpp */; };
 		31E5BDE31C8EE6F5007E0503 /* AAPLEAGLLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 31E5BDE21C8EE6F5007E0503 /* AAPLEAGLLayer.m */; };
+		31E5BDE51C8EF884007E0503 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 31E5BDE41C8EF884007E0503 /* libz.tbd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -180,6 +181,7 @@
 		319207A71C854AA60017C818 /* irtc.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = irtc.m; sourceTree = "<group>"; };
 		31E5BDE11C8EE6F5007E0503 /* AAPLEAGLLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLEAGLLayer.h; sourceTree = "<group>"; };
 		31E5BDE21C8EE6F5007E0503 /* AAPLEAGLLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAPLEAGLLayer.m; sourceTree = "<group>"; };
+		31E5BDE41C8EF884007E0503 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,6 +189,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				31E5BDE51C8EF884007E0503 /* libz.tbd in Frameworks */,
 				081420691C8DD70700A2B03E /* libcurl.a in Frameworks */,
 				318777441C8DA30800FC417F /* VideoToolbox.framework in Frameworks */,
 				081420581C8B1F0400A2B03E /* VideoToolbox.framework in Frameworks */,
@@ -238,6 +241,7 @@
 		081420591C8B1F3F00A2B03E /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				31E5BDE41C8EF884007E0503 /* libz.tbd */,
 				318777431C8DA30800FC417F /* VideoToolbox.framework */,
 				081420761C8DDA7000A2B03E /* VideoToolbox.framework */,
 				081420571C8B1F0400A2B03E /* VideoToolbox.framework */,

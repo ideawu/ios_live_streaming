@@ -11,12 +11,11 @@
 @interface VideoPlayer : NSObject
 
 @property CALayer *layer;
+@property double speed;
 
 - (void)play;
 //- (void)pause;
 //- (void)stop;
-
-- (void)setSpeed:(double)speed;
 
 - (void)addClip:(VideoClip *)clip;
 

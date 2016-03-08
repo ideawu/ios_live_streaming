@@ -28,11 +28,11 @@
 //	_player = [[PlayerController alloc] initWithWindowNibName:@"PlayerController"];
 //	[_player showWindow:self];
 
-	_recorder = [[RecorderController alloc] initWithWindowNibName:@"RecorderController"];
-	[_recorder showWindow:self];
+//	_recorder = [[RecorderController alloc] initWithWindowNibName:@"RecorderController"];
+//	[_recorder showWindow:self];
 	
-//	_test = [[TestController alloc] initWithWindowNibName:@"TestController"];
-//	[_test showWindow:self];
+	_test = [[TestController alloc] initWithWindowNibName:@"TestController"];
+	[_test showWindow:self];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {

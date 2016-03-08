@@ -49,6 +49,10 @@
 	});
 }
 
+- (double)speed{
+	return _state.speed;
+}
+
 - (void)setSpeed:(double)speed{
 	_state.speed = speed;
 }
