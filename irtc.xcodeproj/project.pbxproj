@@ -53,13 +53,12 @@
 		318777511C8ED95000FC417F /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 318777501C8ED95000FC417F /* libz.tbd */; };
 		318777531C8ED95600FC417F /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 318777521C8ED95600FC417F /* libxml2.tbd */; };
 		318777561C8EDBA400FC417F /* libirtc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 319207A21C854AA60017C818 /* libirtc.a */; };
-		318777571C8EDCB400FC417F /* NALUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318777141C89B21700FC417F /* NALUnit.cpp */; };
 		318BA4FD1C85504B000CED2B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA4FC1C85504B000CED2B /* main.m */; };
 		318BA5001C85504B000CED2B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA4FF1C85504B000CED2B /* AppDelegate.m */; };
 		318BA5031C85504B000CED2B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA5021C85504B000CED2B /* ViewController.m */; };
 		318BA5061C85504B000CED2B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 318BA5041C85504B000CED2B /* Main.storyboard */; };
 		318BA5081C85504B000CED2B /* Player-Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 318BA5071C85504B000CED2B /* Player-Assets.xcassets */; };
-		318BA5181C85507E000CED2B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA5171C85507E000CED2B /* main.m */; };
+		318BA5181C85507E000CED2B /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 318BA5171C85507E000CED2B /* main.mm */; };
 		318BA51B1C85507E000CED2B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA51A1C85507E000CED2B /* AppDelegate.m */; };
 		318BA51E1C85507E000CED2B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 318BA51D1C85507E000CED2B /* ViewController.m */; };
 		318BA5211C85507E000CED2B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 318BA51F1C85507E000CED2B /* Main.storyboard */; };
@@ -76,7 +75,7 @@
 		319207A81C854AA60017C818 /* irtc.m in Sources */ = {isa = PBXBuildFile; fileRef = 319207A71C854AA60017C818 /* irtc.m */; };
 		31E5BDDB1C8EDF36007E0503 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 318777521C8ED95600FC417F /* libxml2.tbd */; };
 		31E5BDDC1C8EDF3F007E0503 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 318777501C8ED95000FC417F /* libz.tbd */; };
-		31E5BDDE1C8EDFF2007E0503 /* a.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31E5BDDD1C8EDFF2007E0503 /* a.cpp */; };
+		31E5BDDF1C8EE328007E0503 /* NALUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318777141C89B21700FC417F /* NALUnit.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -162,7 +161,7 @@
 		318BA5071C85504B000CED2B /* Player-Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Player-Assets.xcassets"; sourceTree = "<group>"; };
 		318BA50C1C85504B000CED2B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		318BA5141C85507E000CED2B /* Recorder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Recorder.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		318BA5171C85507E000CED2B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		318BA5171C85507E000CED2B /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		318BA5191C85507E000CED2B /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		318BA51A1C85507E000CED2B /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		318BA51C1C85507E000CED2B /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
@@ -178,7 +177,6 @@
 		319207A21C854AA60017C818 /* libirtc.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libirtc.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		319207A51C854AA60017C818 /* irtc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = irtc.h; sourceTree = "<group>"; };
 		319207A71C854AA60017C818 /* irtc.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = irtc.m; sourceTree = "<group>"; };
-		31E5BDDD1C8EDFF2007E0503 /* a.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = a.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -343,12 +341,11 @@
 		318BA5161C85507E000CED2B /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				31E5BDDD1C8EDFF2007E0503 /* a.cpp */,
 				318BA5221C85507E000CED2B /* Recorder-Assets.xcassets */,
 				081420711C8DD9AF00A2B03E /* LaunchScreen.xib */,
 				318BA51F1C85507E000CED2B /* Main.storyboard */,
 				318BA5271C85507E000CED2B /* Info.plist */,
-				318BA5171C85507E000CED2B /* main.m */,
+				318BA5171C85507E000CED2B /* main.mm */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -591,8 +588,7 @@
 			files = (
 				318BA51E1C85507E000CED2B /* ViewController.m in Sources */,
 				318BA51B1C85507E000CED2B /* AppDelegate.m in Sources */,
-				318BA5181C85507E000CED2B /* main.m in Sources */,
-				31E5BDDE1C8EDFF2007E0503 /* a.cpp in Sources */,
+				318BA5181C85507E000CED2B /* main.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -607,7 +603,7 @@
 				081420621C8C37CF00A2B03E /* VideoPlayer.m in Sources */,
 				3187773D1C8D60B900FC417F /* PlayerState.m in Sources */,
 				081420671C8DD07A00A2B03E /* LiveStream.m in Sources */,
-				318777571C8EDCB400FC417F /* NALUnit.cpp in Sources */,
+				31E5BDDF1C8EE328007E0503 /* NALUnit.cpp in Sources */,
 				319207A81C854AA60017C818 /* irtc.m in Sources */,
 				318777491C8DA78800FC417F /* VideoClip.m in Sources */,
 				318777191C89B21700FC417F /* MP4Atom.m in Sources */,
