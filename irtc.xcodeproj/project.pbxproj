@@ -16,7 +16,6 @@
 		081420671C8DD07A00A2B03E /* LiveStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 081420661C8DD07A00A2B03E /* LiveStream.m */; };
 		081420681C8DD1C700A2B03E /* LiveStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 081420661C8DD07A00A2B03E /* LiveStream.m */; };
 		081420691C8DD70700A2B03E /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA5551C8554B3000CED2B /* libcurl.a */; };
-		081420701C8DD98500A2B03E /* Info.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0814206E1C8DD98500A2B03E /* Info.xib */; };
 		081420731C8DD9AF00A2B03E /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 081420711C8DD9AF00A2B03E /* LaunchScreen.xib */; };
 		081420741C8DDA5E00A2B03E /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 318776A01C86B87F00FC417F /* CoreVideo.framework */; };
 		081420751C8DDA6500A2B03E /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3187769F1C86B87F00FC417F /* CoreAudio.framework */; };
@@ -77,6 +76,7 @@
 		319207A81C854AA60017C818 /* irtc.m in Sources */ = {isa = PBXBuildFile; fileRef = 319207A71C854AA60017C818 /* irtc.m */; };
 		31E5BDDB1C8EDF36007E0503 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 318777521C8ED95600FC417F /* libxml2.tbd */; };
 		31E5BDDC1C8EDF3F007E0503 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 318777501C8ED95000FC417F /* libz.tbd */; };
+		31E5BDDE1C8EDFF2007E0503 /* a.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31E5BDDD1C8EDFF2007E0503 /* a.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -112,7 +112,6 @@
 		081420651C8DD07A00A2B03E /* LiveStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveStream.h; sourceTree = "<group>"; };
 		081420661C8DD07A00A2B03E /* LiveStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveStream.m; sourceTree = "<group>"; };
 		0814206D1C8DD8B100A2B03E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Player/Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		0814206F1C8DD98500A2B03E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/Info.xib; sourceTree = "<group>"; };
 		081420721C8DD9AF00A2B03E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		081420761C8DDA7000A2B03E /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 		3187767A1C85AABF00FC417F /* Test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Test.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -179,6 +178,7 @@
 		319207A21C854AA60017C818 /* libirtc.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libirtc.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		319207A51C854AA60017C818 /* irtc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = irtc.h; sourceTree = "<group>"; };
 		319207A71C854AA60017C818 /* irtc.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = irtc.m; sourceTree = "<group>"; };
+		31E5BDDD1C8EDFF2007E0503 /* a.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = a.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -343,9 +343,9 @@
 		318BA5161C85507E000CED2B /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				31E5BDDD1C8EDFF2007E0503 /* a.cpp */,
 				318BA5221C85507E000CED2B /* Recorder-Assets.xcassets */,
 				081420711C8DD9AF00A2B03E /* LaunchScreen.xib */,
-				0814206E1C8DD98500A2B03E /* Info.xib */,
 				318BA51F1C85507E000CED2B /* Main.storyboard */,
 				318BA5271C85507E000CED2B /* Info.plist */,
 				318BA5171C85507E000CED2B /* main.m */,
@@ -543,7 +543,6 @@
 			files = (
 				081420731C8DD9AF00A2B03E /* LaunchScreen.xib in Resources */,
 				318BA56E1C8555B3000CED2B /* main.xml in Resources */,
-				081420701C8DD98500A2B03E /* Info.xib in Resources */,
 				318BA5231C85507E000CED2B /* Recorder-Assets.xcassets in Resources */,
 				318BA5211C85507E000CED2B /* Main.storyboard in Resources */,
 			);
@@ -593,6 +592,7 @@
 				318BA51E1C85507E000CED2B /* ViewController.m in Sources */,
 				318BA51B1C85507E000CED2B /* AppDelegate.m in Sources */,
 				318BA5181C85507E000CED2B /* main.m in Sources */,
+				31E5BDDE1C8EDFF2007E0503 /* a.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -633,14 +633,6 @@
 			);
 			name = LaunchScreen.xib;
 			path = ..;
-			sourceTree = "<group>";
-		};
-		0814206E1C8DD98500A2B03E /* Info.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				0814206F1C8DD98500A2B03E /* Base */,
-			);
-			name = Info.xib;
 			sourceTree = "<group>";
 		};
 		081420711C8DD9AF00A2B03E /* LaunchScreen.xib */ = {

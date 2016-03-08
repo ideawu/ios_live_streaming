@@ -18,7 +18,7 @@
 }
 
 @property VideoRecorder *recorder;
-@property AVCaptureVideoPreviewLayer *previewLayer;
+@property AVCaptureVideoPreviewLayer *videoLayer;
 @property IView *mainView;
 @property IView *videoView;
 
@@ -75,17 +75,24 @@
 	[self loadIp];
 	
 	_recorder = [[VideoRecorder alloc] init];
-	_recorder.clipDuration = 0.5;
+	_recorder.clipDuration = 0.3;
 
-	_previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:_recorder.session];
-	_previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-	[_previewLayer setFrame:[_videoView bounds]];
-	[_videoView.layer addSublayer:_previewLayer];
+	_videoLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:_recorder.session];
+	_videoLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+	_videoLayer.frame = self.videoView.bounds;
+	_videoLayer.bounds = self.videoView.bounds;
 	
-//	__weak typeof(self) me = self;
-//	[_recorder start:^(NSData *data) {
-//		[me onChunkReady:data];
-//	}];
+	[_videoView.layer addSublayer:_videoLayer];
+	
+	__weak typeof(self) me = self;
+	[_recorder start:^(VideoClip *clip) {
+		NSData *data = clip.data;
+		NSLog(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, key_frame: %@",
+			  clip.frameCount, clip.startTime, clip.endTime, clip.duration, (int)data.length,
+			  clip.hasKeyFrame?@"yes":@"no");
+		
+		[me onChunkReady:data];
+	}];
 }
 
 static NSString *base64_encode_data(NSData *data){
