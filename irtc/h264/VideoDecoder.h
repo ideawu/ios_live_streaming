@@ -18,9 +18,11 @@
 
 @interface VideoDecoder : NSObject
 
+- (BOOL)readyForFrame;
+
+- (void)setCallback:(void (^)(CVImageBufferRef imageBuffer))callback;
 - (void)setSps:(NSData *)sps pps:(NSData *)pps;
 
-// 调用者负责释放内存
-- (CMSampleBufferRef)processFrame:(NSData *)frame;
+- (void)appendFrame:(NSData *)frame;
 
 @end

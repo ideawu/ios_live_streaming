@@ -12,7 +12,7 @@
 #import "VideoPlayer.h"
 
 @interface TestController (){
-	AVSampleBufferDisplayLayer *videoLayer;
+	CALayer *videoLayer;
 	VideoRecorder *_recorder;
 }
 
@@ -25,28 +25,19 @@
 	_videoView.layer.backgroundColor = [NSColor blackColor].CGColor;
 
 	// create our AVSampleBufferDisplayLayer and add it to the view
-	videoLayer = [[AVSampleBufferDisplayLayer alloc] init];
+	videoLayer = [[CALayer alloc] init];
 	videoLayer.frame = self.videoView.frame;
 	videoLayer.bounds = self.videoView.bounds;
-	videoLayer.videoGravity = AVLayerVideoGravityResizeAspect;
-
-	// set Timebase, you may need this if you need to display frames at specific times
-	// I didn't need it so I haven't verified that the timebase is working
-	CMTimebaseRef controlTimebase;
-	CMTimebaseCreateWithMasterClock(CFAllocatorGetDefault(), CMClockGetHostTimeClock(), &controlTimebase);
-
-	//videoLayer.controlTimebase = controlTimebase;
-	CMTimebaseSetTime(videoLayer.controlTimebase, kCMTimeZero);
-	CMTimebaseSetRate(videoLayer.controlTimebase, 1.0);
 
 	[[self.videoView layer] addSublayer:videoLayer];
 
 
 	VideoPlayer *player = [[VideoPlayer alloc] init];
-	player.videoLayer = videoLayer;
+	player.layer = videoLayer;
 	[player play];
 
 	_recorder = [[VideoRecorder alloc] init];
+	_recorder.clipDuration = 0.2;
 
 	[_recorder start:^(VideoClip *clip) {
 		NSData *data = clip.data;

@@ -31,7 +31,7 @@
 	[_videoView.layer addSublayer:_videoLayer];
 	
 	_player = [[VideoPlayer alloc] init];
-	_player.videoLayer = _videoLayer;
+	_player.layer = _videoLayer;
 
 	[_player play];
 	

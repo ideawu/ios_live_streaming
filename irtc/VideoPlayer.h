@@ -6,12 +6,11 @@
 //  Copyright (c) 2016年 ideawu. All rights reserved.
 //
 
-#import <AVFoundation/AVFoundation.h>
 #import "VideoClip.h"
 
 @interface VideoPlayer : NSObject
 
-@property (nonatomic, retain) AVSampleBufferDisplayLayer *videoLayer;
+@property CALayer *layer;
 
 - (void)play;
 //- (void)pause;
