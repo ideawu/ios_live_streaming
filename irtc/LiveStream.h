@@ -12,4 +12,7 @@
 
 - (void)sub:(NSString *)url callback:(void (^)(NSData *data))callback;
 
+- (void)pub:(NSString *)url data:(NSData *)data;
+- (void)pub:(NSString *)url data:(NSData *)data callback:(void (^)(NSString *resp))callback;
+
 @end

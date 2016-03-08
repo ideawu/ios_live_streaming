@@ -14,12 +14,21 @@ static size_t icomet_callback(char *ptr, size_t size, size_t nmemb, void *userda
 @interface LiveStream(){
 	CURL *_curl;
 	void (^_subCallback)(NSData *data);
+	void (^_pubCallback)(NSString *resp);
+	BOOL _uploading;
 }
 @property NSString *url;
+@property NSMutableArray *pubItems;
 @end
 
 
 @implementation LiveStream
+
+- (id)init{
+	self = [super init];
+	_uploading = NO;
+	return self;
+}
 
 - (void)sub:(NSString *)url callback:(void (^)(NSData *data))callback{
 	_url = url;
@@ -77,6 +86,54 @@ static NSData *base64_decode(NSString *str){
 			}
 		}
 	}
+}
+
+- (void)pub:(NSString *)url data:(NSData *)data{
+	[self pub:url data:data callback:nil];
+}
+
+- (void)pub:(NSString *)url data:(NSData *)data callback:(void (^)(NSString *resp))callback{
+	_url = url;
+	_pubCallback = callback;
+	if(!_pubItems){
+		_pubItems = [[NSMutableArray alloc] init];
+	}
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[_pubItems addObject:data];
+		[self upload];
+	});
+}
+
+static NSString *base64_encode_data(NSData *data){
+	data = [data base64EncodedDataWithOptions:0];
+	NSString *ret = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+	return ret;
+}
+
+- (void)upload{
+	if(_uploading){
+		return;
+	}
+	NSData *data = _pubItems.firstObject;
+	if(!data){
+		return;
+	}
+	
+	NSString *data_str = base64_encode_data(data);
+	NSDictionary *params = @{
+							 @"content" : data_str,
+							 };
+	_uploading = YES;
+//	http_post_raw(url, params, ^(NSData *data) {
+//		NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+//		NSLog(@"uploaded, resp: %@", str);
+//		
+//		_uploading = NO;
+//		[_chunks removeObjectAtIndex:0];
+//		if(_chunks.count > 0){
+//			[self uploadChunk];
+//		}
+//	});
 }
 
 @end
