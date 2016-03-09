@@ -17,7 +17,7 @@
 @property (nonatomic, readonly) AVCaptureSession *session;
 @property(nonatomic) double clipDuration;
 
-- (void)setupAudio:(void (^)(NSData *data))callback;
+- (void)setupAudio:(void (^)(NSData *data, double pts, double duration))callback;
 - (void)setupVideo:(void (^)(VideoClip *clip))callback;
 
 - (void)start;

@@ -26,7 +26,7 @@
 }
 @property (nonatomic) AVCaptureDevice *audioDevice;
 @property (nonatomic) AVCaptureDevice *videoDevice;
-@property (nonatomic, copy) void (^audioCallback)(NSData *data);
+@property (nonatomic, copy) void (^audioCallback)(NSData *data, double pts, double duration);
 @property (nonatomic, copy) void (^videoCallback)(VideoClip *clip);
 
 @property (nonatomic) VideoEncoder *videoEncoder;
@@ -55,7 +55,7 @@
 	_processQueue = dispatch_queue_create("process", DISPATCH_QUEUE_SERIAL);
 }
 
-- (void)setupAudio:(void (^)(NSData *data))callback{
+- (void)setupAudio:(void (^)(NSData *data, double pts, double duration))callback{
 	if(_audioDevice){
 		return;
 	}
@@ -124,8 +124,8 @@
 	__weak typeof(self) me = self;
 	if(_audioDevice){
 		_audioEncoder = [[AudioEncoder alloc] init];
-		[_audioEncoder encodeWithBlock:^(NSData *data, double pts) {
-			NSLog(@"%d bytes, pts: %.3f", (int)data.length, pts);
+		[_audioEncoder encodeWithBlock:^(NSData *data, double pts, double duration) {
+			[me onAudioChunk:data pts:pts duration:duration];
 		}];
 	}
 	if(_videoDevice){
@@ -154,6 +154,11 @@
 
 #pragma mark - Audio Encoder callbacks
 
+- (void)onAudioChunk:(NSData *)data pts:(double)pts duration:(double)duration{
+	if(_audioCallback){
+		_audioCallback(data, pts, duration);
+	}
+}
 
 #pragma mark - Video Encoder callbacks
 

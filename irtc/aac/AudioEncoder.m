@@ -11,10 +11,10 @@
 	BOOL _running;
 	NSCondition *_condition;
 	
-	NSMutableData *_samples;
+	NSMutableArray *_samples;
 	NSData *_samples_processing;
 	
-	void (^_callback)(NSData *data, double pts);
+	void (^_callback)(NSData *data, double pts, double duration);
 	
 	double _pts;
 }
@@ -61,12 +61,12 @@
 	return self;
 }
 
-- (void)encodeWithBlock:(void (^)(NSData *data, double pts))callback{
+- (void)encodeWithBlock:(void (^)(NSData *data, double pts, double duration))callback{
 	_callback = callback;
 	
 	_running = YES;
 	_condition = [[NSCondition alloc] init];
-	_samples = [[NSMutableData alloc] init];
+	_samples = [[NSMutableArray alloc] init];
 }
 
 - (void)shutdown{
@@ -94,15 +94,6 @@
 	_format.mFormatID = kAudioFormatMPEG4AAC; // kAudioFormatMPEG4AAC_HE does not work. Can't find `AudioClassDescription`. `mFormatFlags` is set to 0.
 	_format.mSampleRate = _sampleRate;
 	_format.mChannelsPerFrame = 2;
-//	//_format.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
-//	//_format.mFormatFlags = 0;
-//	_format.mFormatFlags = kMPEG4Object_AAC_LC; // Format-specific flags to specify details of the format. Set to 0 to indicate no format flags. See “Audio Data Format Identifiers” for the flags that apply to each format.
-//	//_format.mBitsPerChannel = inFormat.mBitsPerChannel;
-//	_format.mBytesPerPacket = 0; // The number of bytes in a packet of audio data. To indicate variable packet size, set this field to 0. For a format that uses variable packet size, specify the size of each packet using an AudioStreamPacketDescription structure.
-//	_format.mFramesPerPacket = 1024; // The number of frames in a packet of audio data. For uncompressed audio, the value is 1. For variable bit-rate formats, the value is a larger fixed number, such as 1024 for AAC. For formats with a variable number of frames per packet, such as Ogg Vorbis, set this field to 0.
-//	_format.mBytesPerFrame = 0; // The number of bytes from the start of one frame to the start of the next frame in an audio buffer. Set this field to 0 for compressed formats. ...
-//	_format.mBitsPerChannel = 0; // ... Set this field to 0 for compressed formats.
-//	_format.mReserved = 0; // Pads the structure out to force an even 8-byte alignment. Must be set to 0.
 	
 	// use AudioFormat API to fill out the rest of the description
 	size = sizeof(_format);
@@ -138,16 +129,6 @@
 		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
 		NSLog(@"setup converter error: %@", error);
 	}
-
-//	if (_format.mBytesPerPacket == 0) {
-//		UInt32 outputSizePerPacket;
-//		// if the destination format is VBR, we need to get max size per packet from the converter
-//		size = sizeof(outputSizePerPacket);
-//		AudioConverterGetProperty(_audioConverter, kAudioConverterPropertyMaximumOutputPacketSize, &size, &outputSizePerPacket);
-//		NSLog(@"wwwwwwww %d", outputSizePerPacket);
-//		// allocate memory for the PacketDescription structures describing the layout of each packet
-//		//outputPacketDescriptions = new AudioStreamPacketDescription [theOutputBufSize / outputSizePerPacket];
-//	}
 	
 	if (self.bitrate != 0) {
 		UInt32 bitrate = (UInt32)self.bitrate;
@@ -156,46 +137,6 @@
 		AudioConverterGetProperty(_audioConverter, kAudioConverterEncodeBitRate, &size, &bitrate);
 		NSLog(@"AAC Encode Bitrate: %d", (int)bitrate);
 	}
-}
-
-- (AudioClassDescription *)getAudioClassDescription{
-	UInt32 type = kAudioFormatMPEG4AAC;
-	UInt32 encoderSpecifier = type;
-	OSStatus st;
-	
-	UInt32 size;
-	st = AudioFormatGetPropertyInfo(kAudioFormatProperty_Encoders,
-									sizeof(encoderSpecifier),
-									&encoderSpecifier,
-									&size);
-	if (st) {
-		NSLog(@"error getting audio format propery info: %d", (int)(st));
-		return nil;
-	}
-	
-	unsigned int count = size / sizeof(AudioClassDescription);
-	AudioClassDescription descriptions[count];
-	st = AudioFormatGetProperty(kAudioFormatProperty_Encoders,
-								sizeof(encoderSpecifier),
-								&encoderSpecifier,
-								&size,
-								descriptions);
-	if (st) {
-		NSLog(@"error getting audio format propery: %d", (int)(st));
-		return nil;
-	}
-	for (unsigned int i = 0; i < count; i++) {
-		NSLog(@"%d %d %d", descriptions[i].mType, descriptions[i].mSubType, descriptions[i].mManufacturer);
-	}
-//	for (unsigned int i = 0; i < count; i++) {
-//		UInt32 manufacturer = kAppleSoftwareAudioCodecManufacturer;
-//		if((type == descriptions[i].mSubType) && (manufacturer == descriptions[i].mManufacturer)) {
-//			memcpy(&desc, &(descriptions[i]), sizeof(desc));
-//			return &desc;
-//		}
-//	}
-	NSLog(@"error getting AudioClassDescription");
-	return nil;
 }
 
 // AudioConverterComplexInputDataProc
@@ -209,46 +150,47 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 	//NSLog(@"Number of packets requested: %d", (unsigned int)requestedPackets);
 	int ret = [encoder copyPCMSamplesIntoBuffer:ioData requestedPackets:requestedPackets];
 	*ioNumberDataPackets = ret;
-	NSLog(@"Copied %d packets into ioData, requested: %d", ret, requestedPackets);
+	//NSLog(@"Copied %d packets into ioData, requested: %d", ret, requestedPackets);
 	return noErr;
 }
 
 - (int)copyPCMSamplesIntoBuffer:(AudioBufferList*)ioData requestedPackets:(UInt32)requestedPackets{
-	int expect = requestedPackets * _srcFormat.mBytesPerPacket;
+	CMSampleBufferRef sampleBuffer = NULL;
 	
 	[_condition lock];
 	{
-		//while(_samples.length < expect){
-		if(_samples.length == 0){
+		if(_samples.count == 0){
 			[_condition wait];
-		
-			if(!_running){
-				expect = 0;
-				//break;
-			}
 		}
-		_samples_processing = nil;
-		if(_samples.length > 0){
-			if(expect > _samples.length){
-				expect = (int)_samples.length;
-			}
-			_samples_processing = [NSData dataWithBytes:_samples.bytes length:expect];
-			[_samples replaceBytesInRange:NSMakeRange(0, _samples_processing.length) withBytes:NULL length:0];
+		sampleBuffer = (__bridge CMSampleBufferRef)(_samples.firstObject);
+		if(sampleBuffer){
+			CFRetain(sampleBuffer);
+			[_samples removeObjectAtIndex:0];
 		}
 	}
 	[_condition unlock];
-	if(!_samples_processing){
+	
+	if(!sampleBuffer){
 		return 0;
 	}
 	
-	if(!_running){
-		NSLog(@"copyPCMSamplesIntoBuffer return 0");
-		return 0;
+	char *pcm;
+	size_t size;
+	CMBlockBufferRef blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer);
+	OSStatus status = CMBlockBufferGetDataPointer(blockBuffer, 0, NULL, &size, &pcm);
+	NSError *error = nil;
+	if (status != kCMBlockBufferNoErr) {
+		error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+		NSLog(@"kCMBlockBuffer error: %@", error);
+	}else{
+		_samples_processing = [NSData dataWithBytes:pcm length:size];
+		ioData->mBuffers[0].mNumberChannels = _srcFormat.mChannelsPerFrame;
+		ioData->mBuffers[0].mData = (void *)_samples_processing.bytes;
+		ioData->mBuffers[0].mDataByteSize = (UInt32)_samples_processing.length;
 	}
 	
-	ioData->mBuffers[0].mNumberChannels = _srcFormat.mChannelsPerFrame;
-	ioData->mBuffers[0].mData = (void *)_samples_processing.bytes;
-	ioData->mBuffers[0].mDataByteSize = (UInt32)_samples_processing.length;
+	_pts = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
+	CFRelease(sampleBuffer);
 	
 	int ret = (int)_samples_processing.length / _srcFormat.mBytesPerPacket;
 	return ret;
@@ -285,9 +227,9 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 			
 			// deal with data
 			double duration = (double)_format.mFramesPerPacket * ioOutputDataPacketSize / _format.mSampleRate;
-			NSLog(@"AAC ready, pts: %f, duration: %f, bytes: %d", _pts, duration, (int)data.length);
+			//NSLog(@"AAC ready, pts: %f, duration: %f, bytes: %d", _pts, duration, (int)data.length);
 			if(_callback){
-				_callback(data, _pts);
+				_callback(data, _pts, duration);
 			}
 		} else {
 			error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
@@ -305,25 +247,14 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 		[self setupAACEncoderFromSampleBuffer:sampleBuffer];
 		[self performSelectorInBackground:@selector(runUntilStop) withObject:nil];
 	}
-	_pts = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
 	
-	char *pcm;
-	size_t size;
-	CMBlockBufferRef blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer);
-	OSStatus status = CMBlockBufferGetDataPointer(blockBuffer, 0, NULL, &size, &pcm);
-	NSError *error = nil;
-	if (status != kCMBlockBufferNoErr) {
-		error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-		NSLog(@"kCMBlockBuffer error: %@", error);
-	}else{
-		[_condition lock];
-		{
-			[_samples appendBytes:pcm length:size];
-			//NSLog(@"signal %d", (int)_samples.length);
-			[_condition signal];
-		}
-		[_condition unlock];
+	[_condition lock];
+	{
+		[_samples addObject:(__bridge id)(sampleBuffer)];
+		//NSLog(@"signal %d", (int)_samples.length);
+		[_condition signal];
 	}
+	[_condition unlock];
 }
 
 
@@ -355,6 +286,46 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 	packet[6] = (char)0xFC;
 	NSData *data = [NSData dataWithBytesNoCopy:packet length:adtsLength freeWhenDone:YES];
 	return data;
+}
+
+- (AudioClassDescription *)getAudioClassDescription{
+	UInt32 type = kAudioFormatMPEG4AAC;
+	UInt32 encoderSpecifier = type;
+	OSStatus st;
+	
+	UInt32 size;
+	st = AudioFormatGetPropertyInfo(kAudioFormatProperty_Encoders,
+									sizeof(encoderSpecifier),
+									&encoderSpecifier,
+									&size);
+	if (st) {
+		NSLog(@"error getting audio format propery info: %d", (int)(st));
+		return nil;
+	}
+	
+	unsigned int count = size / sizeof(AudioClassDescription);
+	AudioClassDescription descriptions[count];
+	st = AudioFormatGetProperty(kAudioFormatProperty_Encoders,
+								sizeof(encoderSpecifier),
+								&encoderSpecifier,
+								&size,
+								descriptions);
+	if (st) {
+		NSLog(@"error getting audio format propery: %d", (int)(st));
+		return nil;
+	}
+	for (unsigned int i = 0; i < count; i++) {
+		NSLog(@"%d %d %d", descriptions[i].mType, descriptions[i].mSubType, descriptions[i].mManufacturer);
+	}
+	//	for (unsigned int i = 0; i < count; i++) {
+	//		UInt32 manufacturer = kAppleSoftwareAudioCodecManufacturer;
+	//		if((type == descriptions[i].mSubType) && (manufacturer == descriptions[i].mManufacturer)) {
+	//			memcpy(&desc, &(descriptions[i]), sizeof(desc));
+	//			return &desc;
+	//		}
+	//	}
+	NSLog(@"error getting AudioClassDescription");
+	return nil;
 }
 
 
