@@ -155,6 +155,7 @@
 #pragma mark - Audio Encoder callbacks
 
 - (void)onAudioChunk:(NSData *)data pts:(double)pts duration:(double)duration{
+	// TODO: AudioClip?
 	if(_audioCallback){
 		_audioCallback(data, pts, duration);
 	}
