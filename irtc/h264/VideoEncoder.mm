@@ -6,10 +6,10 @@
 //  Copyright (c) 2013 GDCL http://www.gdcl.co.uk/license.htm
 //
 
-#import "AVEncoder.h"
+#import "VideoEncoder.h"
 #import "NALUnit.h"
 #import "MP4Atom.h"
-#import "VideoEncoder.h"
+#import "VideoFile.h"
 #import <sys/stat.h>
 
 static unsigned int to_host(unsigned char* p)
@@ -48,13 +48,12 @@ static unsigned int to_host(unsigned char* p)
 @end
 
 
-@interface AVEncoder ()
+@interface VideoEncoder ()
 {
     // initial writer, used to obtain SPS/PPS from header
-    VideoEncoder* _headerWriter;
-    
+    VideoFile* _headerWriter;
     // main encoder/writer
-    VideoEncoder* _writer;
+    VideoFile* _writer;
     
     // writer output file (input to our extractor) and monitoring
     NSFileHandle* _inputFile;
@@ -107,13 +106,13 @@ static unsigned int to_host(unsigned char* p)
 
 @end
 
-@implementation AVEncoder
+@implementation VideoEncoder
 
 @synthesize bitspersecond = _bitspersecond;
 
-+ (AVEncoder*) encoderForHeight:(int) height andWidth:(int) width bitrate:(int)bitrate
++ (VideoEncoder*)encoderForHeight:(int) height andWidth:(int) width bitrate:(int)bitrate
 {
-    AVEncoder* enc = [AVEncoder alloc];
+    VideoEncoder* enc = [VideoEncoder alloc];
 	enc.bitrate = bitrate;
     [enc initForHeight:height andWidth:width];
     return enc;
@@ -130,12 +129,12 @@ static unsigned int to_host(unsigned char* p)
     _height = height;
     _width = width;
     NSString* path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"m.mp4"];
-    _headerWriter = [VideoEncoder encoderForPath:path Height:height andWidth:width bitrate:_bitrate];
+    _headerWriter = [VideoFile videoForPath:path Height:height andWidth:width bitrate:_bitrate];
     _times = [NSMutableArray arrayWithCapacity:10];
 	
     // swap between 3 filenames
     _currentFile = 1;
-    _writer = [VideoEncoder encoderForPath:[self makeFilename] Height:height andWidth:width bitrate:_bitrate];
+    _writer = [VideoFile videoForPath:[self makeFilename] Height:height andWidth:width bitrate:_bitrate];
 
 	_frames = [NSMutableArray arrayWithCapacity:2];
 }
@@ -246,7 +245,7 @@ static unsigned int to_host(unsigned char* p)
         _headerWriter = nil;
         _swapping = NO;
         _inputFile = [NSFileHandle fileHandleForReadingAtPath:_writer.path];
-        _readQueue = dispatch_queue_create("uk.co.gdcl.avencoder.read", DISPATCH_QUEUE_SERIAL);
+        _readQueue = dispatch_queue_create("VideoEncoder.read", DISPATCH_QUEUE_SERIAL);
         
         _readSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, [_inputFile fileDescriptor], 0, _readQueue);
         dispatch_source_set_event_handler(_readSource, ^{
@@ -294,7 +293,7 @@ static unsigned int to_host(unsigned char* p)
             if (st.st_size > OUTPUT_FILE_SWITCH_POINT)
             {
                 _swapping = YES;
-                VideoEncoder* oldVideo = _writer;
+                VideoFile* oldVideo = _writer;
                 
                 // construct a new writer to the next filename
                 if (++_currentFile > MAX_FILENAME_INDEX)
@@ -302,7 +301,7 @@ static unsigned int to_host(unsigned char* p)
                     _currentFile = 1;
                 }
                 NSLog(@"Swap to file %d", _currentFile);
-                _writer = [VideoEncoder encoderForPath:[self makeFilename] Height:_height andWidth:_width bitrate:_bitrate];
+                _writer = [VideoFile videoForPath:[self makeFilename] Height:_height andWidth:_width bitrate:_bitrate];
                 
                 
                 // to do this seamlessly requires a few steps in the right order

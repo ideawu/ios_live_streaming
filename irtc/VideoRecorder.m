@@ -8,7 +8,7 @@
 
 #import "VideoRecorder.h"
 #import "VideoClip.h"
-#import "AVEncoder.h"
+#import "VideoEncoder.h"
 
 @interface VideoRecorder()<AVCaptureVideoDataOutputSampleBufferDelegate>{
 	AVCaptureDevice *videoDevice;
@@ -29,7 +29,7 @@
 
 	int _prevPOC;
 }
-@property (nonatomic) AVEncoder* encoder;
+@property (nonatomic) VideoEncoder* encoder;
 @end
 
 @implementation VideoRecorder
@@ -48,7 +48,7 @@
 - (void)start:(void (^)(VideoClip *clip))callback{
 	_clipCallback = callback;
 	
-	_encoder = [AVEncoder encoderForHeight:_height andWidth:_width bitrate:_bitrate];
+	_encoder = [VideoEncoder encoderForHeight:_height andWidth:_width bitrate:_bitrate];
 	[_encoder encodeWithBlock:^int(NSArray *frames, double pts) {
 		[self processFrames:frames pts:pts];
 		return 0;

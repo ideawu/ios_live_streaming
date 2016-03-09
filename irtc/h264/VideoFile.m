@@ -6,14 +6,14 @@
 //  Copyright (c) 2013 GDCL http://www.gdcl.co.uk/license.htm
 //
 
-#import "VideoEncoder.h"
+#import "VideoFile.h"
 
-@implementation VideoEncoder
+@implementation VideoFile
 
 @synthesize path = _path;
 
-+ (VideoEncoder*) encoderForPath:(NSString*)path Height:(int)height andWidth:(int)width bitrate:(int)bitrate{
-    VideoEncoder* enc = [VideoEncoder alloc];
++ (VideoFile*)videoForPath:(NSString*)path Height:(int)height andWidth:(int)width bitrate:(int)bitrate{
+    VideoFile* enc = [VideoFile alloc];
 	enc.bitrate = bitrate;
     [enc initPath:path Height:height andWidth:width];
     return enc;
