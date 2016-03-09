@@ -11,6 +11,7 @@
 
 static size_t icomet_callback(char *ptr, size_t size, size_t nmemb, void *userdata);
 
+// TODO: 自己写 socket 拼 HTTP
 @interface LiveStream(){
 	CURL *_curl;
 	void (^_subCallback)(NSData *data);
