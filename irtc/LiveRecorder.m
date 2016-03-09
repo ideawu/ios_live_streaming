@@ -6,6 +6,7 @@
 //  Copyright © 2016 ideawu. All rights reserved.
 //
 
+#import "VideoClip.h"
 #import "LiveRecorder.h"
 #import "AudioEncoder.h"
 #import "VideoEncoder.h"
@@ -25,13 +26,12 @@
 }
 @property (nonatomic) AVCaptureDevice *audioDevice;
 @property (nonatomic) AVCaptureDevice *videoDevice;
-@property (nonatomic, copy) void (^audioChunkCallback)(NSData *data);
+@property (nonatomic, copy) void (^audioCallback)(NSData *data);
 @property (nonatomic, copy) void (^videoCallback)(VideoClip *clip);
 
 @property (nonatomic) VideoEncoder *videoEncoder;
 @property (nonatomic) AudioEncoder *audioEncoder;
 
-@property(nonatomic)  double clipDuration;
 @end
 
 
@@ -55,10 +55,12 @@
 	_processQueue = dispatch_queue_create("process", DISPATCH_QUEUE_SERIAL);
 }
 
-- (void)setupAudio{
+- (void)setupAudio:(void (^)(NSData *data))callback{
 	if(_audioDevice){
 		return;
 	}
+	_audioCallback = callback;
+
 	NSError *error = nil;
 	_audioDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
 	for(AVCaptureDevice *dev in [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio]){
@@ -68,6 +70,14 @@
 		}
 	}
 	_audioInput = [AVCaptureDeviceInput deviceInputWithDevice:_audioDevice error:&error];
+
+	_audioDataOutput = [[AVCaptureAudioDataOutput alloc] init];
+	[_audioDataOutput setSampleBufferDelegate:self queue:_captureQueue];
+
+	[_session beginConfiguration];
+	[_session addOutput:_audioDataOutput];
+	[_session addInput:_audioInput];
+	[_session commitConfiguration];
 }
 
 - (void)setupVideo:(void (^)(VideoClip *clip))callback{

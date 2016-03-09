@@ -8,7 +8,7 @@
 #import <AVFoundation/AVFoundation.h>
 
 #import "ViewController.h"
-#import "VideoRecorder.h"
+#import "LiveRecorder.h"
 #import "IKit/IKit.h"
 #import "IObj/Http.h"
 
@@ -17,7 +17,7 @@
 	BOOL _uploading;
 }
 
-@property VideoRecorder *recorder;
+@property LiveRecorder *recorder;
 @property AVCaptureVideoPreviewLayer *videoLayer;
 @property IView *mainView;
 @property IView *videoView;
@@ -74,7 +74,7 @@
 	_submit.button.enabled = NO;
 	[self loadIp];
 	
-	_recorder = [[VideoRecorder alloc] init];
+	_recorder = [[LiveRecorder alloc] init];
 	_recorder.clipDuration = 0.3;
 
 	_videoLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:_recorder.session];
@@ -85,14 +85,19 @@
 	[_videoView.layer addSublayer:_videoLayer];
 	
 	__weak typeof(self) me = self;
-	[_recorder start:^(VideoClip *clip) {
-		NSData *data = clip.data;
-		NSLog(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, key_frame: %@",
-			  clip.frameCount, clip.startTime, clip.endTime, clip.duration, (int)data.length,
-			  clip.hasKeyFrame?@"yes":@"no");
-		
-		[me onChunkReady:data];
+//	[_recorder start:^(VideoClip *clip) {
+//		NSData *data = clip.data;
+//		NSLog(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, key_frame: %@",
+//			  clip.frameCount, clip.startTime, clip.endTime, clip.duration, (int)data.length,
+//			  clip.hasKeyFrame?@"yes":@"no");
+//		
+//		[me onChunkReady:data];
+//	}];
+	[_recorder setupAudio:^(NSData *data) {
+		NSLog(@"data");
 	}];
+	
+	[_recorder start];
 }
 
 static NSString *base64_encode_data(NSData *data){

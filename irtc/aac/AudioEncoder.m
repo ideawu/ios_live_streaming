@@ -1,17 +1,13 @@
-//
-//  KFAACEncoder.m
-//  Kickflip
-//
-//  Created by Christopher Ballinger on 12/18/13.
-//  Copyright (c) 2013 Christopher Ballinger. All rights reserved.
-//
 //  http://stackoverflow.com/questions/10817036/can-i-use-avcapturesession-to-encode-an-aac-stream-to-memory
 
-#import "AudioEncoder.h"
 #import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
+#import "AudioEncoder.h"
 
 @interface AudioEncoder(){
+	AudioStreamBasicDescription _format;
+	AudioStreamBasicDescription _srcFormat;
+
 	void (^_callback)(NSData *data, double pts);
 }
 @property (nonatomic) AudioConverterRef audioConverter;
@@ -24,23 +20,28 @@
 @property (nonatomic) dispatch_queue_t encoderQueue;
 @end
 
+//sampleRate = 44100.0;
+//sampleRate = 22050.0;
+//sampleRate = 8000.0;
+
 @implementation AudioEncoder
 
 - (id)init{
 	self = [super init];
 	
 	_sampleRate = 44100;
-	_bitrate = 64 * 1024;
+	_bitrate = 32 * 1000;
 
-	_audioConverter = NULL;
 	_pcmBufferSize = 0;
 	_pcmBuffer = NULL;
-	_aacBufferSize = 1024;
-	_addADTSHeader = NO;
 
+	_aacBufferSize = 100 * 1024;
 	_aacBuffer = malloc(_aacBufferSize * sizeof(uint8_t));
 	memset(_aacBuffer, 0, _aacBufferSize);
+	
+	_addADTSHeader = NO;
 
+	_audioConverter = NULL;
 	_encoderQueue = dispatch_queue_create("processQueue", DISPATCH_QUEUE_SERIAL);
 	return self;
 }
@@ -62,32 +63,76 @@
 }
 
 - (void)setupAACEncoderFromSampleBuffer:(CMSampleBufferRef)sampleBuffer {
-	AudioStreamBasicDescription inAudioStreamBasicDescription = *CMAudioFormatDescriptionGetStreamBasicDescription((CMAudioFormatDescriptionRef)CMSampleBufferGetFormatDescription(sampleBuffer));
+	UInt32 size;
+	_srcFormat = *CMAudioFormatDescriptionGetStreamBasicDescription((CMAudioFormatDescriptionRef)CMSampleBufferGetFormatDescription(sampleBuffer));
 	
-	AudioStreamBasicDescription outAudioStreamBasicDescription = {0};
-	outAudioStreamBasicDescription.mSampleRate = _sampleRate;
-	outAudioStreamBasicDescription.mFormatID = kAudioFormatMPEG4AAC; // kAudioFormatMPEG4AAC_HE does not work. Can't find `AudioClassDescription`. `mFormatFlags` is set to 0.
-	outAudioStreamBasicDescription.mFormatFlags = kMPEG4Object_AAC_LC; // Format-specific flags to specify details of the format. Set to 0 to indicate no format flags. See “Audio Data Format Identifiers” for the flags that apply to each format.
-	outAudioStreamBasicDescription.mBytesPerPacket = 0; // The number of bytes in a packet of audio data. To indicate variable packet size, set this field to 0. For a format that uses variable packet size, specify the size of each packet using an AudioStreamPacketDescription structure.
-	outAudioStreamBasicDescription.mFramesPerPacket = 1024; // The number of frames in a packet of audio data. For uncompressed audio, the value is 1. For variable bit-rate formats, the value is a larger fixed number, such as 1024 for AAC. For formats with a variable number of frames per packet, such as Ogg Vorbis, set this field to 0.
-	outAudioStreamBasicDescription.mBytesPerFrame = 0; // The number of bytes from the start of one frame to the start of the next frame in an audio buffer. Set this field to 0 for compressed formats. ...
-	outAudioStreamBasicDescription.mChannelsPerFrame = 2;
-	outAudioStreamBasicDescription.mBitsPerChannel = 0; // ... Set this field to 0 for compressed formats.
-	outAudioStreamBasicDescription.mReserved = 0; // Pads the structure out to force an even 8-byte alignment. Must be set to 0.
-	
-	AudioClassDescription *description = [self getAudioClassDescription];
+	//UInt32 real_bytesPerChannel = inFormat.mBitsPerChannel / inFormat.mChannelsPerFrame / 8;
 
-	OSStatus status = AudioConverterNewSpecific(&inAudioStreamBasicDescription,
-												&outAudioStreamBasicDescription,
-												1, description, &_audioConverter);
+	_format.mFormatID = kAudioFormatMPEG4AAC; // kAudioFormatMPEG4AAC_HE does not work. Can't find `AudioClassDescription`. `mFormatFlags` is set to 0.
+	_format.mSampleRate = _sampleRate;
+	_format.mChannelsPerFrame = 2;
+//	//_format.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
+//	//_format.mFormatFlags = 0;
+//	_format.mFormatFlags = kMPEG4Object_AAC_LC; // Format-specific flags to specify details of the format. Set to 0 to indicate no format flags. See “Audio Data Format Identifiers” for the flags that apply to each format.
+//	//_format.mBitsPerChannel = inFormat.mBitsPerChannel;
+//	_format.mBytesPerPacket = 0; // The number of bytes in a packet of audio data. To indicate variable packet size, set this field to 0. For a format that uses variable packet size, specify the size of each packet using an AudioStreamPacketDescription structure.
+//	_format.mFramesPerPacket = 1024; // The number of frames in a packet of audio data. For uncompressed audio, the value is 1. For variable bit-rate formats, the value is a larger fixed number, such as 1024 for AAC. For formats with a variable number of frames per packet, such as Ogg Vorbis, set this field to 0.
+//	_format.mBytesPerFrame = 0; // The number of bytes from the start of one frame to the start of the next frame in an audio buffer. Set this field to 0 for compressed formats. ...
+//	_format.mBitsPerChannel = 0; // ... Set this field to 0 for compressed formats.
+//	_format.mReserved = 0; // Pads the structure out to force an even 8-byte alignment. Must be set to 0.
+	
+	// use AudioFormat API to fill out the rest of the description
+	size = sizeof(_format);
+	AudioFormatGetProperty(kAudioFormatProperty_FormatInfo, 0, NULL, &size, &_format);
+	
+	/*
+	 http://stackoverflow.com/questions/12252791/understanding-remote-i-o-audiostreambasicdescription-asbd
+	 注意, !kLinearPCMFormatFlagIsNonInterleaved(默认是 interleaved 的)
+	 mBytesPerFrame != mChannelsPerFrame * mBitsPerChannel /8
+	 */
+	NSLog(@"format.mSampleRate:       %f", _srcFormat.mSampleRate);
+	NSLog(@"format.mChannelsPerFrame: %d", _srcFormat.mChannelsPerFrame);
+	NSLog(@"format.mBitsPerChannel:   %d", _srcFormat.mBitsPerChannel);
+	NSLog(@"format.mBytesPerFrame:    %d", _srcFormat.mBytesPerFrame);
+	NSLog(@"format.mFramesPerPacket:  %d", _srcFormat.mFramesPerPacket);
+	NSLog(@"format.mBytesPerPacket:   %d", _srcFormat.mBytesPerPacket);
+	NSLog(@"---");
+	NSLog(@"format.mSampleRate:       %f", _format.mSampleRate);
+	NSLog(@"format.mChannelsPerFrame: %d", _format.mChannelsPerFrame);
+	NSLog(@"format.mBitsPerChannel:   %d", _format.mBitsPerChannel);
+	NSLog(@"format.mBytesPerFrame:    %d", _format.mBytesPerFrame);
+	NSLog(@"format.mFramesPerPacket:  %d", _format.mFramesPerPacket);
+	NSLog(@"format.mBytesPerPacket:   %d", _format.mBytesPerPacket);
+	NSLog(@"---");
+
+	AudioClassDescription *description = [self getAudioClassDescription];
+	OSStatus status = AudioConverterNewSpecific(&_srcFormat,
+												&_format,
+												1, description,
+												&_audioConverter);
+//	OSStatus status = AudioConverterNew(&_srcFormat, &_format, &_audioConverter);
 	if (status != 0) {
-		NSLog(@"setup converter: %d", (int)status);
+		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+		NSLog(@"setup converter error: %@", error);
 	}
+
+//	if (_format.mBytesPerPacket == 0) {
+//		UInt32 outputSizePerPacket;
+//		// if the destination format is VBR, we need to get max size per packet from the converter
+//		size = sizeof(outputSizePerPacket);
+//		AudioConverterGetProperty(_audioConverter, kAudioConverterPropertyMaximumOutputPacketSize, &size, &outputSizePerPacket);
+//		NSLog(@"wwwwwwww %d", outputSizePerPacket);
+//		// allocate memory for the PacketDescription structures describing the layout of each packet
+//		//outputPacketDescriptions = new AudioStreamPacketDescription [theOutputBufSize / outputSizePerPacket];
+//	}
+
 	
 	if (self.bitrate != 0) {
-		UInt32 ulBitRate = (UInt32)self.bitrate;
-		UInt32 ulSize = sizeof(ulBitRate);
-		AudioConverterSetProperty(_audioConverter, kAudioConverterEncodeBitRate, ulSize, & ulBitRate);
+		UInt32 bitrate = (UInt32)self.bitrate;
+		UInt32 size = sizeof(bitrate);
+		AudioConverterSetProperty(_audioConverter, kAudioConverterEncodeBitRate, size, &bitrate);
+		AudioConverterGetProperty(_audioConverter, kAudioConverterEncodeBitRate, &size, &bitrate);
+		NSLog(@"AAC Encode Bitrate: %d", (int)bitrate);
 	}
 }
 
@@ -96,7 +141,6 @@
 	
 	UInt32 type = kAudioFormatMPEG4AAC;
 	UInt32 encoderSpecifier = type;
-	UInt32 manufacturer = 0;//kAppleSoftwareAudioCodecManufacturer;
 	OSStatus st;
 	
 	UInt32 size;
@@ -121,7 +165,9 @@
 		return nil;
 	}
 	for (unsigned int i = 0; i < count; i++) {
-		if ((type == descriptions[i].mSubType) && (manufacturer == descriptions[i].mManufacturer)) {
+		//UInt32 manufacturer = 0;//kAppleSoftwareAudioCodecManufacturer;
+		//if ((type == descriptions[i].mSubType) && (manufacturer == descriptions[i].mManufacturer)) {
+		if(type == descriptions[i].mSubType){
 			memcpy(&desc, &(descriptions[i]), sizeof(desc));
 			return &desc;
 		}
@@ -141,12 +187,12 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 	size_t copiedSamples = [encoder copyPCMSamplesIntoBuffer:ioData];
 	// 优化, 避免一次可能无谓的 copy
 	if (copiedSamples < requestedPackets) {
-		//NSLog(@"PCM buffer isn't full enough!");
+		NSLog(@"PCM buffer isn't full enough!");
 		*ioNumberDataPackets = 0;
 		return -1;
 	}
 	*ioNumberDataPackets = 1;
-	//NSLog(@"Copied %zu samples into ioData", copiedSamples);
+	NSLog(@"Copied %zu samples into ioData, requested: %d", copiedSamples, requestedPackets);
 	return noErr;
 }
 
@@ -155,6 +201,7 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 	if (!originalBufferSize) {
 		return 0;
 	}
+	ioData->mBuffers[0].mNumberChannels = _srcFormat.mChannelsPerFrame;
 	ioData->mBuffers[0].mData = _pcmBuffer;
 	ioData->mBuffers[0].mDataByteSize = (UInt32)_pcmBufferSize;
 	_pcmBuffer = NULL;
@@ -175,22 +222,23 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 		if (status != kCMBlockBufferNoErr) {
 			error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
 		}
-		NSLog(@"PCM Buffer Size: %zu", _pcmBufferSize);
+		double pts = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
+		double duration = CMTimeGetSeconds(CMSampleBufferGetDuration(sampleBuffer));
+		NSLog(@"sampleBuffer %d bytes, pts: %f, duration: %f", (int)_pcmBufferSize, pts, duration);
 		
-		memset(_aacBuffer, 0, _aacBufferSize);
-		AudioBufferList outAudioBufferList = {0};
+		AudioBufferList outAudioBufferList;
 		outAudioBufferList.mNumberBuffers = 1;
-		outAudioBufferList.mBuffers[0].mNumberChannels = 1;
+		outAudioBufferList.mBuffers[0].mNumberChannels = _format.mChannelsPerFrame;
 		outAudioBufferList.mBuffers[0].mDataByteSize = (UInt32)_aacBufferSize;
 		outAudioBufferList.mBuffers[0].mData = _aacBuffer;
-		AudioStreamPacketDescription *outPacketDescription = NULL;
+
 		UInt32 ioOutputDataPacketSize = 1;
 		status = AudioConverterFillComplexBuffer(_audioConverter,
 												 inInputDataProc,
 												 (__bridge void *)(self),
 												 &ioOutputDataPacketSize,
 												 &outAudioBufferList,
-												 outPacketDescription);
+												 NULL);
 		NSLog(@"ioOutputDataPacketSize: %d", (unsigned int)ioOutputDataPacketSize);
 
 		NSData *data = nil;

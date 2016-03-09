@@ -108,8 +108,7 @@
 #else
 static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *now,
 									const CVTimeStamp *outputTime, CVOptionFlags flagsIn,
-									CVOptionFlags *flagsOut, void *displayLinkContext)
-{
+									CVOptionFlags *flagsOut, void *displayLinkContext){
 	double time = outputTime->hostTime/1000.0/1000.0/1000.0;
 	[(__bridge VideoPlayer *)displayLinkContext tickCallback:time];
 	return kCVReturnSuccess;
