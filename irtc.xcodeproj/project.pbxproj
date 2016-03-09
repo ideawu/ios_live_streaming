@@ -21,6 +21,9 @@
 		081420751C8DDA6500A2B03E /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3187769F1C86B87F00FC417F /* CoreAudio.framework */; };
 		081420771C8DDA7000A2B03E /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 081420761C8DDA7000A2B03E /* VideoToolbox.framework */; };
 		081420791C8F3DDC00A2B03E /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 081420781C8F3DDC00A2B03E /* libz.dylib */; };
+		0814207C1C908D0C00A2B03E /* AudioFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 0814207B1C908D0C00A2B03E /* AudioFile.m */; };
+		0814207F1C908FAA00A2B03E /* UseAC-AF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0814207D1C908FAA00A2B03E /* UseAC-AF.cpp */; };
+		081420801C908FAA00A2B03E /* UseExtAF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0814207E1C908FAA00A2B03E /* UseExtAF.cpp */; };
 		3187764E1C855ED700FC417F /* libirtc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 319207A21C854AA60017C818 /* libirtc.a */; };
 		3187767E1C85AABF00FC417F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187767D1C85AABF00FC417F /* AppDelegate.m */; };
 		318776811C85AABF00FC417F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776801C85AABF00FC417F /* main.m */; };
@@ -119,6 +122,10 @@
 		081420721C8DD9AF00A2B03E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		081420761C8DDA7000A2B03E /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 		081420781C8F3DDC00A2B03E /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/lib/libz.dylib; sourceTree = DEVELOPER_DIR; };
+		0814207A1C908D0C00A2B03E /* AudioFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioFile.h; sourceTree = "<group>"; };
+		0814207B1C908D0C00A2B03E /* AudioFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioFile.m; sourceTree = "<group>"; };
+		0814207D1C908FAA00A2B03E /* UseAC-AF.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "UseAC-AF.cpp"; sourceTree = "<group>"; };
+		0814207E1C908FAA00A2B03E /* UseExtAF.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UseExtAF.cpp; sourceTree = "<group>"; };
 		3187767A1C85AABF00FC417F /* Test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Test.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3187767C1C85AABF00FC417F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		3187767D1C85AABF00FC417F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -424,6 +431,10 @@
 			children = (
 				31E5BDEB1C8FD184007E0503 /* AudioEncoder.h */,
 				31E5BDEC1C8FD184007E0503 /* AudioEncoder.m */,
+				0814207A1C908D0C00A2B03E /* AudioFile.h */,
+				0814207B1C908D0C00A2B03E /* AudioFile.m */,
+				0814207D1C908FAA00A2B03E /* UseAC-AF.cpp */,
+				0814207E1C908FAA00A2B03E /* UseExtAF.cpp */,
 			);
 			path = aac;
 			sourceTree = "<group>";
@@ -633,7 +644,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				3187774A1C8DA78800FC417F /* VideoDecoder.m in Sources */,
+				081420801C908FAA00A2B03E /* UseExtAF.cpp in Sources */,
 				318777181C89B21700FC417F /* VideoEncoder.mm in Sources */,
+				0814207F1C908FAA00A2B03E /* UseAC-AF.cpp in Sources */,
 				3187771E1C89B2BB00FC417F /* VideoRecorder.m in Sources */,
 				081420621C8C37CF00A2B03E /* VideoPlayer.m in Sources */,
 				3187773D1C8D60B900FC417F /* PlayerState.m in Sources */,
@@ -641,6 +654,7 @@
 				31E5BDDF1C8EE328007E0503 /* NALUnit.cpp in Sources */,
 				319207A81C854AA60017C818 /* irtc.m in Sources */,
 				31E5BDE31C8EE6F5007E0503 /* AAPLEAGLLayer.m in Sources */,
+				0814207C1C908D0C00A2B03E /* AudioFile.m in Sources */,
 				31E5BDF11C8FDD03007E0503 /* LiveRecorder.m in Sources */,
 				318777191C89B21700FC417F /* MP4Atom.m in Sources */,
 				3187771B1C89B21700FC417F /* VideoFile.m in Sources */,

@@ -50,7 +50,7 @@
 //		[player addClip:c];
 //	}];
 	
-	[_recorder setupAudio:^(NSData *data) {
+	[_recorder setupAudio:^(NSData *data, double pts, double duration) {
 		NSLog(@"data");
 	}];
 	

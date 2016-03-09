@@ -52,7 +52,7 @@
 	int bytes_per_second = _sampleRate * sizeof(short) * 2; // 2 channels
 
 	_aacBufferSize = bytes_per_second;
-	_aacBuffer = malloc(_aacBufferSize * sizeof(uint8_t));
+	_aacBuffer = (uint8_t *)malloc(_aacBufferSize * sizeof(uint8_t));
 	memset(_aacBuffer, 0, _aacBufferSize);
 	
 	_addADTSHeader = NO;
@@ -206,8 +206,8 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 		outAudioBufferList.mBuffers[0].mNumberChannels = _format.mChannelsPerFrame;
 		outAudioBufferList.mBuffers[0].mDataByteSize = (UInt32)_aacBufferSize;
 		outAudioBufferList.mBuffers[0].mData = _aacBuffer;
-		
-		UInt32 ioOutputDataPacketSize = 1; // 越小, chunk的时间越短
+
+		UInt32 ioOutputDataPacketSize = 1;
 		status = AudioConverterFillComplexBuffer(_audioConverter,
 												 inInputDataProc,
 												 (__bridge void *)(self),
@@ -269,7 +269,7 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
  **/
 - (NSData*) adtsDataForPacketLength:(NSUInteger)packetLength {
 	int adtsLength = 7;
-	char *packet = malloc(sizeof(char) * adtsLength);
+	char *packet = (char *)malloc(sizeof(char) * adtsLength);
 	// Variables Recycled by addADTStoPacket
 	int profile = 2;  //AAC LC
 	//39=MediaCodecInfo.CodecProfileLevel.AACObjectELD;
