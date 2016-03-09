@@ -139,6 +139,7 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 	UInt32 requestedPackets = *ioNumberDataPackets;
 	//NSLog(@"Number of packets requested: %d", (unsigned int)requestedPackets);
 	size_t copiedSamples = [encoder copyPCMSamplesIntoBuffer:ioData];
+	// 优化, 避免一次可能无谓的 copy
 	if (copiedSamples < requestedPackets) {
 		//NSLog(@"PCM buffer isn't full enough!");
 		*ioNumberDataPackets = 0;
@@ -174,7 +175,7 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 		if (status != kCMBlockBufferNoErr) {
 			error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
 		}
-		//NSLog(@"PCM Buffer Size: %zu", _pcmBufferSize);
+		NSLog(@"PCM Buffer Size: %zu", _pcmBufferSize);
 		
 		memset(_aacBuffer, 0, _aacBufferSize);
 		AudioBufferList outAudioBufferList = {0};
@@ -206,6 +207,8 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 			
 			// deal with data
 			double pts = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
+			double duration = CMTimeGetSeconds(CMSampleBufferGetDuration(sampleBuffer));
+			NSLog(@"AAC ready, pts: %f, duration: %f", pts, duration);
 			if(_callback){
 				_callback(data, pts);
 			}
