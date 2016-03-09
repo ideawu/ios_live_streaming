@@ -8,6 +8,12 @@
 	AudioStreamBasicDescription _format;
 	AudioStreamBasicDescription _srcFormat;
 
+	BOOL _running;
+	NSCondition *_condition;
+	
+	NSMutableData *_samples;
+	NSData *_samples_processing;
+	
 	void (^_callback)(NSData *data, double pts);
 }
 @property (nonatomic) AudioConverterRef audioConverter;
@@ -20,37 +26,50 @@
 @property (nonatomic) dispatch_queue_t encoderQueue;
 @end
 
-//sampleRate = 44100.0;
-//sampleRate = 22050.0;
-//sampleRate = 8000.0;
+//sampleRate = 44100;
+//sampleRate = 22050;
+//sampleRate = 8000;
 
 @implementation AudioEncoder
 
 - (id)init{
 	self = [super init];
 	
-	_sampleRate = 44100;
-	_bitrate = 32 * 1000;
+	_sampleRate = 22050;
+	if(_sampleRate >= 44100){
+		_bitrate = 192000; // 192kbs
+	}else if(_sampleRate < 22000){
+		_bitrate = 32000; // 32kbs
+	}else{
+		_bitrate = 64000; // 64kbs
+	}
 
 	_pcmBufferSize = 0;
 	_pcmBuffer = NULL;
 
-	_aacBufferSize = 100 * 1024;
+	_aacBufferSize = 16 * 1024;
 	_aacBuffer = malloc(_aacBufferSize * sizeof(uint8_t));
 	memset(_aacBuffer, 0, _aacBufferSize);
 	
 	_addADTSHeader = NO;
 
 	_audioConverter = NULL;
-	_encoderQueue = dispatch_queue_create("processQueue", DISPATCH_QUEUE_SERIAL);
 	return self;
 }
 
 - (void)encodeWithBlock:(void (^)(NSData *data, double pts))callback{
 	_callback = callback;
+	
+	_running = YES;
+	_condition = [[NSCondition alloc] init];
+	_samples = [[NSMutableData alloc] init];
 }
 
 - (void)shutdown{
+	_running = NO;
+	[_condition lock];
+	[_condition signal];
+	[_condition unlock];
 }
 
 - (void)dealloc{
@@ -105,12 +124,12 @@
 	NSLog(@"format.mBytesPerPacket:   %d", _format.mBytesPerPacket);
 	NSLog(@"---");
 
-	AudioClassDescription *description = [self getAudioClassDescription];
-	OSStatus status = AudioConverterNewSpecific(&_srcFormat,
-												&_format,
-												1, description,
-												&_audioConverter);
-//	OSStatus status = AudioConverterNew(&_srcFormat, &_format, &_audioConverter);
+//	AudioClassDescription *description = [self getAudioClassDescription];
+//	OSStatus status = AudioConverterNewSpecific(&_srcFormat,
+//												&_format,
+//												1, description,
+//												&_audioConverter);
+	OSStatus status = AudioConverterNew(&_srcFormat, &_format, &_audioConverter);
 	if (status != 0) {
 		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
 		NSLog(@"setup converter error: %@", error);
@@ -137,8 +156,6 @@
 }
 
 - (AudioClassDescription *)getAudioClassDescription{
-	static AudioClassDescription desc;
-	
 	UInt32 type = kAudioFormatMPEG4AAC;
 	UInt32 encoderSpecifier = type;
 	OSStatus st;
@@ -165,17 +182,20 @@
 		return nil;
 	}
 	for (unsigned int i = 0; i < count; i++) {
-		//UInt32 manufacturer = 0;//kAppleSoftwareAudioCodecManufacturer;
-		//if ((type == descriptions[i].mSubType) && (manufacturer == descriptions[i].mManufacturer)) {
-		if(type == descriptions[i].mSubType){
-			memcpy(&desc, &(descriptions[i]), sizeof(desc));
-			return &desc;
-		}
+		NSLog(@"%d %d %d", descriptions[i].mType, descriptions[i].mSubType, descriptions[i].mManufacturer);
 	}
+//	for (unsigned int i = 0; i < count; i++) {
+//		UInt32 manufacturer = kAppleSoftwareAudioCodecManufacturer;
+//		if((type == descriptions[i].mSubType) && (manufacturer == descriptions[i].mManufacturer)) {
+//			memcpy(&desc, &(descriptions[i]), sizeof(desc));
+//			return &desc;
+//		}
+//	}
 	NSLog(@"error getting AudioClassDescription");
 	return nil;
 }
 
+// AudioConverterComplexInputDataProc
 static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 								UInt32 *ioNumberDataPackets,
 								AudioBufferList *ioData,
@@ -184,55 +204,60 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 	AudioEncoder *encoder = (__bridge AudioEncoder *)(inUserData);
 	UInt32 requestedPackets = *ioNumberDataPackets;
 	//NSLog(@"Number of packets requested: %d", (unsigned int)requestedPackets);
-	size_t copiedSamples = [encoder copyPCMSamplesIntoBuffer:ioData];
-	// 优化, 避免一次可能无谓的 copy
-	if (copiedSamples < requestedPackets) {
-		NSLog(@"PCM buffer isn't full enough!");
-		*ioNumberDataPackets = 0;
-		return -1;
-	}
-	*ioNumberDataPackets = 1;
-	NSLog(@"Copied %zu samples into ioData, requested: %d", copiedSamples, requestedPackets);
+	int ret = [encoder copyPCMSamplesIntoBuffer:ioData requestedPackets:requestedPackets];
+	*ioNumberDataPackets = ret;
+	NSLog(@"Copied %d packets into ioData, requested: %d", ret, requestedPackets);
 	return noErr;
 }
 
-- (size_t)copyPCMSamplesIntoBuffer:(AudioBufferList*)ioData {
-	size_t originalBufferSize = _pcmBufferSize;
-	if (!originalBufferSize) {
+- (int)copyPCMSamplesIntoBuffer:(AudioBufferList*)ioData requestedPackets:(UInt32)requestedPackets{
+	int expect = requestedPackets * _srcFormat.mBytesPerPacket;
+	
+	[_condition lock];
+	{
+		if(_samples.length == 0){
+			[_condition wait];
+		
+			if(!_running){
+				expect = 0;
+				//break;
+			}
+		}
+		if(_samples.length > 0){
+			if(expect > _samples.length){
+				expect = (int)_samples.length;
+			}
+			_samples_processing = [NSData dataWithBytes:_samples.bytes length:expect];
+			[_samples replaceBytesInRange:NSMakeRange(0, _samples_processing.length) withBytes:NULL length:0];
+		}
+	}
+	[_condition unlock];
+	
+	if(!_running){
+		NSLog(@"copyPCMSamplesIntoBuffer return 0");
 		return 0;
 	}
+	
 	ioData->mBuffers[0].mNumberChannels = _srcFormat.mChannelsPerFrame;
-	ioData->mBuffers[0].mData = _pcmBuffer;
-	ioData->mBuffers[0].mDataByteSize = (UInt32)_pcmBufferSize;
-	_pcmBuffer = NULL;
-	_pcmBufferSize = 0;
-	return originalBufferSize;
+	ioData->mBuffers[0].mData = (void *)_samples_processing.bytes;
+	ioData->mBuffers[0].mDataByteSize = (UInt32)_samples_processing.length;
+	
+	int ret = (int)_samples_processing.length / _srcFormat.mBytesPerPacket;
+	return ret;
 }
 
-- (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer{
-	CFRetain(sampleBuffer);
-	dispatch_async(self.encoderQueue, ^{
-		if (!_audioConverter) {
-			[self setupAACEncoderFromSampleBuffer:sampleBuffer];
-		}
-		CMBlockBufferRef blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer);
-		CFRetain(blockBuffer);
-		OSStatus status = CMBlockBufferGetDataPointer(blockBuffer, 0, NULL, &_pcmBufferSize, &_pcmBuffer);
+- (void)runUntilStop{
+	while(_running){
+		OSStatus status;
 		NSError *error = nil;
-		if (status != kCMBlockBufferNoErr) {
-			error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-		}
-		double pts = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
-		double duration = CMTimeGetSeconds(CMSampleBufferGetDuration(sampleBuffer));
-		NSLog(@"sampleBuffer %d bytes, pts: %f, duration: %f", (int)_pcmBufferSize, pts, duration);
-		
+
 		AudioBufferList outAudioBufferList;
 		outAudioBufferList.mNumberBuffers = 1;
 		outAudioBufferList.mBuffers[0].mNumberChannels = _format.mChannelsPerFrame;
 		outAudioBufferList.mBuffers[0].mDataByteSize = (UInt32)_aacBufferSize;
 		outAudioBufferList.mBuffers[0].mData = _aacBuffer;
-
-		UInt32 ioOutputDataPacketSize = 1;
+		
+		UInt32 ioOutputDataPacketSize = 21;
 		status = AudioConverterFillComplexBuffer(_audioConverter,
 												 inInputDataProc,
 												 (__bridge void *)(self),
@@ -240,7 +265,7 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 												 &outAudioBufferList,
 												 NULL);
 		NSLog(@"ioOutputDataPacketSize: %d", (unsigned int)ioOutputDataPacketSize);
-
+		
 		NSData *data = nil;
 		if (status == 0) {
 			NSData *rawAAC = [NSData dataWithBytes:outAudioBufferList.mBuffers[0].mData length:outAudioBufferList.mBuffers[0].mDataByteSize];
@@ -254,20 +279,51 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 			}
 			
 			// deal with data
-			double pts = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
-			double duration = CMTimeGetSeconds(CMSampleBufferGetDuration(sampleBuffer));
-			NSLog(@"AAC ready, pts: %f, duration: %f", pts, duration);
+//			double pts = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
+//			double duration = CMTimeGetSeconds(CMSampleBufferGetDuration(sampleBuffer));
+//			NSLog(@"AAC ready, pts: %f, duration: %f, bytes: %d", pts, duration, outAudioBufferList.mBuffers[0].mDataByteSize);
 			if(_callback){
-				_callback(data, pts);
+				_callback(data, 0);
 			}
 		} else {
 			error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-			NSLog(@"%@", error);
+			NSLog(@"decode error: %@", error);
 		}
-		
-		CFRelease(sampleBuffer);
-		CFRelease(blockBuffer);
-   });
+	}
+}
+
+- (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer{
+	if(!_running){
+		return;
+	}
+	
+	if (!_audioConverter) {
+		NSLog(@"setup encoder");
+		[self setupAACEncoderFromSampleBuffer:sampleBuffer];
+		NSLog(@"setup encoder done");
+		[self performSelectorInBackground:@selector(runUntilStop) withObject:nil];
+	}
+	
+	char *pcm;
+	size_t size;
+	CMBlockBufferRef blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer);
+	OSStatus status = CMBlockBufferGetDataPointer(blockBuffer, 0, NULL, &size, &pcm);
+	NSError *error = nil;
+	if (status != kCMBlockBufferNoErr) {
+		error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+		NSLog(@"kCMBlockBuffer error: %@", error);
+	}else{
+//		double pts = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
+//		double duration = CMTimeGetSeconds(CMSampleBufferGetDuration(sampleBuffer));
+//		NSLog(@"sampleBuffer %d bytes, pts: %f, duration: %f", (int)size, pts, duration);
+		[_condition lock];
+		{
+			[_samples appendBytes:pcm length:size];
+			//NSLog(@"signal %d", (int)_samples.length);
+			[_condition signal];
+		}
+		[_condition unlock];
+	}
 }
 
 
