@@ -121,9 +121,10 @@ static NSString *base64_encode_data(NSData *data){
 	}
 	
 	NSString *data_str = base64_encode_data(data);
-	NSDictionary *params = @{
-							 @"content" : data_str,
-							 };
+	data_str = nil;
+//	NSDictionary *params = @{
+//							 @"content" : data_str,
+//							 };
 	_uploading = YES;
 //	http_post_raw(url, params, ^(NSData *data) {
 //		NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];

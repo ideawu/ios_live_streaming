@@ -255,20 +255,16 @@ static unsigned int to_host(unsigned char* p)
     }
 }
 
-// rename encodeSampleBuffer
-- (void) encodeFrame:(CMSampleBufferRef) sampleBuffer
-{
+- (void) encodeSampleBuffer:(CMSampleBufferRef) sampleBuffer{
     @synchronized(self)
     {
-        if (_needParams)
-        {
+        if (_needParams){
             // the avcC record is needed for decoding and it's not written to the file until
             // completion. We get round that by writing the first frame to two files; the first
             // file (containing only one frame) is then finished, so we can extract the avcC record.
             // Only when we've got that do we start reading from the main file.
             _needParams = NO;
-            if ([_headerWriter encodeFrame:sampleBuffer])
-            {
+            if ([_headerWriter encodeFrame:sampleBuffer]){
                 [_headerWriter finishWithCompletionHandler:^{
                     [self onParamsCompletion];
                 }];
@@ -290,14 +286,12 @@ static unsigned int to_host(unsigned char* p)
         {
             struct stat st;
             fstat([_inputFile fileDescriptor], &st);
-            if (st.st_size > OUTPUT_FILE_SWITCH_POINT)
-            {
+            if (st.st_size > OUTPUT_FILE_SWITCH_POINT){
                 _swapping = YES;
                 VideoFile* oldVideo = _writer;
                 
                 // construct a new writer to the next filename
-                if (++_currentFile > MAX_FILENAME_INDEX)
-                {
+                if (++_currentFile > MAX_FILENAME_INDEX){
                     _currentFile = 1;
                 }
                 NSLog(@"Swap to file %d", _currentFile);

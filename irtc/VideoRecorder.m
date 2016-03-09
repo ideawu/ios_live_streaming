@@ -49,9 +49,8 @@
 	_clipCallback = callback;
 	
 	_encoder = [VideoEncoder encoderForHeight:_height andWidth:_width bitrate:_bitrate];
-	[_encoder encodeWithBlock:^int(NSArray *frames, double pts) {
+	[_encoder encodeWithBlock:^void(NSArray *frames, double pts) {
 		[self processFrames:frames pts:pts];
-		return 0;
 	} onParams:^(NSData *sps, NSData *pps) {
 		[self processSps:sps pps:pps];
 	}];
@@ -149,7 +148,7 @@
 }
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection{
-	[_encoder encodeFrame:sampleBuffer];
+	[_encoder encodeSampleBuffer:sampleBuffer];
 }
 
 
