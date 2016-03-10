@@ -56,4 +56,39 @@
 	return sampleBuffer;
 }
 
+- (NSData *)nextSampleData{
+	CMSampleBufferRef sampleBuffer = [_audioOutput copyNextSampleBuffer];
+	if(!sampleBuffer){
+		return nil;
+	}
+	
+	NSMutableData *data = [[NSMutableData alloc] init];
+	OSStatus err;
+	AudioBufferList audioBufferList;
+	CMBlockBufferRef blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer);
+	err = CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(
+																  sampleBuffer,
+																  NULL,
+																  &audioBufferList,
+																  sizeof(AudioBufferList),
+																  NULL,
+																  NULL,
+																  kCMSampleBufferFlag_AudioBufferList_Assure16ByteAlignment,
+																  &blockBuffer
+																  );
+	if(err){
+		NSLog(@"%d error", __LINE__);
+	}
+	for (NSUInteger i = 0; i < audioBufferList.mNumberBuffers; i++) {
+		AudioBuffer audioBuffer = audioBufferList.mBuffers[i];
+		[data appendBytes:audioBuffer.mData length:audioBuffer.mDataByteSize];
+	}
+	
+	_format = *CMAudioFormatDescriptionGetStreamBasicDescription((CMAudioFormatDescriptionRef)CMSampleBufferGetFormatDescription(sampleBuffer));
+	
+	CFRelease(blockBuffer);
+	CFRelease(sampleBuffer);
+	return data;
+}
+
 @end

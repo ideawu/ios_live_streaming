@@ -11,6 +11,11 @@
 
 @interface AudioPlayer : NSObject
 
+@property AudioStreamBasicDescription format;
+@property AudioQueueRef queue;
+
+- (void)setupAQ;
+
 - (void)stop;
 - (void)appendData:(NSData *)data audioFormat:(AudioStreamBasicDescription)format;
 

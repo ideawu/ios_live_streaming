@@ -10,11 +10,13 @@
 #import <AVFoundation/AVFoundation.h>
 #import "LiveRecorder.h"
 #import "VideoPlayer.h"
+#import "AudioPlayer.h"
 
 @interface TestController (){
 	CALayer *_videoLayer;
 	LiveRecorder *_recorder;
 	VideoPlayer *_player;
+	AudioPlayer *_audioPlayer;
 }
 
 @end
@@ -49,6 +51,10 @@
 //		VideoClip *c = [VideoClip clipFromData:data];
 //		[player addClip:c];
 //	}];
+	
+	_audioPlayer = [[AudioPlayer alloc] init];
+	
+	AudioStreamBasicDescription format;
 	
 	[_recorder setupAudio:^(NSData *data, double pts, double duration) {
 		NSLog(@"%d bytes, %f %f", (int)data.length, pts, duration);

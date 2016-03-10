@@ -20,8 +20,6 @@ typedef struct{
 }BufferList;
 
 @interface AudioPlayer(){
-	AudioQueueRef _queue;
-	AudioStreamBasicDescription _format;
 	BOOL _started;
 	BOOL _playing;
 	AudioQueueBufferRef _silence_buffer;
@@ -71,6 +69,7 @@ typedef struct{
 }
 
 static void callback(void *custom_data, AudioQueueRef _queue, AudioQueueBufferRef buffer){
+	NSLog(@"callback");
 	AudioPlayer *player = (__bridge AudioPlayer *)custom_data;
 	[player onCallback:buffer];
 }
@@ -107,21 +106,26 @@ static void callback(void *custom_data, AudioQueueRef _queue, AudioQueueBufferRe
 	OSStatus err;
 	err = AudioQueueNewOutput(&_format, callback, (__bridge void *)(self), NULL, NULL, 0, &_queue);
 	if(err){
-		NSLog(@"%d error", __LINE__);
+		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
+		NSLog(@"line: %d, error: %@", __LINE__, error);
+		return;
 	}
 	
 	double duration = 0.1;
 	int nbytes = duration * _format.mSampleRate * _format.mBitsPerChannel * _format.mChannelsPerFrame / 8;
-	//NSLog(@"silent nbytes: %d", nbytes);
+	nbytes = 1024;
+	NSLog(@"silent nbytes: %d", nbytes);
 	err = AudioQueueAllocateBuffer(_queue, nbytes, &_silence_buffer);
 	if(err){
-		NSLog(@"%d error", __LINE__);
+		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
+		NSLog(@"line: %d, error: %@", __LINE__, error);
 		return;
 	}
 	_silence_buffer->mAudioDataByteSize = nbytes;
 	memset(_silence_buffer->mAudioData, 0, nbytes);
 	//[self addSilence];
 	//err = AudioQueueStart(_queue, NULL);
+	NSLog(@"AQ setup");
 }
 
 - (void)addSilence{
@@ -162,17 +166,22 @@ static void callback(void *custom_data, AudioQueueRef _queue, AudioQueueBufferRe
 		NSLog(@"AudioQueueEnqueueBuffer error: %d %@", err, [error description]);
 	}
 	
-	double duration = (double)buffer->mAudioDataByteSize / (_format.mSampleRate * _format.mBitsPerChannel * _format.mChannelsPerFrame / 8);
-	NSLog(@"add %d byte(s), duration: %.3f", buffer->mAudioDataByteSize, duration);
+//	double duration = (double)buffer->mAudioDataByteSize / (_format.mSampleRate * _format.mBitsPerChannel * _format.mChannelsPerFrame / 8);
+//	NSLog(@"add %d byte(s), duration: %.3f", buffer->mAudioDataByteSize, duration);
 	_buffering_count ++;
 
 	@synchronized(self){
 		if(!_playing){
 			_playing = YES;
-		
+
+			NSLog(@"a");
 			err = AudioQueueStart(_queue, NULL);
+			NSLog(@"  b");
 			if(err){
-				NSLog(@"%d error", __LINE__);
+				NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain
+													 code:err
+												 userInfo:nil];
+				NSLog(@"%d error %@", __LINE__, error);
 			}else{
 				NSLog(@"AQ started");
 			}

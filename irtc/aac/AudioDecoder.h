@@ -1,5 +1,5 @@
 //
-//  AudioReader.h
+//  AudioDecoder.h
 //  irtc
 //
 //  Created by ideawu on 3/10/16.
@@ -9,14 +9,10 @@
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 
-// 将音频文件读取成 SampleBuffer
-@interface AudioReader : NSObject
+@interface AudioDecoder : NSObject
 
 @property AudioStreamBasicDescription format;
 
-+ (AudioReader *)readerWithFile:(NSString *)file;
-
-- (CMSampleBufferRef)nextSampleBuffer;
-- (NSData *)nextSampleData;
+- (void)appendData:(NSData *)data pts:(double)pts;
 
 @end
