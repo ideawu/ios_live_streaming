@@ -19,7 +19,7 @@
 	
 	double _pts;
 }
-@property (nonatomic) AudioConverterRef audioConverter;
+@property (nonatomic) AudioConverterRef converter;
 @property (nonatomic) uint8_t *aacBuffer;
 @property (nonatomic) NSUInteger aacBufferSize;
 @property (nonatomic) char *pcmBuffer;
@@ -58,7 +58,7 @@
 	
 	_addADTSHeader = NO;
 
-	_audioConverter = NULL;
+	_converter = NULL;
 	return self;
 }
 
@@ -68,18 +68,20 @@
 	_running = YES;
 	_condition = [[NSCondition alloc] init];
 	_samples = [[NSMutableArray alloc] init];
+	
+	[self performSelectorInBackground:@selector(runUntilStop) withObject:nil];
 }
 
 - (void)shutdown{
 	_running = NO;
 	[_condition lock];
-	[_condition signal];
+	[_condition broadcast];
 	[_condition unlock];
 }
 
 - (void)dealloc{
-	if(_audioConverter){
-		AudioConverterDispose(_audioConverter);
+	if(_converter){
+		AudioConverterDispose(_converter);
 	}
 	if(_aacBuffer){
 		free(_aacBuffer);
@@ -106,12 +108,13 @@
 	_format.mFormatID = kAudioFormatMPEG4AAC;
 	_format.mChannelsPerFrame = _srcFormat.mChannelsPerFrame;
 	// 如果设置 bitrate, 应该让编码器自己决定 samplerate
-	if(_bitrate > 0){
-		_format.mSampleRate = 0;
-	}else{
-	}
+//	if(_bitrate > 0){
+//		_format.mSampleRate = 0;
+//	}else{
+//		_format.mSampleRate = _srcFormat.mSampleRate;
+//	}
 	_format.mSampleRate = _srcFormat.mSampleRate;
-	_format.mFramesPerPacket = 1024;
+	//_format.mFramesPerPacket = 1024;
 	// 不能设置
 	//_format.mBitsPerChannel = 16;
 	//_format.mBytesPerPacket = _format.mChannelsPerFrame * (_format.mBitsPerChannel / 8);
@@ -136,24 +139,27 @@
 //	OSStatus status = AudioConverterNewSpecific(&_srcFormat,
 //												&_format,
 //												1, description,
-//												&_audioConverter);
-	err = AudioConverterNew(&_srcFormat, &_format, &_audioConverter);
+//												&_converter);
+	err = AudioConverterNew(&_srcFormat, &_format, &_converter);
 
 	if (self.bitrate != 0) {
 		UInt32 bitrate = (UInt32)self.bitrate;
 		UInt32 size = sizeof(bitrate);
-		err = AudioConverterSetProperty(_audioConverter, kAudioConverterEncodeBitRate, size, &bitrate);
+		err = AudioConverterSetProperty(_converter, kAudioConverterEncodeBitRate, size, &bitrate);
 		if (err != 0) {
 			NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 			NSLog(@"line: %d, error: %@", __LINE__, error);
 		}
-		err = AudioConverterGetProperty(_audioConverter, kAudioConverterEncodeBitRate, &size, &bitrate);
+		err = AudioConverterGetProperty(_converter, kAudioConverterEncodeBitRate, &size, &bitrate);
 		if (err != 0) {
 			NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 			NSLog(@"line: %d, error: %@", __LINE__, error);
 		}else{
 			NSLog(@"set bitrate: %d", bitrate);
 		}
+	}
+	if(_converter){
+		NSLog(@"converter created");
 	}
 	//exit(0);
 }
@@ -168,8 +174,12 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 	UInt32 requestedPackets = *ioNumberDataPackets;
 	//NSLog(@"Number of packets requested: %d", (unsigned int)requestedPackets);
 	int ret = [encoder copyPCMSamplesIntoBuffer:ioData requestedPackets:requestedPackets];
+	if(ret == -1){
+		*ioNumberDataPackets = 0;
+		return -1;
+	}
 	*ioNumberDataPackets = ret;
-	//NSLog(@"Copied %d packets into ioData, requested: %d", ret, requestedPackets);
+	NSLog(@"Copied %d packets into ioData, requested: %d", ret, requestedPackets);
 	return noErr;
 }
 
@@ -181,16 +191,26 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 		if(_samples.count == 0){
 			[_condition wait];
 		}
+		//NSLog(@"_samples: %d", (int)_samples.count);
 		sampleBuffer = (__bridge CMSampleBufferRef)(_samples.firstObject);
 		if(sampleBuffer){
-			CFRetain(sampleBuffer);
 			[_samples removeObjectAtIndex:0];
 		}
 	}
 	[_condition unlock];
 	
 	if(!sampleBuffer){
+		NSLog(@"copyPCMSamplesIntoBuffer is signaled to exit");
 		return 0;
+	}
+	
+	AudioStreamBasicDescription f = *CMAudioFormatDescriptionGetStreamBasicDescription((CMAudioFormatDescriptionRef)CMSampleBufferGetFormatDescription(sampleBuffer));
+	if(f.mBitsPerChannel != _srcFormat.mBitsPerChannel || f.mChannelsPerFrame != _srcFormat.mChannelsPerFrame || f.mSampleRate != _srcFormat.mSampleRate){
+		CFRelease(sampleBuffer);
+		NSLog(@"Sample format changed!");
+		[self printFormat:_srcFormat name:@"old"];
+		[self printFormat:f name:@"new"];
+		return -1;
 	}
 	
 	char *pcm;
@@ -216,9 +236,31 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 }
 
 - (void)runUntilStop{
+	OSStatus status;
+	NSError *error = nil;
+	
 	while(_running){
-		OSStatus status;
-		NSError *error = nil;
+		[_condition lock];
+		{
+			while(_running && !_converter){
+				[_condition wait];
+				
+				CMSampleBufferRef sampleBuffer = (__bridge CMSampleBufferRef)(_samples.firstObject);
+				if(sampleBuffer){
+					// TODO: 移到 lock 外面
+					[self setupAACEncoderFromSampleBuffer:sampleBuffer];
+					if(!_converter){
+						NSLog(@"setup converter failed!");
+						break;
+					}
+				}
+			}
+		}
+		[_condition unlock];
+		
+		if(!_converter){
+			break;
+		}
 
 		AudioBufferList outAudioBufferList;
 		outAudioBufferList.mNumberBuffers = 1;
@@ -227,12 +269,18 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 		outAudioBufferList.mBuffers[0].mData = _aacBuffer;
 
 		UInt32 ioOutputDataPacketSize = 1;
-		status = AudioConverterFillComplexBuffer(_audioConverter,
+		status = AudioConverterFillComplexBuffer(_converter,
 												 inInputDataProc,
 												 (__bridge void *)(self),
 												 &ioOutputDataPacketSize,
 												 &outAudioBufferList,
 												 NULL);
+		if(status != noErr){
+			NSLog(@"dispose converter");
+			AudioConverterDispose(_converter);
+			_converter = NULL;
+			continue;
+		}
 		NSLog(@"ioOutputDataPacketSize: %d, frames: %d", (int)ioOutputDataPacketSize,
 			  _format.mFramesPerPacket * ioOutputDataPacketSize);
 		
@@ -264,13 +312,9 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 		return;
 	}
 	
-	if (!_audioConverter) {
-		[self setupAACEncoderFromSampleBuffer:sampleBuffer];
-		[self performSelectorInBackground:@selector(runUntilStop) withObject:nil];
-	}
-	
 	[_condition lock];
 	{
+		CFRetain(sampleBuffer);
 		[_samples addObject:(__bridge id)(sampleBuffer)];
 		//NSLog(@"signal %d", (int)_samples.length);
 		[_condition signal];

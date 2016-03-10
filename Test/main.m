@@ -12,7 +12,7 @@
 #import "AudioEncoder.h"
 
 int main(int argc, const char * argv[]) {
-#if 1
+#if 0
 	AudioEncoder *encoder = [[AudioEncoder alloc] init];
 	[encoder encodeWithBlock:^(NSData *data, double pts, double duration) {
 		NSLog(@"%d bytes, %f %f", (int)data.length, pts, duration);

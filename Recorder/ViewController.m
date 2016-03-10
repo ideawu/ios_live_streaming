@@ -94,7 +94,7 @@
 //		[me onChunkReady:data];
 //	}];
 	[_recorder setupAudio:^(NSData *data, double pts, double duration) {
-		NSLog(@"data");
+		NSLog(@"%d bytes, %f %f", (int)data.length, pts, duration);
 	}];
 	
 	[_recorder start];
