@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface PlayerState : NSObject{
+@interface VideoPlayerState : NSObject{
 }
 // 播放器时间
 @property (nonatomic, readonly) double time;

@@ -10,8 +10,6 @@
 
 @interface AudioEncoder : NSObject
 
-@property (nonatomic) BOOL addADTSHeader;
-
 - (void)encodeWithBlock:(void (^)(NSData *data, double pts, double duration))callback;
 - (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 - (void)shutdown;

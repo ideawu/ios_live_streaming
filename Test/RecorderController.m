@@ -9,7 +9,6 @@
 #import <AVFoundation/AVFoundation.h>
 #import "RecorderController.h"
 #import "IObj/Http.h"
-#import "VideoRecorder.h"
 
 typedef enum{
 	RecordNone,

@@ -6,7 +6,7 @@
 //  Copyright © 2016 ideawu. All rights reserved.
 //
 
-#import "PlayerState.h"
+#import "VideoPlayerState.h"
 
 typedef enum{
 	PlayerStateNone,
@@ -16,7 +16,7 @@ typedef enum{
 	PlayerStatePlaying,
 }PlayerStateState;
 
-@interface PlayerState(){
+@interface VideoPlayerState(){
 	double _last_tick;
 	double _speed;
 	PlayerStateState _state;
@@ -26,7 +26,7 @@ typedef enum{
 @end
 
 
-@implementation PlayerState
+@implementation VideoPlayerState
 
 - (id)init{
 	self = [super init];

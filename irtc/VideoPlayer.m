@@ -8,7 +8,7 @@
 
 #import "VideoPlayer.h"
 #import "VideoDecoder.h"
-#import "PlayerState.h"
+#import "VideoPlayerState.h"
 
 @interface VideoPlayer(){
 #if TARGET_OS_IPHONE
@@ -28,7 +28,7 @@
 
 	dispatch_queue_t _processQueue;
 }
-@property PlayerState *state;
+@property VideoPlayerState *state;
 @end
 
 
@@ -39,7 +39,7 @@
 	_started = NO;
 	_items = [[NSMutableArray alloc] init];
 	_frames = [[NSMutableArray alloc] init];
-	_state = [[PlayerState alloc] init];
+	_state = [[VideoPlayerState alloc] init];
 	return self;
 }
 
