@@ -179,7 +179,7 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 		return -1;
 	}
 	*ioNumberDataPackets = ret;
-	NSLog(@"Copied %d packets into ioData, requested: %d", ret, requestedPackets);
+	//NSLog(@"Copied %d packets into ioData, requested: %d", ret, requestedPackets);
 	return noErr;
 }
 
@@ -395,3 +395,26 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 
 
 @end
+
+/*
+AudioEncoder *encoder = [[AudioEncoder alloc] init];
+[encoder encodeWithBlock:^(NSData *data, double pts, double duration) {
+	NSLog(@"%d bytes, %f %f", (int)data.length, pts, duration);
+}];
+
+NSString *input = [NSTemporaryDirectory() stringByAppendingFormat:@"/a.aif"];
+AudioReader *reader = [AudioReader readerWithFile:input];
+CMSampleBufferRef sampleBuffer;
+while(1){
+	sampleBuffer = [reader nextSampleBuffer];
+	if(!sampleBuffer){
+		break;
+	}
+	
+	[encoder encodeSampleBuffer:sampleBuffer];
+	
+	CFRelease(sampleBuffer);
+}
+NSLog(@"end");
+sleep(1);
+*/

@@ -13,8 +13,6 @@
 		081420621C8C37CF00A2B03E /* VideoPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 081420611C8C37CF00A2B03E /* VideoPlayer.m */; };
 		081420631C8C652600A2B03E /* VideoPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 081420611C8C37CF00A2B03E /* VideoPlayer.m */; };
 		081420641C8DCE9700A2B03E /* PlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187768E1C85AAF600FC417F /* PlayerController.m */; };
-		081420671C8DD07A00A2B03E /* LiveStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 081420661C8DD07A00A2B03E /* LiveStream.m */; };
-		081420681C8DD1C700A2B03E /* LiveStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 081420661C8DD07A00A2B03E /* LiveStream.m */; };
 		081420691C8DD70700A2B03E /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 318BA5551C8554B3000CED2B /* libcurl.a */; };
 		081420731C8DD9AF00A2B03E /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 081420711C8DD9AF00A2B03E /* LaunchScreen.xib */; };
 		081420741C8DDA5E00A2B03E /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 318776A01C86B87F00FC417F /* CoreVideo.framework */; };
@@ -72,6 +70,7 @@
 		319207A81C854AA60017C818 /* irtc.m in Sources */ = {isa = PBXBuildFile; fileRef = 319207A71C854AA60017C818 /* irtc.m */; };
 		31C168811C9151ED001AFC70 /* AudioReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168801C9151ED001AFC70 /* AudioReader.m */; };
 		31C168821C9161AF001AFC70 /* AudioReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168801C9151ED001AFC70 /* AudioReader.m */; };
+		31C168851C916469001AFC70 /* LiveStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168841C916469001AFC70 /* LiveStream.m */; };
 		31E5BDDB1C8EDF36007E0503 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 318777521C8ED95600FC417F /* libxml2.tbd */; };
 		31E5BDDC1C8EDF3F007E0503 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 318777501C8ED95000FC417F /* libz.tbd */; };
 		31E5BDDF1C8EE328007E0503 /* NALUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318777141C89B21700FC417F /* NALUnit.cpp */; };
@@ -115,8 +114,6 @@
 		0814205D1C8B2F9500A2B03E /* TestController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TestController.xib; sourceTree = "<group>"; };
 		081420601C8C37CF00A2B03E /* VideoPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPlayer.h; sourceTree = "<group>"; };
 		081420611C8C37CF00A2B03E /* VideoPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoPlayer.m; sourceTree = "<group>"; };
-		081420651C8DD07A00A2B03E /* LiveStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveStream.h; sourceTree = "<group>"; };
-		081420661C8DD07A00A2B03E /* LiveStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveStream.m; sourceTree = "<group>"; };
 		0814206D1C8DD8B100A2B03E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Player/Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		081420721C8DD9AF00A2B03E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		081420761C8DDA7000A2B03E /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
@@ -183,6 +180,8 @@
 		319207A71C854AA60017C818 /* irtc.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = irtc.m; sourceTree = "<group>"; };
 		31C1687F1C9151ED001AFC70 /* AudioReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioReader.h; sourceTree = "<group>"; };
 		31C168801C9151ED001AFC70 /* AudioReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioReader.m; sourceTree = "<group>"; };
+		31C168831C916469001AFC70 /* LiveStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveStream.h; sourceTree = "<group>"; };
+		31C168841C916469001AFC70 /* LiveStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveStream.m; sourceTree = "<group>"; };
 		31E5BDE11C8EE6F5007E0503 /* AAPLEAGLLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLEAGLLayer.h; sourceTree = "<group>"; };
 		31E5BDE21C8EE6F5007E0503 /* AAPLEAGLLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAPLEAGLLayer.m; sourceTree = "<group>"; };
 		31E5BDE41C8EF884007E0503 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
@@ -401,8 +400,6 @@
 				081420611C8C37CF00A2B03E /* VideoPlayer.m */,
 				3187773B1C8D60B900FC417F /* PlayerState.h */,
 				3187773C1C8D60B900FC417F /* PlayerState.m */,
-				081420651C8DD07A00A2B03E /* LiveStream.h */,
-				081420661C8DD07A00A2B03E /* LiveStream.m */,
 				31E5BDE61C8FC6DE007E0503 /* VideoClip.h */,
 				31E5BDE71C8FC6DE007E0503 /* VideoClip.m */,
 				31E5BDEF1C8FDD03007E0503 /* LiveRecorder.h */,
@@ -418,6 +415,8 @@
 		31C1687E1C9151AC001AFC70 /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				31C168831C916469001AFC70 /* LiveStream.h */,
+				31C168841C916469001AFC70 /* LiveStream.m */,
 				31C1687F1C9151ED001AFC70 /* AudioReader.h */,
 				31C168801C9151ED001AFC70 /* AudioReader.m */,
 			);
@@ -605,7 +604,6 @@
 				31E5BDE91C8FC6F7007E0503 /* VideoClip.m in Sources */,
 				3187774C1C8DA8EC00FC417F /* VideoDecoder.m in Sources */,
 				3187773E1C8D60EB00FC417F /* PlayerState.m in Sources */,
-				081420681C8DD1C700A2B03E /* LiveStream.m in Sources */,
 				081420631C8C652600A2B03E /* VideoPlayer.m in Sources */,
 				318777211C89BA9900FC417F /* VideoEncoder.mm in Sources */,
 				318777221C89BA9900FC417F /* MP4Atom.m in Sources */,
@@ -651,8 +649,8 @@
 				318777181C89B21700FC417F /* VideoEncoder.mm in Sources */,
 				3187771E1C89B2BB00FC417F /* VideoRecorder.m in Sources */,
 				081420621C8C37CF00A2B03E /* VideoPlayer.m in Sources */,
+				31C168851C916469001AFC70 /* LiveStream.m in Sources */,
 				3187773D1C8D60B900FC417F /* PlayerState.m in Sources */,
-				081420671C8DD07A00A2B03E /* LiveStream.m in Sources */,
 				31E5BDDF1C8EE328007E0503 /* NALUnit.cpp in Sources */,
 				319207A81C854AA60017C818 /* irtc.m in Sources */,
 				31E5BDE31C8EE6F5007E0503 /* AAPLEAGLLayer.m in Sources */,

@@ -73,19 +73,17 @@
 
 	_audioDataOutput = [[AVCaptureAudioDataOutput alloc] init];
 	[_audioDataOutput setSampleBufferDelegate:self queue:_captureQueue];
-	// 如果不设置这个属性, 在 Mac 下会失败, 因为 AudioConverter 好像只能处理只种 PCM.
+	
+#if !TARGET_OS_IPHONE
+	// 如果不设置这个属性, 在 Mac 下会失败, 因为 AudioConverter 好像只能处理这种 PCM.
 	NSDictionary *settings = @{
 							   AVFormatIDKey: @(kAudioFormatLinearPCM),
 							   AVLinearPCMBitDepthKey: @(16),
 							   AVLinearPCMIsFloatKey : @(NO),
 							   // AVSampleRateKey: @(44100), // not for MAC
 							   };
-//	[NSDictionary dictionaryWithObjectsAndKeys:
-//							  [NSNumber numberWithUnsignedInteger:canonicalAUFormat.mChannelsPerFrame],  AVNumberOfChannelsKey,
-//							  [NSNumber numberWithBool:isNonInterleaved],                                AVLinearPCMIsNonInterleaved,
-//							  [NSNumber numberWithBool:isBigEndian],                                     AVLinearPCMIsBigEndianKey,
-//							  nil];
 	_audioDataOutput.audioSettings = settings;
+#endif
 
 	[_session beginConfiguration];
 	[_session addOutput:_audioDataOutput];
