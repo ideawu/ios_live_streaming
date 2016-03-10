@@ -3,6 +3,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 #import "AudioEncoder.h"
+#import "AudioFile.h"
 
 @interface AudioEncoder(){
 	AudioStreamBasicDescription _format;
@@ -85,58 +86,76 @@
 	}
 }
 
+- (void)printFormat:(AudioStreamBasicDescription)format name:(NSString *)name{
+	NSLog(@"--- begin %@", name);
+	NSLog(@"format.mSampleRate:       %f", format.mSampleRate);
+	NSLog(@"format.mBitsPerChannel:   %d", format.mBitsPerChannel);
+	NSLog(@"format.mChannelsPerFrame: %d", format.mChannelsPerFrame);
+	NSLog(@"format.mBytesPerFrame:    %d", format.mBytesPerFrame);
+	NSLog(@"format.mFramesPerPacket:  %d", format.mFramesPerPacket);
+	NSLog(@"format.mBytesPerPacket:   %d", format.mBytesPerPacket);
+	NSLog(@"--- end %@", name);
+}
+
 - (void)setupAACEncoderFromSampleBuffer:(CMSampleBufferRef)sampleBuffer {
+	OSStatus err;
 	UInt32 size;
 	_srcFormat = *CMAudioFormatDescriptionGetStreamBasicDescription((CMAudioFormatDescriptionRef)CMSampleBufferGetFormatDescription(sampleBuffer));
-	
-	//UInt32 real_bytesPerChannel = inFormat.mBitsPerChannel / inFormat.mChannelsPerFrame / 8;
 
-	_format.mFormatID = kAudioFormatMPEG4AAC; // kAudioFormatMPEG4AAC_HE does not work. Can't find `AudioClassDescription`. `mFormatFlags` is set to 0.
-	_format.mSampleRate = _sampleRate;
-	_format.mChannelsPerFrame = 2;
+	// kAudioFormatMPEG4AAC_HE does not work. Can't find `AudioClassDescription`. `mFormatFlags` is set to 0.
+	_format.mFormatID = kAudioFormatMPEG4AAC;
+	_format.mChannelsPerFrame = _srcFormat.mChannelsPerFrame;
+	// 如果设置 bitrate, 应该让编码器自己决定 samplerate
+	if(_bitrate > 0){
+		_format.mSampleRate = 0;
+	}else{
+	}
+	_format.mSampleRate = _srcFormat.mSampleRate;
+	_format.mFramesPerPacket = 1024;
+	// 不能设置
+	//_format.mBitsPerChannel = 16;
+	//_format.mBytesPerPacket = _format.mChannelsPerFrame * (_format.mBitsPerChannel / 8);
 	
 	// use AudioFormat API to fill out the rest of the description
 	size = sizeof(_format);
-	AudioFormatGetProperty(kAudioFormatProperty_FormatInfo, 0, NULL, &size, &_format);
+	err = AudioFormatGetProperty(kAudioFormatProperty_FormatInfo, 0, NULL, &size, &_format);
+	if (err != 0) {
+		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
+		NSLog(@"line: %d, error: %@", __LINE__, error);
+	}
 	
 	/*
 	 http://stackoverflow.com/questions/12252791/understanding-remote-i-o-audiostreambasicdescription-asbd
 	 注意, !kLinearPCMFormatFlagIsNonInterleaved(默认是 interleaved 的)
 	 mBytesPerFrame != mChannelsPerFrame * mBitsPerChannel /8
 	 */
-	NSLog(@"format.mSampleRate:       %f", _srcFormat.mSampleRate);
-	NSLog(@"format.mChannelsPerFrame: %d", _srcFormat.mChannelsPerFrame);
-	NSLog(@"format.mBitsPerChannel:   %d", _srcFormat.mBitsPerChannel);
-	NSLog(@"format.mBytesPerFrame:    %d", _srcFormat.mBytesPerFrame);
-	NSLog(@"format.mFramesPerPacket:  %d", _srcFormat.mFramesPerPacket);
-	NSLog(@"format.mBytesPerPacket:   %d", _srcFormat.mBytesPerPacket);
-	NSLog(@"---");
-	NSLog(@"format.mSampleRate:       %f", _format.mSampleRate);
-	NSLog(@"format.mChannelsPerFrame: %d", _format.mChannelsPerFrame);
-	NSLog(@"format.mBitsPerChannel:   %d", _format.mBitsPerChannel);
-	NSLog(@"format.mBytesPerFrame:    %d", _format.mBytesPerFrame);
-	NSLog(@"format.mFramesPerPacket:  %d", _format.mFramesPerPacket);
-	NSLog(@"format.mBytesPerPacket:   %d", _format.mBytesPerPacket);
-	NSLog(@"---");
+	[self printFormat:_srcFormat name:@"src"];
+	[self printFormat:_format name:@"dst"];
 
 //	AudioClassDescription *description = [self getAudioClassDescription];
 //	OSStatus status = AudioConverterNewSpecific(&_srcFormat,
 //												&_format,
 //												1, description,
 //												&_audioConverter);
-	OSStatus status = AudioConverterNew(&_srcFormat, &_format, &_audioConverter);
-	if (status != 0) {
-		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-		NSLog(@"setup converter error: %@", error);
-	}
-	
+	err = AudioConverterNew(&_srcFormat, &_format, &_audioConverter);
+
 	if (self.bitrate != 0) {
 		UInt32 bitrate = (UInt32)self.bitrate;
 		UInt32 size = sizeof(bitrate);
-		AudioConverterSetProperty(_audioConverter, kAudioConverterEncodeBitRate, size, &bitrate);
-		AudioConverterGetProperty(_audioConverter, kAudioConverterEncodeBitRate, &size, &bitrate);
-		NSLog(@"AAC Encode Bitrate: %d", (int)bitrate);
+		err = AudioConverterSetProperty(_audioConverter, kAudioConverterEncodeBitRate, size, &bitrate);
+		if (err != 0) {
+			NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
+			NSLog(@"line: %d, error: %@", __LINE__, error);
+		}
+		err = AudioConverterGetProperty(_audioConverter, kAudioConverterEncodeBitRate, &size, &bitrate);
+		if (err != 0) {
+			NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
+			NSLog(@"line: %d, error: %@", __LINE__, error);
+		}else{
+			NSLog(@"set bitrate: %d", bitrate);
+		}
 	}
+	//exit(0);
 }
 
 // AudioConverterComplexInputDataProc
@@ -214,7 +233,8 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 												 &ioOutputDataPacketSize,
 												 &outAudioBufferList,
 												 NULL);
-		//NSLog(@"ioOutputDataPacketSize: %d", (unsigned int)ioOutputDataPacketSize);
+		NSLog(@"ioOutputDataPacketSize: %d, frames: %d", (int)ioOutputDataPacketSize,
+			  _format.mFramesPerPacket * ioOutputDataPacketSize);
 		
 		if (status == 0) {
 			NSData *data = [NSData dataWithBytes:outAudioBufferList.mBuffers[0].mData length:outAudioBufferList.mBuffers[0].mDataByteSize];
@@ -231,6 +251,7 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 			if(_callback){
 				_callback(data, _pts, duration);
 			}
+			_pts += duration;
 		} else {
 			error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
 			NSLog(@"decode error: %@", error);

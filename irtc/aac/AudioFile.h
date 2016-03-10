@@ -11,8 +11,11 @@
  所以只能先将 PCM 写入文件, 然后用文件转码.
  */
 
+#import <AVFoundation/AVFoundation.h>
 #import <Foundation/Foundation.h>
 
 @interface AudioFile : NSObject
+
++ (void)convertFile;
 
 @end

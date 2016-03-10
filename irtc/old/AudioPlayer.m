@@ -166,16 +166,16 @@ static void callback(void *custom_data, AudioQueueRef _queue, AudioQueueBufferRe
 	NSLog(@"add %d byte(s), duration: %.3f", buffer->mAudioDataByteSize, duration);
 	_buffering_count ++;
 
-	if(!_playing){
-		@synchronized(self){
+	@synchronized(self){
+		if(!_playing){
 			_playing = YES;
-		}
 		
-		err = AudioQueueStart(_queue, NULL);
-		if(err){
-			NSLog(@"%d error", __LINE__);
-		}else{
-			NSLog(@"AQ started");
+			err = AudioQueueStart(_queue, NULL);
+			if(err){
+				NSLog(@"%d error", __LINE__);
+			}else{
+				NSLog(@"AQ started");
+			}
 		}
 	}
 }
