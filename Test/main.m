@@ -16,13 +16,11 @@ AudioPlayer *audioPlayer;
 AudioStreamBasicDescription format;
 
 int main(int argc, const char * argv[]) {
+
 #if 0
-	
 	audioPlayer = [[AudioPlayer alloc] init];
 	[audioPlayer setSampleRate:48000 channels:2];
-	
-//	audioPlayer = [AudioPlayer AACPlayerWithSampleRate:48000 channels:2];
-	
+
 	AudioEncoder *encoder = [[AudioEncoder alloc] init];
 	AudioDecoder *decoder = [[AudioDecoder alloc] init];
 
@@ -33,7 +31,9 @@ int main(int argc, const char * argv[]) {
 		[audioPlayer appendData:pcm];
 	}];
 
-	
+
+//	audioPlayer = [AudioPlayer AACPlayerWithSampleRate:48000 channels:2];
+
 	[encoder start:^(NSData *aac, double duration) {
 		double pts = 0;
 		NSLog(@"encoder %d bytes, %f %f", (int)aac.length, pts, duration);
@@ -42,7 +42,6 @@ int main(int argc, const char * argv[]) {
 //		NSData *aac = [NSData dataWithBytes:data.bytes+adts_header
 //									 length:data.length-adts_header];
 //		[audioPlayer appendData:aac];
-
 		[decoder decode:aac];
 	}];
 	

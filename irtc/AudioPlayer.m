@@ -8,19 +8,25 @@
 
 #import "AudioPlayer.h"
 #import <AudioToolbox/AudioToolbox.h>
+#import "AudioBufferQueue.h"
 
-#define BUF_SIZE 5;
+typedef enum{
+	PlayerStateNone,
+	PlayerStatePause,
+	PlayerStatePlaying,
+}PlayerState;
 
 // AudioQueueSetParameter ( queue, kAudioQueueParam_Volume, gain )
 
 @interface AudioPlayer(){
 	BOOL _inited;
-	BOOL _playing;
-	int _buffering_count;
+	PlayerState _state;
+	AudioBufferQueue *_buffers;
 }
 @property AudioQueueRef queue;
 @property AudioStreamBasicDescription format;
 @property AudioStreamPacketDescription aspd;
+@property NSMutableArray *items;
 @end
 
 
@@ -39,10 +45,13 @@
 
 - (id)init{
 	self = [super init];
+
+	_items = [[NSMutableArray alloc] init];
 	
 	_inited = NO;
-	_playing = NO;
-	_buffering_count = 0;
+	_state = PlayerStateNone;
+
+	_buffers = nil;
 
 	_format.mFormatID = kAudioFormatLinearPCM;
 	_format.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked | kAudioFormatFlagIsBigEndian;
@@ -81,19 +90,6 @@ static void callback(void *custom_data, AudioQueueRef _queue, AudioQueueBufferRe
 	[player onCallback:buffer];
 }
 
-- (void)onCallback:(AudioQueueBufferRef)buffer{
-	@synchronized(self){
-		_buffering_count --;
-		if(_buffering_count == 0){
-			_playing = NO;
-			NSLog(@"AQ paused");
-			AudioQueuePause(_queue);
-		}
-		NSLog(@"callback %d", _buffering_count);
-	}
-	AudioQueueFreeBuffer(_queue, buffer);
-}
-
 static NSString *formatIDtoString(int fID){
 	return [NSString stringWithFormat:@"'%c%c%c%c'", (char)(fID>>24)&255, (char)(fID>>16)&255, (char)(fID>>8)&255, (char)fID&255];
 }
@@ -123,53 +119,85 @@ static NSString *formatIDtoString(int fID){
 		return;
 	}
 	NSLog(@"AQ setup");
+
+//	double duration = 0.1;
+//	int buffer_size;
+//	if(_format.mBitsPerChannel > 0){
+//		int bitrate = _format.mSampleRate * _format.mChannelsPerFrame * _format.mBitsPerChannel;
+//		buffer_size = duration * bitrate / 8;
+//	}else{
+//		// TODO: 根据压缩后的 bitrate 估算
+//		buffer_size = 4096;
+//	}
+//	log_debug(@"bytes_per_buffer: %d", _buffers.bytes_per_buffer);
+//	UInt32 maxVBRPacketSize = sizeof(maxPacketSize);
+//	AudioQueueGetProperty (
+//						   audioQueue,
+//						   kAudioQueueProperty_MaximumOutputPacketSize,
+//						   // in Mac OS X v10.5, instead use
+//						   //   kAudioConverterPropertyMaximumOutputPacketSize
+//						   &maxPacketSize,
+//						   &maxVBRPacketSize
+//						   );
+
+	_buffers = [[AudioBufferQueue alloc] initWithAudioQueue:_queue];
 }
 
-- (void)appendData:(NSData *)data{
-	if(!_inited){
-		_inited = YES;
-		[self setupAQ];
-	}
+- (void)onCallback:(AudioQueueBufferRef)buffer{
+	log_debug(@"callback %d", _buffers.readyCount);
+	buffer->mAudioDataByteSize = 0;
+	buffer->mPacketDescriptionCount = 0;
+	[_buffers pushFreeBuffer];
+
+	AudioQueueBufferRef audio_buf;
+	audio_buf = [_buffers popReadyBuffer];
+
+//	if(_buffers.readyCount == 0){
+//		@synchronized(self){
+//			_state = PlayerStatePause;
+//			NSLog(@"AQ paused");
+//			AudioQueuePause(_queue);
+//		}
+//	}
+//	log_debug(@"");
 
 	OSStatus err;
-	AudioQueueBufferRef buffer;
-	err = AudioQueueAllocateBuffer(_queue, (UInt32)data.length, &buffer);
-	buffer->mAudioDataByteSize = (UInt32)data.length;
-	memcpy(buffer->mAudioData, data.bytes, buffer->mAudioDataByteSize);
-	
-	_aspd.mStartOffset = 0;
-	_aspd.mDataByteSize = (UInt32)data.length;
-	_aspd.mVariableFramesInPacket = 0;
-	err = AudioQueueEnqueueBuffer(_queue, buffer, 1, &_aspd);
-//	err = AudioQueueEnqueueBuffer(_queue, buffer, 0, NULL);
-
-//	err = AudioQueueEnqueueBufferWithParameters(_queue,
-//												buffer,
-//												0,
-//												NULL,
-//												0,//trimFramesAtStart,
-//												0,//trimFramesAtEnd,
-//												0, NULL, NULL, NULL);
+	err = AudioQueueEnqueueBuffer(_queue,
+								  audio_buf,
+								  audio_buf->mPacketDescriptionCount,
+								  audio_buf->mPacketDescriptions);
 	if(err){
-		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain
-											 code:err
-										 userInfo:nil];
+		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 		NSLog(@"AudioQueueEnqueueBuffer error: %d %@", err, [error description]);
+		return;
 	}
-	
-//	double duration = (double)buffer->mAudioDataByteSize / (_format.mSampleRate * _format.mBitsPerChannel * _format.mChannelsPerFrame / 8);
-//	NSLog(@"add %d byte(s), duration: %.3f", buffer->mAudioDataByteSize, duration);
+}
+
+- (void)startIfNeeded{
+	OSStatus err;
 
 	@synchronized(self){
-		_buffering_count ++;
+		if(_state == PlayerStateNone){
+			AudioQueueBufferRef buffer;
+			buffer = [_buffers popReadyBuffer];
 
-		if(!_playing){
-			// 对 AAC 特殊处理, 不知道为什么, AAC 必须 3 个以上才能 start
-			if(_format.mFormatID == kAudioFormatMPEG4AAC && _buffering_count < 3){
+			//			// 对 AAC 特殊处理, 不知道为什么, AAC 必须 3 个以上才能 start
+			//			if(_format.mFormatID == kAudioFormatMPEG4AAC && _buffering_count < 3){
+			//				return;
+			//			}
+
+			err = AudioQueueEnqueueBuffer(_queue,
+										  buffer,
+										  buffer->mPacketDescriptionCount,
+										  buffer->mPacketDescriptions);
+			if(err){
+				NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
+				NSLog(@"AudioQueueEnqueueBuffer error: %d %@", err, [error description]);
 				return;
 			}
-			_playing = YES;
-
+		}
+		if(_state != PlayerStatePlaying){
+			_state = PlayerStatePlaying;
 			err = AudioQueueStart(_queue, NULL);
 			if(err){
 				NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
@@ -179,6 +207,53 @@ static NSString *formatIDtoString(int fID){
 			}
 		}
 	}
+}
+
+- (void)appendData:(NSData *)data{
+	if(!_inited){
+		_inited = YES;
+		[self setupAQ];
+	}
+
+	double duration;
+	double bitrate;
+	if(_format.mBitsPerChannel > 0){
+		bitrate = _format.mSampleRate * _format.mChannelsPerFrame * _format.mBitsPerChannel;
+	}else{
+		bitrate = 64000.0;
+	}
+	double buffering_time = 0.05;
+
+	AudioQueueBufferRef buffer;
+	buffer = [_buffers getFreeBuffer];
+
+	if(buffer->mAudioDataByteSize + data.length > buffer->mAudioDataBytesCapacity){
+		[_buffers popFreeBuffer];
+		log_debug(@"add ready");
+		[_buffers pushReadyBuffer:buffer];
+		[self startIfNeeded];
+	}
+
+	buffer = [_buffers getFreeBuffer];
+
+	int offset = buffer->mAudioDataByteSize;
+	buffer->mPacketDescriptions[buffer->mPacketDescriptionCount].mStartOffset = offset;
+	buffer->mPacketDescriptions[buffer->mPacketDescriptionCount].mDataByteSize = (UInt32)data.length;
+	memcpy(buffer->mAudioData + offset, data.bytes, data.length);
+	buffer->mAudioDataByteSize += data.length;
+	buffer->mPacketDescriptionCount ++;
+
+	duration = buffer->mAudioDataByteSize / (bitrate/8);
+	if(duration >= buffering_time || buffer->mAudioDataByteSize == buffer->mAudioDataBytesCapacity){
+		[_buffers popFreeBuffer];
+		log_debug(@"add ready 2");
+		[_buffers pushReadyBuffer:buffer];
+		[self startIfNeeded];
+	}
+
+//	double duration = (double)buffer->mAudioDataByteSize / (_format.mSampleRate * _format.mBitsPerChannel * _format.mChannelsPerFrame / 8);
+//	NSLog(@"add %d byte(s), duration: %.3f", buffer->mAudioDataByteSize, duration);
+
 }
 
 

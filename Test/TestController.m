@@ -38,6 +38,8 @@
 //	_player.layer = _videoLayer;
 //	[_player play];
 
+	__weak typeof(self) me = self;
+
 	_recorder = [[LiveRecorder alloc] init];
 	_recorder.clipDuration = 0.2;
 	//_recorder.bitrate = 800 * 1024;
@@ -57,10 +59,20 @@
 
 	[_recorder setupAudio:^(NSData *data, double pts, double duration) {
 		//NSLog(@"%d bytes, %f %f", (int)data.length, pts, duration);
+		int i = [me incr];
+		if(i > 30 && i < 50){
+			NSLog(@"return %d", i);
+			return;
+		}
 		[_audioPlayer appendData:data];
 	}];
 	
 	[_recorder start];
+}
+
+- (int)incr{
+	static int i = 0;
+	return i++;
 }
 
 @end
