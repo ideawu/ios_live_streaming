@@ -22,11 +22,11 @@ typedef enum{
 	BOOL _inited;
 	PlayerState _state;
 	AudioBufferQueue *_buffers;
+	int _count;
 }
 @property AudioQueueRef queue;
 @property AudioStreamBasicDescription format;
 @property AudioStreamPacketDescription aspd;
-@property NSMutableArray *items;
 @end
 
 
@@ -46,8 +46,8 @@ typedef enum{
 - (id)init{
 	self = [super init];
 
-	_items = [[NSMutableArray alloc] init];
-	
+	_count = 0;
+
 	_inited = NO;
 	_state = PlayerStateNone;
 
@@ -144,21 +144,25 @@ static NSString *formatIDtoString(int fID){
 }
 
 - (void)onCallback:(AudioQueueBufferRef)buffer{
-	log_debug(@"callback %d", _buffers.readyCount);
+	_count --;
+	log_debug(@"callback %d", _count);
 	buffer->mAudioDataByteSize = 0;
 	buffer->mPacketDescriptionCount = 0;
 	[_buffers pushFreeBuffer];
 
-	AudioQueueBufferRef audio_buf;
-	audio_buf = [_buffers popReadyBuffer];
-
-//	if(_buffers.readyCount == 0){
-//		@synchronized(self){
+//	@synchronized(self){
+//		if(_count == 0){
 //			_state = PlayerStatePause;
 //			NSLog(@"AQ paused");
 //			AudioQueuePause(_queue);
 //		}
 //	}
+
+	return;
+
+	AudioQueueBufferRef audio_buf;
+	audio_buf = [_buffers popReadyBuffer];
+
 //	log_debug(@"");
 
 	OSStatus err;
@@ -177,7 +181,7 @@ static NSString *formatIDtoString(int fID){
 	OSStatus err;
 
 	@synchronized(self){
-		if(_state == PlayerStateNone){
+		//if(_state == PlayerStateNone){
 			AudioQueueBufferRef buffer;
 			buffer = [_buffers popReadyBuffer];
 
@@ -186,6 +190,8 @@ static NSString *formatIDtoString(int fID){
 			//				return;
 			//			}
 
+		_count ++;
+		log_debug(@"enqueue %d", _count);
 			err = AudioQueueEnqueueBuffer(_queue,
 										  buffer,
 										  buffer->mPacketDescriptionCount,
@@ -195,8 +201,8 @@ static NSString *formatIDtoString(int fID){
 				NSLog(@"AudioQueueEnqueueBuffer error: %d %@", err, [error description]);
 				return;
 			}
-		}
-		if(_state != PlayerStatePlaying){
+//		}
+		if(_state != PlayerStatePlaying && _count >= 3){
 			_state = PlayerStatePlaying;
 			err = AudioQueueStart(_queue, NULL);
 			if(err){
@@ -222,14 +228,14 @@ static NSString *formatIDtoString(int fID){
 	}else{
 		bitrate = 64000.0;
 	}
-	double buffering_time = 0.05;
+	double buffering_time = 0.1;
 
 	AudioQueueBufferRef buffer;
 	buffer = [_buffers getFreeBuffer];
 
 	if(buffer->mAudioDataByteSize + data.length > buffer->mAudioDataBytesCapacity){
 		[_buffers popFreeBuffer];
-		log_debug(@"add ready");
+//		log_debug(@"add ready");
 		[_buffers pushReadyBuffer:buffer];
 		[self startIfNeeded];
 	}
@@ -246,7 +252,7 @@ static NSString *formatIDtoString(int fID){
 	duration = buffer->mAudioDataByteSize / (bitrate/8);
 	if(duration >= buffering_time || buffer->mAudioDataByteSize == buffer->mAudioDataBytesCapacity){
 		[_buffers popFreeBuffer];
-		log_debug(@"add ready 2");
+//		log_debug(@"add ready 2");
 		[_buffers pushReadyBuffer:buffer];
 		[self startIfNeeded];
 	}

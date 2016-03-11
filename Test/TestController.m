@@ -60,8 +60,8 @@
 	[_recorder setupAudio:^(NSData *data, double pts, double duration) {
 		//NSLog(@"%d bytes, %f %f", (int)data.length, pts, duration);
 		int i = [me incr];
-		if(i > 30 && i < 50){
-			NSLog(@"return %d", i);
+		if(i > 130 && i < 150){
+			//NSLog(@"return %d", i);
 			return;
 		}
 		[_audioPlayer appendData:data];

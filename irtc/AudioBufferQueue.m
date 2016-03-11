@@ -29,7 +29,7 @@
 - (id)initWithAudioQueue:(AudioQueueRef)queue{
 	self = [super init];
 	_queue = queue;
-	_total = 3;
+	_total = 13;
 
 	_free_index = 0;
 	_free_count = _total;
