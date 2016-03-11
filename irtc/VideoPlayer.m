@@ -70,7 +70,7 @@
 		[self setupDisplayLink];
 	}
 	[self startDisplayLink];
-	NSLog(@"starting...");
+	log_debug(@"starting...");
 	[_state pause];
 }
 

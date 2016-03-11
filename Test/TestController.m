@@ -34,9 +34,9 @@
 	_videoView.layer.backgroundColor = [NSColor blackColor].CGColor;
 
 
-	_player = [[VideoPlayer alloc] init];
-	_player.layer = _videoLayer;
-	[_player play];
+//	_player = [[VideoPlayer alloc] init];
+//	_player.layer = _videoLayer;
+//	[_player play];
 
 	_recorder = [[LiveRecorder alloc] init];
 	_recorder.clipDuration = 0.2;
@@ -52,10 +52,12 @@
 //		[player addClip:c];
 //	}];
 	
-	_audioPlayer = [[AudioPlayer alloc] init];
-	
+//	_audioPlayer = [[AudioPlayer alloc] init];
+	_audioPlayer = [AudioPlayer AACPlayerWithSampleRate:44100 channels:2];
+
 	[_recorder setupAudio:^(NSData *data, double pts, double duration) {
-		NSLog(@"%d bytes, %f %f", (int)data.length, pts, duration);
+		//NSLog(@"%d bytes, %f %f", (int)data.length, pts, duration);
+		[_audioPlayer appendData:data];
 	}];
 	
 	[_recorder start];

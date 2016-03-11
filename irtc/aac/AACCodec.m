@@ -9,7 +9,6 @@
 #import "AACCodec.h"
 
 @interface AACCodec(){
-	
 	BOOL _running;
 	NSCondition *_condition;
 	
@@ -47,7 +46,7 @@
 	}else{
 		_bitrate = 64000; // 64kbs
 	}
-	
+
 	_converter = NULL;
 	
 	_condition = [[NSCondition alloc] init];
@@ -149,24 +148,26 @@
 		outAudioBufferList.mBuffers[0].mNumberChannels = _dstFormat.mChannelsPerFrame;
 		outAudioBufferList.mBuffers[0].mDataByteSize = (UInt32)_aacBufferSize;
 		outAudioBufferList.mBuffers[0].mData = _aacBuffer;
-		
-		UInt32 outPackets = 1024 / _dstFormat.mFramesPerPacket;
-		if(_srcFormat.mFormatID == kAudioFormatMPEG4AAC){
-//			UInt32 sizePerPacket = _srcFormat.mBytesPerPacket;
-//			UInt32 size = sizeof(sizePerPacket);
-//			AudioConverterGetProperty(_converter, kAudioConverterPropertyMaximumOutputPacketSize, &size, &sizePerPacket);
-//			log_debug(@"%d", sizePerPacket);
-//			
-//			outPackets = (int)_aacBufferSize / sizePerPacket;
-			log_debug(@"%d", outPackets);
+
+		UInt32 outPackets;
+		if(_srcFormat.mFormatID == kAudioFormatLinearPCM){
+			outPackets = 1;
+			err = AudioConverterFillComplexBuffer(_converter,
+												  inInputDataProc,
+												  (__bridge void *)(self),
+												  &outPackets,
+												  &outAudioBufferList,
+												  NULL);
+		}else{
+			outPackets = 1024 / _dstFormat.mFramesPerPacket;
+			AudioStreamPacketDescription outPacketDescs[outPackets];
+			err = AudioConverterFillComplexBuffer(_converter,
+												  inInputDataProc,
+												  (__bridge void *)(self),
+												  &outPackets,
+												  &outAudioBufferList,
+												  outPacketDescs);
 		}
-		AudioStreamPacketDescription outPacketDescs[outPackets];
-		err = AudioConverterFillComplexBuffer(_converter,
-												 inInputDataProc,
-												 (__bridge void *)(self),
-												 &outPackets,
-												 &outAudioBufferList,
-												 outPacketDescs);
 		if(err != noErr || outPackets == 0){
 			if(err){
 				NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
@@ -178,13 +179,11 @@
 			_running = NO;
 			continue;
 		}
-		for(int i=0; i<outPackets; i++){
-			//log_debug("frames: %d", outPacketDescs[i].mVariableFramesInPacket);
-		}
+
 		int outFrames = _dstFormat.mFramesPerPacket * outPackets;
 		int outBytes = outAudioBufferList.mBuffers[0].mDataByteSize;
-		log_debug(@"outPackets: %d, frames: %d, %d bytes", (int)outPackets, outFrames, outBytes);
-		
+//		log_debug(@"outPackets: %d, frames: %d, %d bytes", (int)outPackets, outFrames, outBytes);
+
 		if (err == 0) {
 			NSData *data = [NSData dataWithBytes:outAudioBufferList.mBuffers[0].mData length:outBytes];
 			
@@ -211,14 +210,14 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 								void *inUserData){
 	AACCodec *me = (__bridge AACCodec *)(inUserData);
 	UInt32 requestedPackets = *ioNumberDataPackets;
-	//log_debug(@"Number of packets requested: %d", (unsigned int)requestedPackets);
+//	log_debug(@"Number of packets requested: %d", (unsigned int)requestedPackets);
 	int ret = [me copyData:ioData requestedPackets:requestedPackets aspd:outDataPacketDescription];
 	if(ret == -1){
 		*ioNumberDataPackets = 0;
 		return -1;
 	}
 	*ioNumberDataPackets = ret;
-	//log_debug(@"Copied %d packets into ioData, requested: %d", ret, requestedPackets);
+//	log_debug(@"Copied %d packets into ioData, requested: %d", ret, requestedPackets);
 	return noErr;
 }
 
@@ -248,7 +247,8 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 	ioData->mBuffers[0].mData = (void *)_processing_data.bytes;
 	ioData->mBuffers[0].mDataByteSize = (UInt32)_processing_data.length;
 
-	if(aspd){
+	// PCM => AAC 时启用
+	if(aspd && requestedPackets == 1){
 		_aspd.mStartOffset = 0;
 		_aspd.mDataByteSize = (UInt32)_processing_data.length;
 		_aspd.mVariableFramesInPacket = requestedPackets;
@@ -314,7 +314,7 @@ static NSString *formatIDtoString(int fID){
 
 //	[self printFormat:_srcFormat name:@"src"];
 //	[self printFormat:_dstFormat name:@"dst"];
-	
+
 	OSStatus err;
 //	AudioClassDescription *description = [self getAudioClassDescription];
 //	err = AudioConverterNewSpecific(&_srcFormat,
@@ -360,7 +360,10 @@ static NSString *formatIDtoString(int fID){
 			log_debug(@"set bitrate: %d", bitrate);
 		}
 	}
-	
+
+//	[self printFormat:_srcFormat name:@"src"];
+//	[self printFormat:_dstFormat name:@"dst"];
+
 	// 创建 AAC converter 的时候不能指定, 所以这里要补充回来
 	if(_srcFormat.mBytesPerPacket == 0){
 		_srcFormat.mBitsPerChannel = _srcFormat.mChannelsPerFrame * 8;
@@ -372,9 +375,6 @@ static NSString *formatIDtoString(int fID){
 		_dstFormat.mBytesPerPacket = _dstFormat.mChannelsPerFrame * 2;
 		_dstFormat.mBytesPerFrame = _dstFormat.mBytesPerPacket;
 	}
-	
-//	[self printFormat:_srcFormat name:@"src"];
-//	[self printFormat:_dstFormat name:@"dst"];
 }
 
 - (AudioClassDescription *)getAudioClassDescription{

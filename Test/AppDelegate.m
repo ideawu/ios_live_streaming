@@ -30,7 +30,7 @@
 
 //	_recorder = [[RecorderController alloc] initWithWindowNibName:@"RecorderController"];
 //	[_recorder showWindow:self];
-	
+
 	_test = [[TestController alloc] initWithWindowNibName:@"TestController"];
 	[_test showWindow:self];
 }

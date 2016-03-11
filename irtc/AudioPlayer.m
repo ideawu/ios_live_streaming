@@ -82,18 +82,14 @@ static void callback(void *custom_data, AudioQueueRef _queue, AudioQueueBufferRe
 }
 
 - (void)onCallback:(AudioQueueBufferRef)buffer{
-	_buffering_count --;
-	NSLog(@"callback %d", _buffering_count);
-	if(_buffering_count == 1){
-		//NSLog(@"silence added");
-		//[self addSilence];
-	}
-	if(_buffering_count == 0){
-		@synchronized(self){
+	@synchronized(self){
+		_buffering_count --;
+		if(_buffering_count == 0){
 			_playing = NO;
+			NSLog(@"AQ paused");
+			AudioQueuePause(_queue);
 		}
-		NSLog(@"AQ paused");
-		AudioQueuePause(_queue);
+		NSLog(@"callback %d", _buffering_count);
 	}
 	AudioQueueFreeBuffer(_queue, buffer);
 }
@@ -163,9 +159,10 @@ static NSString *formatIDtoString(int fID){
 	
 //	double duration = (double)buffer->mAudioDataByteSize / (_format.mSampleRate * _format.mBitsPerChannel * _format.mChannelsPerFrame / 8);
 //	NSLog(@"add %d byte(s), duration: %.3f", buffer->mAudioDataByteSize, duration);
-	_buffering_count ++;
 
 	@synchronized(self){
+		_buffering_count ++;
+
 		if(!_playing){
 			// 对 AAC 特殊处理, 不知道为什么, AAC 必须 3 个以上才能 start
 			if(_format.mFormatID == kAudioFormatMPEG4AAC && _buffering_count < 3){

@@ -80,6 +80,7 @@
 							   AVFormatIDKey: @(kAudioFormatLinearPCM),
 							   AVLinearPCMBitDepthKey: @(16),
 							   AVLinearPCMIsFloatKey : @(NO),
+							   AVLinearPCMIsNonInterleaved: @(NO),
 							   // AVSampleRateKey: @(44100), // not for MAC
 							   };
 	_audioDataOutput.audioSettings = settings;
@@ -141,6 +142,7 @@
 		}];
 	}
 	if(_videoDevice){
+		// TODO:
 		double _width = 340;
 		double _height = 480;
 		double _bitrate = 400 * 1024;

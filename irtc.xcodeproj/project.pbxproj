@@ -400,6 +400,7 @@
 		319207A41C854AA60017C818 /* irtc */ = {
 			isa = PBXGroup;
 			children = (
+				31C168991C92F538001AFC70 /* PrefixHeader.pch */,
 				319207A51C854AA60017C818 /* irtc.h */,
 				319207A71C854AA60017C818 /* irtc.m */,
 				31C168861C9176F2001AFC70 /* AudioPlayer.h */,
@@ -412,7 +413,6 @@
 				31E5BDE71C8FC6DE007E0503 /* VideoClip.m */,
 				31E5BDEF1C8FDD03007E0503 /* LiveRecorder.h */,
 				31E5BDF01C8FDD03007E0503 /* LiveRecorder.m */,
-				31C168991C92F538001AFC70 /* PrefixHeader.pch */,
 				31E5BDEA1C8FD184007E0503 /* aac */,
 				3187770F1C89B21700FC417F /* h264 */,
 				31C1687E1C9151AC001AFC70 /* utils */,

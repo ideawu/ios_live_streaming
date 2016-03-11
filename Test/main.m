@@ -15,18 +15,8 @@
 AudioPlayer *audioPlayer;
 AudioStreamBasicDescription format;
 
-void MyAudioQueueIsRunningCallback(void*					inClientData,
-								   AudioQueueRef			inAQ,
-								   AudioQueuePropertyID	inID)
-{
-	UInt32 running;
-	UInt32 size;
-	OSStatus err = AudioQueueGetProperty(inAQ, kAudioQueueProperty_IsRunning, &running, &size);
-	if (err) { NSLog(@"get kAudioQueueProperty_IsRunning"); return; }
-}
-
 int main(int argc, const char * argv[]) {
-#if 1
+#if 0
 	
 	audioPlayer = [[AudioPlayer alloc] init];
 	[audioPlayer setSampleRate:48000 channels:2];
@@ -58,7 +48,7 @@ int main(int argc, const char * argv[]) {
 	
 
 	
-	NSString *input = [NSTemporaryDirectory() stringByAppendingFormat:@"/a.aif"];
+	NSString *input = [NSHomeDirectory() stringByAppendingFormat:@"/Downloads/sourcePCM.aif"];
 	AudioReader *reader = [AudioReader readerWithFile:input];
 	
 	CMSampleBufferRef sampleBuffer;
