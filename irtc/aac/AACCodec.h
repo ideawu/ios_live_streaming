@@ -10,6 +10,9 @@
 
 @interface AACCodec : NSObject
 
+@property (nonatomic) AudioStreamBasicDescription srcFormat;
+@property (nonatomic) AudioStreamBasicDescription dstFormat;
+
 - (void)setupCodecWithFormat:(AudioStreamBasicDescription)srcFormat dstFormat:(AudioStreamBasicDescription)dstFormat;
 - (void)setupCodecFromSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 

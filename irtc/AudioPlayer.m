@@ -29,8 +29,9 @@ typedef struct{
 	
 	BufferList _buffers;
 }
-@property (assign, nonatomic) AudioStreamPacketDescription *packetDescriptions;
-@property (assign, nonatomic) UInt32 numberOfPacketDescriptions;
+@property AudioStreamPacketDescription aspd;
+//@property (assign, nonatomic) AudioStreamPacketDescription *packetDescriptions;
+//@property (assign, nonatomic) UInt32 numberOfPacketDescriptions;
 @end
 
 
@@ -43,8 +44,8 @@ typedef struct{
 	_playing = NO;
 	_buffering_count = 0;
 	
-	self.packetDescriptions = malloc(sizeof(AudioStreamPacketDescription) * 512);
-	self.numberOfPacketDescriptions = 0;
+//	self.packetDescriptions = malloc(sizeof(AudioStreamPacketDescription) * 512);
+//	self.numberOfPacketDescriptions = 0;
 	
 	_buffers.total = 5;
 	_buffers.count = 0;
@@ -71,7 +72,6 @@ typedef struct{
 }
 
 static void callback(void *custom_data, AudioQueueRef _queue, AudioQueueBufferRef buffer){
-	NSLog(@"callback");
 	AudioPlayer *player = (__bridge AudioPlayer *)custom_data;
 	[player onCallback:buffer];
 }
@@ -97,13 +97,26 @@ static void callback(void *custom_data, AudioQueueRef _queue, AudioQueueBufferRe
 	AudioQueueFreeBuffer(_queue, buffer);
 }
 
+static NSString *formatIDtoString(int fID){
+	return [NSString stringWithFormat:@"'%c%c%c%c'", (char)(fID>>24)&255, (char)(fID>>16)&255, (char)(fID>>8)&255, (char)fID&255];
+}
+
+- (void)printFormat:(AudioStreamBasicDescription)format name:(NSString *)name{
+	log_debug(@"--- begin %@", name);
+	log_debug(@"format.mFormatID:         %@", formatIDtoString(format.mFormatID));
+	log_debug(@"format.mFormatFlags:      %d", format.mFormatFlags);
+	log_debug(@"format.mSampleRate:       %f", format.mSampleRate);
+	log_debug(@"format.mBitsPerChannel:   %d", format.mBitsPerChannel);
+	log_debug(@"format.mChannelsPerFrame: %d", format.mChannelsPerFrame);
+	log_debug(@"format.mBytesPerFrame:    %d", format.mBytesPerFrame);
+	log_debug(@"format.mFramesPerPacket:  %d", format.mFramesPerPacket);
+	log_debug(@"format.mBytesPerPacket:   %d", format.mBytesPerPacket);
+	log_debug(@"format.mReserved:         %d", format.mReserved);
+	log_debug(@"--- end %@", name);
+}
+
 - (void)setupAQ{
-	NSLog(@"format.mSampleRate:       %f", _format.mSampleRate);
-	NSLog(@"format.mBitsPerChannel:   %d", _format.mBitsPerChannel);
-	NSLog(@"format.mChannelsPerFrame: %d", _format.mChannelsPerFrame);
-	NSLog(@"format.mBytesPerFrame:    %d", _format.mBytesPerFrame);
-	NSLog(@"format.mFramesPerPacket:  %d", _format.mFramesPerPacket);
-	NSLog(@"format.mBytesPerPacket:   %d", _format.mBytesPerPacket);
+	[self printFormat:_format name:@""];
 	
 	OSStatus err;
 	err = AudioQueueNewOutput(&_format, callback, (__bridge void *)(self), NULL, NULL, 0, &_queue);
@@ -154,13 +167,19 @@ static void callback(void *custom_data, AudioQueueRef _queue, AudioQueueBufferRe
 	buffer->mAudioDataByteSize = (UInt32)data.length;
 	memcpy(buffer->mAudioData, data.bytes, buffer->mAudioDataByteSize);
 	
-	err = AudioQueueEnqueueBufferWithParameters(_queue,
-												buffer,
-												0,
-												NULL,
-												0,//trimFramesAtStart,
-												0,//trimFramesAtEnd,
-												0, NULL, NULL, NULL);
+//	_aspd.mStartOffset = 0;
+//	_aspd.mDataByteSize = (UInt32)data.length;
+//	_aspd.mVariableFramesInPacket = 1024;
+//	err = AudioQueueEnqueueBuffer(_queue, buffer, 1, &_aspd);
+	err = AudioQueueEnqueueBuffer(_queue, buffer, 0, NULL);
+
+//	err = AudioQueueEnqueueBufferWithParameters(_queue,
+//												buffer,
+//												0,
+//												NULL,
+//												0,//trimFramesAtStart,
+//												0,//trimFramesAtEnd,
+//												0, NULL, NULL, NULL);
 	if(err){
 		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain
 											 code:err
@@ -176,13 +195,9 @@ static void callback(void *custom_data, AudioQueueRef _queue, AudioQueueBufferRe
 		if(!_playing){
 			_playing = YES;
 
-			NSLog(@"a");
 			err = AudioQueueStart(_queue, NULL);
-			NSLog(@"  b");
 			if(err){
-				NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain
-													 code:err
-												 userInfo:nil];
+				NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 				NSLog(@"%d error %@", __LINE__, error);
 			}else{
 				NSLog(@"AQ started");

@@ -28,6 +28,20 @@ void MyAudioQueueIsRunningCallback(void*					inClientData,
 int main(int argc, const char * argv[]) {
 #if 1
 	
+	AudioStreamBasicDescription _format = {0};
+	_format.mFormatID = kAudioFormatLinearPCM;
+	_format.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked | kAudioFormatFlagIsBigEndian;
+	_format.mChannelsPerFrame = 2;
+	_format.mSampleRate = 48000.0;
+	_format.mBitsPerChannel = 16;
+	_format.mFramesPerPacket = 1;
+	_format.mBytesPerPacket = _format.mChannelsPerFrame * (_format.mBitsPerChannel / 8);
+	_format.mBytesPerFrame = _format.mBytesPerPacket;
+
+//	_format.mFormatID = kAudioFormatMPEG4AAC;
+//	_format.mFormatFlags = kMPEG4Object_AAC_LC;
+//	_format.mFramesPerPacket = 1024;
+
 	audioPlayer = [[AudioPlayer alloc] init];
 	
 	AudioEncoder *encoder = [[AudioEncoder alloc] init];
@@ -37,11 +51,8 @@ int main(int argc, const char * argv[]) {
 	[decoder start:^(NSData *pcm, double duration) {
 		double pts = 0;
 		NSLog(@"decoder %d bytes, %f %f", (int)pcm.length, pts, duration);
+		[audioPlayer appendData:pcm audioFormat:_format];
 	}];
-	
-	
-	NSData *aac = [NSData dataWithBytes:"123345566666666666" length:10];
-	[decoder decode:aac];
 
 	
 	[encoder start:^(NSData *aac, double duration) {
@@ -52,13 +63,12 @@ int main(int argc, const char * argv[]) {
 //		int adts_header = 7;
 //		NSData *aac = [NSData dataWithBytes:data.bytes+adts_header
 //									 length:data.length-adts_header];
-		//[audioPlayer appendData:aac audioFormat:_format];
+//		[audioPlayer appendData:aac audioFormat:_format];
+
 		[decoder decode:aac];
 	}];
 	
-	
-	
-	
+
 	
 	NSString *input = [NSTemporaryDirectory() stringByAppendingFormat:@"/a.aif"];
 	AudioReader *reader = [AudioReader readerWithFile:input];
@@ -72,7 +82,7 @@ int main(int argc, const char * argv[]) {
 		[encoder encodeSampleBuffer:sampleBuffer];
 		CFRelease(sampleBuffer);
 		usleep(100 * 1000);
-		break;
+		//break;
 	}
 	
 	
