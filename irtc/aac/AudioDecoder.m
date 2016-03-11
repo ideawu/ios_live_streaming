@@ -33,7 +33,7 @@
 		
 		// TODO: parse ADTS
 		src.mFormatID = kAudioFormatMPEG4AAC;
-		src.mFormatFlags = kMPEG4Object_AAC_LC;
+		src.mFormatFlags = 0;
 		src.mChannelsPerFrame = 2;
 		src.mSampleRate = 48000;
 		src.mFramesPerPacket = 1024;
@@ -42,14 +42,15 @@
 		src.mBytesPerFrame = src.mBytesPerPacket;
 		
 		dst.mFormatID = kAudioFormatLinearPCM;
-		dst.mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
-		//dst.mFormatFlags = kAudioFormatFlagsNativeFloatPacked | kAudioFormatFlagIsNonInterleaved;
+		//dst.mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
+		dst.mFormatFlags = kLinearPCMFormatFlagIsBigEndian | kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
 		dst.mSampleRate = src.mSampleRate;
 		dst.mChannelsPerFrame = src.mChannelsPerFrame;
 		dst.mFramesPerPacket = 1;
 		dst.mBitsPerChannel = src.mBitsPerChannel;
 		dst.mBytesPerPacket = dst.mChannelsPerFrame * (dst.mBitsPerChannel / 8);
 		dst.mBytesPerFrame = dst.mBytesPerPacket;
+
 		
 		[_codec setupCodecWithFormat:src dstFormat:dst];
 		[_codec start:_callback];

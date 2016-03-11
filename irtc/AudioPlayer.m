@@ -11,6 +11,8 @@
 
 #define BUF_SIZE 5;
 
+// AudioQueueSetParameter ( queue, kAudioQueueParam_Volume, gain )
+
 typedef struct{
 	int total;
 	int count;

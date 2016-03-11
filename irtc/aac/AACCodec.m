@@ -37,6 +37,13 @@
 - (id)init{
 	self = [super init];
 	
+	// if encoding to AAC set the bitrate
+	// kAudioConverterEncodeBitRate is a UInt32 value containing the number of bits per second to aim for when encoding data
+	// when you explicitly set the bit rate and the sample rate, this tells the encoder to stick with both bit rate and sample rate
+	//     but there are combinations (also depending on the number of channels) which will not be allowed
+	// if you do not explicitly set a bit rate the encoder will pick the correct value for you depending on samplerate and number of channels
+	// bit rate also scales with the number of channels, therefore one bit rate per sample rate can be used for mono cases
+	//    and if you have stereo or more, you can multiply that number by the number of channels.
 	_sampleRate = 22050;
 	if(_sampleRate >= 44100){
 		_bitrate = 192000; // 192kbs
@@ -161,6 +168,8 @@
 												 &outAudioBufferList,
 												 NULL);
 		if(status != noErr){
+			NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+			NSLog(@"AudioConverterFillComplexBuffer error: %@", error);
 			NSLog(@"dispose converter");
 			AudioConverterDispose(_converter);
 			_converter = NULL;
@@ -246,12 +255,15 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 
 - (void)printFormat:(AudioStreamBasicDescription)format name:(NSString *)name{
 	NSLog(@"--- begin %@", name);
+	NSLog(@"format.mFormatID:         %d", format.mFormatID);
+	NSLog(@"format.mFormatFlags:      %d", format.mFormatFlags);
 	NSLog(@"format.mSampleRate:       %f", format.mSampleRate);
 	NSLog(@"format.mBitsPerChannel:   %d", format.mBitsPerChannel);
 	NSLog(@"format.mChannelsPerFrame: %d", format.mChannelsPerFrame);
 	NSLog(@"format.mBytesPerFrame:    %d", format.mBytesPerFrame);
 	NSLog(@"format.mFramesPerPacket:  %d", format.mFramesPerPacket);
 	NSLog(@"format.mBytesPerPacket:   %d", format.mBytesPerPacket);
+	NSLog(@"format.mReserved:         %d", format.mReserved);
 	NSLog(@"--- end %@", name);
 }
 
@@ -261,8 +273,24 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 	 注意, !kLinearPCMFormatFlagIsNonInterleaved(默认是 interleaved 的)
 	 mBytesPerFrame != mChannelsPerFrame * mBitsPerChannel /8
 	 */
-	[self printFormat:_srcFormat name:@"src"];
-	[self printFormat:_dstFormat name:@"dst"];
+	// 似乎对 kAudioFormatMPEG4AAC, 不能指定下面的属性
+	if(_srcFormat.mFormatID == kAudioFormatMPEG4AAC){
+		_srcFormat.mBitsPerChannel = 0;
+		_srcFormat.mBytesPerFrame = 0;
+		_srcFormat.mBytesPerPacket = 0;
+	}
+	if(_dstFormat.mFormatID == kAudioFormatMPEG4AAC){
+		_dstFormat.mBitsPerChannel = 0;
+		_dstFormat.mBytesPerFrame = 0;
+		_dstFormat.mBytesPerPacket = 0;
+	}
+	// PCM 不指定 bitrate
+	if(_dstFormat.mFormatID == kAudioFormatLinearPCM){
+		_bitrate = 0;
+	}
+
+//	[self printFormat:_srcFormat name:@"src"];
+//	[self printFormat:_dstFormat name:@"dst"];
 	
 	OSStatus err;
 //	AudioClassDescription *description = [self getAudioClassDescription];
@@ -276,6 +304,23 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 		NSLog(@"line: %d, error: %@", __LINE__, error);
 		return;
 	}
+	
+	// 获取真正的 format
+	UInt32 size = sizeof(_srcFormat);
+	err = AudioConverterGetProperty(_converter, kAudioConverterCurrentInputStreamDescription, &size, &_srcFormat);
+	if (err != 0) {
+		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
+		NSLog(@"line: %d, error: %@", __LINE__, error);
+		return;
+	}
+	size = sizeof(_dstFormat);
+	err = AudioConverterGetProperty(_converter, kAudioConverterCurrentOutputStreamDescription, &size, &_dstFormat);
+	if (err != 0) {
+		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
+		NSLog(@"line: %d, error: %@", __LINE__, error);
+		return;
+	}
+	
 	if (_bitrate != 0) {
 		UInt32 bitrate = (UInt32)_bitrate;
 		UInt32 size = sizeof(bitrate);
@@ -292,6 +337,21 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 			NSLog(@"set bitrate: %d", bitrate);
 		}
 	}
+	
+	// 创建 AAC converter 的时候不能指定, 所以这里要补充回来
+	if(_srcFormat.mBytesPerPacket == 0){
+		_srcFormat.mBitsPerChannel = _srcFormat.mChannelsPerFrame * 8;
+		_srcFormat.mBytesPerPacket = _srcFormat.mChannelsPerFrame * 2;
+		_srcFormat.mBytesPerFrame = _srcFormat.mBytesPerPacket;
+	}
+	if(_dstFormat.mBytesPerPacket == 0){
+		_dstFormat.mBitsPerChannel = _dstFormat.mChannelsPerFrame * 8;
+		_dstFormat.mBytesPerPacket = _dstFormat.mChannelsPerFrame * 2;
+		_dstFormat.mBytesPerFrame = _dstFormat.mBytesPerPacket;
+	}
+	
+	[self printFormat:_srcFormat name:@"src"];
+	[self printFormat:_dstFormat name:@"dst"];
 }
 
 - (AudioClassDescription *)getAudioClassDescription{

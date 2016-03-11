@@ -32,45 +32,56 @@ int main(int argc, const char * argv[]) {
 	
 	AudioEncoder *encoder = [[AudioEncoder alloc] init];
 	AudioDecoder *decoder = [[AudioDecoder alloc] init];
+
 	
 	[decoder start:^(NSData *pcm, double duration) {
 		double pts = 0;
 		NSLog(@"decoder %d bytes, %f %f", (int)pcm.length, pts, duration);
 	}];
 	
-//	[encoder start:^(NSData *aac, double duration) {
-//		double pts = 0;
-//		NSLog(@"encoder %d bytes, %f %f", (int)aac.length, pts, duration);
-//		
-//		//[decoder decode:aac];
-//
-////		int adts_header = 7;
-////		NSData *aac = [NSData dataWithBytes:data.bytes+adts_header
-////									 length:data.length-adts_header];
-////		[audioPlayer appendData:aac audioFormat:_format];
-//	}];
-//	
-//	NSString *input = [NSTemporaryDirectory() stringByAppendingFormat:@"/a.aif"];
-//	AudioReader *reader = [AudioReader readerWithFile:input];
-//	CMSampleBufferRef sampleBuffer;
-//	while(1){
-//		sampleBuffer = [reader nextSampleBuffer];
-//		if(!sampleBuffer){
-//			break;
-//		}
-//		[encoder encodeSampleBuffer:sampleBuffer];
-//		CFRelease(sampleBuffer);
-//		//usleep(100 * 1000);
-//	}
+	[encoder start:^(NSData *aac, double duration) {
+		double pts = 0;
+		//NSLog(@"encoder %d bytes, %f %f", (int)aac.length, pts, duration);
+		
+		[decoder decode:aac];
+		
+		//		int adts_header = 7;
+		//		NSData *aac = [NSData dataWithBytes:data.bytes+adts_header
+		//									 length:data.length-adts_header];
+		//		[audioPlayer appendData:aac audioFormat:_format];
+	}];
 	
-//	reader = [AudioReader readerWithFile:input];
-//	while(1){
-//		NSData *data = [reader nextSampleData];
-//		if(!data){
-//			break;
-//		}
-//		[audioPlayer appendData:data audioFormat:reader.format];
-//	}
+	NSString *input = [NSTemporaryDirectory() stringByAppendingFormat:@"/a.aif"];
+	AudioReader *reader = [AudioReader readerWithFile:input];
+	
+	CMSampleBufferRef sampleBuffer;
+	while(1){
+		sampleBuffer = [reader nextSampleBuffer];
+		if(!sampleBuffer){
+			break;
+		}
+		[encoder encodeSampleBuffer:sampleBuffer];
+		CFRelease(sampleBuffer);
+		usleep(100 * 1000);
+	}
+	
+	NSLog(@"done");
+
+	
+	
+	
+	
+	
+	sleep(100);
+	
+	reader = [AudioReader readerWithFile:input];
+	while(1){
+		NSData *data = [reader nextSampleData];
+		if(!data){
+			break;
+		}
+		[audioPlayer appendData:data audioFormat:reader.format];
+	}
 
 	NSLog(@"end");
 //	sleep(10);
