@@ -6,6 +6,7 @@
 //  Copyright © 2016 ideawu. All rights reserved.
 //
 
+#include "inc.h"
 #import "AACCodec.h"
 
 @interface AACCodec(){
@@ -124,7 +125,7 @@
 	err = AudioFormatGetProperty(kAudioFormatProperty_FormatInfo, 0, NULL, &size, &_dstFormat);
 	if (err != 0) {
 		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
-		NSLog(@"line: %d, error: %@", __LINE__, error);
+		log_debug(@"line: %d, error: %@", __LINE__, error);
 	}
 	
 	[self createConverter];
@@ -143,15 +144,14 @@
 	[_condition lock];
 	{
 		[_samples addObject:data];
-		//NSLog(@"signal _samples: %d", (int)_samples.count);
+		//log_debug(@"signal _samples: %d", (int)_samples.count);
 		[_condition signal];
 	}
 	[_condition unlock];
 }
 
 - (void)run{
-	OSStatus status;
-	NSError *error = nil;
+	OSStatus err;
 	
 	while(_running){
 		AudioBufferList outAudioBufferList;
@@ -161,36 +161,43 @@
 		outAudioBufferList.mBuffers[0].mData = _aacBuffer;
 		
 		UInt32 outPackets = 1;
-		status = AudioConverterFillComplexBuffer(_converter,
+		err = AudioConverterFillComplexBuffer(_converter,
 												 inInputDataProc,
 												 (__bridge void *)(self),
 												 &outPackets,
 												 &outAudioBufferList,
 												 NULL);
-		if(status != noErr){
-			NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-			NSLog(@"AudioConverterFillComplexBuffer error: %@", error);
-			NSLog(@"dispose converter");
+		if(err != noErr){
+			NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
+			log_debug(@"AudioConverterFillComplexBuffer error: %@", error);
+			log_debug(@"dispose converter");
 			AudioConverterDispose(_converter);
 			_converter = NULL;
 			_running = NO;
 			continue;
 		}
 		int outFrames = _dstFormat.mFramesPerPacket * outPackets;
-		NSLog(@"outPackets: %d, frames: %d", (int)outPackets, outFrames);
+		int outBytes = outAudioBufferList.mBuffers[0].mDataByteSize;
+		log_debug(@"outPackets: %d, frames: %d, %d bytes", (int)outPackets, outFrames, outBytes);
 		
-		if (status == 0) {
-			NSData *data = [NSData dataWithBytes:outAudioBufferList.mBuffers[0].mData length:outAudioBufferList.mBuffers[0].mDataByteSize];
+		if (err == 0) {
+			NSData *data = [NSData dataWithBytes:outAudioBufferList.mBuffers[0].mData length:outBytes];
+			
+			NSData *adts = [self adtsDataForPacketLength:data.length];
+			NSMutableData *full = [[NSMutableData alloc] init];
+			[full appendData:adts];
+			[full appendData:data];
+			data = full;
 			
 			// deal with data
 			double duration = outFrames / _dstFormat.mSampleRate;
-			//NSLog(@"AAC ready, pts: %f, duration: %f, bytes: %d", _pts, duration, (int)data.length);
+			//log_debug(@"AAC ready, pts: %f, duration: %f, bytes: %d", _pts, duration, (int)data.length);
 			if(_callback){
 				_callback(data, duration);
 			}
 		} else {
-			error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-			NSLog(@"decode error: %@", error);
+			NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
+			log_debug(@"%d error: %@", __LINE__, error);
 		}
 	}
 }
@@ -203,14 +210,14 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 								void *inUserData){
 	AACCodec *me = (__bridge AACCodec *)(inUserData);
 	UInt32 requestedPackets = *ioNumberDataPackets;
-	//NSLog(@"Number of packets requested: %d", (unsigned int)requestedPackets);
+	//log_debug(@"Number of packets requested: %d", (unsigned int)requestedPackets);
 	int ret = [me copyData:ioData requestedPackets:requestedPackets];
 	if(ret == -1){
 		*ioNumberDataPackets = 0;
 		return -1;
 	}
 	*ioNumberDataPackets = ret;
-	//NSLog(@"Copied %d packets into ioData, requested: %d", ret, requestedPackets);
+	//log_debug(@"Copied %d packets into ioData, requested: %d", ret, requestedPackets);
 	return noErr;
 }
 
@@ -222,7 +229,7 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 		if(_samples.count == 0){
 			[_condition wait];
 		}
-		//NSLog(@"_samples %d", (int)_samples.count);
+		//log_debug(@"_samples %d", (int)_samples.count);
 		data = _samples.firstObject;
 		if(data){
 			[_samples removeObjectAtIndex:0];
@@ -231,7 +238,7 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 	[_condition unlock];
 	
 	if(!data || !_running){
-		NSLog(@"copyData is signaled to exit");
+		log_debug(@"copyData is signaled to exit");
 		return 0;
 	}
 	
@@ -246,25 +253,29 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 	//	AudioStreamBasicDescription f = *CMAudioFormatDescriptionGetStreamBasicDescription((CMAudioFormatDescriptionRef)CMSampleBufferGetFormatDescription(sampleBuffer));
 	//	if(f.mBitsPerChannel != _srcFormat.mBitsPerChannel || f.mChannelsPerFrame != _srcFormat.mChannelsPerFrame || f.mSampleRate != _srcFormat.mSampleRate){
 	//		CFRelease(sampleBuffer);
-	//		NSLog(@"Sample format changed!");
+	//		log_debug(@"Sample format changed!");
 	//		[self printFormat:_srcFormat name:@"old"];
 	//		[self printFormat:f name:@"new"];
 	//		return -1;
 	//	}
 }
 
+static NSString *formatIDtoString(int fID){
+	return [NSString stringWithFormat:@"'%c%c%c%c'", (char)(fID>>24)&255, (char)(fID>>16)&255, (char)(fID>>8)&255, (char)fID&255];
+}
+
 - (void)printFormat:(AudioStreamBasicDescription)format name:(NSString *)name{
-	NSLog(@"--- begin %@", name);
-	NSLog(@"format.mFormatID:         %d", format.mFormatID);
-	NSLog(@"format.mFormatFlags:      %d", format.mFormatFlags);
-	NSLog(@"format.mSampleRate:       %f", format.mSampleRate);
-	NSLog(@"format.mBitsPerChannel:   %d", format.mBitsPerChannel);
-	NSLog(@"format.mChannelsPerFrame: %d", format.mChannelsPerFrame);
-	NSLog(@"format.mBytesPerFrame:    %d", format.mBytesPerFrame);
-	NSLog(@"format.mFramesPerPacket:  %d", format.mFramesPerPacket);
-	NSLog(@"format.mBytesPerPacket:   %d", format.mBytesPerPacket);
-	NSLog(@"format.mReserved:         %d", format.mReserved);
-	NSLog(@"--- end %@", name);
+	log_debug(@"--- begin %@", name);
+	log_debug(@"format.mFormatID:         %@", formatIDtoString(format.mFormatID));
+	log_debug(@"format.mFormatFlags:      %d", format.mFormatFlags);
+	log_debug(@"format.mSampleRate:       %f", format.mSampleRate);
+	log_debug(@"format.mBitsPerChannel:   %d", format.mBitsPerChannel);
+	log_debug(@"format.mChannelsPerFrame: %d", format.mChannelsPerFrame);
+	log_debug(@"format.mBytesPerFrame:    %d", format.mBytesPerFrame);
+	log_debug(@"format.mFramesPerPacket:  %d", format.mFramesPerPacket);
+	log_debug(@"format.mBytesPerPacket:   %d", format.mBytesPerPacket);
+	log_debug(@"format.mReserved:         %d", format.mReserved);
+	log_debug(@"--- end %@", name);
 }
 
 - (void)createConverter{
@@ -301,7 +312,7 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 	err = AudioConverterNew(&_srcFormat, &_dstFormat, &_converter);
 	if (err != 0) {
 		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
-		NSLog(@"line: %d, error: %@", __LINE__, error);
+		log_debug(@"line: %d, error: %@", __LINE__, error);
 		return;
 	}
 	
@@ -310,14 +321,14 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 	err = AudioConverterGetProperty(_converter, kAudioConverterCurrentInputStreamDescription, &size, &_srcFormat);
 	if (err != 0) {
 		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
-		NSLog(@"line: %d, error: %@", __LINE__, error);
+		log_debug(@"line: %d, error: %@", __LINE__, error);
 		return;
 	}
 	size = sizeof(_dstFormat);
 	err = AudioConverterGetProperty(_converter, kAudioConverterCurrentOutputStreamDescription, &size, &_dstFormat);
 	if (err != 0) {
 		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
-		NSLog(@"line: %d, error: %@", __LINE__, error);
+		log_debug(@"line: %d, error: %@", __LINE__, error);
 		return;
 	}
 	
@@ -327,14 +338,14 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 		err = AudioConverterSetProperty(_converter, kAudioConverterEncodeBitRate, size, &bitrate);
 		if (err != 0) {
 			NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
-			NSLog(@"line: %d, error: %@", __LINE__, error);
+			log_debug(@"line: %d, error: %@", __LINE__, error);
 		}
 		err = AudioConverterGetProperty(_converter, kAudioConverterEncodeBitRate, &size, &bitrate);
 		if (err != 0) {
 			NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
-			NSLog(@"line: %d, error: %@", __LINE__, error);
+			log_debug(@"line: %d, error: %@", __LINE__, error);
 		}else{
-			NSLog(@"set bitrate: %d", bitrate);
+			log_debug(@"set bitrate: %d", bitrate);
 		}
 	}
 	
@@ -365,7 +376,7 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 									&encoderSpecifier,
 									&size);
 	if (st) {
-		NSLog(@"error getting audio format propery info: %d", (int)(st));
+		log_debug(@"error getting audio format propery info: %d", (int)(st));
 		return nil;
 	}
 	
@@ -377,11 +388,11 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 								&size,
 								descriptions);
 	if (st) {
-		NSLog(@"error getting audio format propery: %d", (int)(st));
+		log_debug(@"error getting audio format propery: %d", (int)(st));
 		return nil;
 	}
 	for (unsigned int i = 0; i < count; i++) {
-		NSLog(@"%d %d %d", descriptions[i].mType, descriptions[i].mSubType, descriptions[i].mManufacturer);
+		log_debug(@"%d %d %d", descriptions[i].mType, descriptions[i].mSubType, descriptions[i].mManufacturer);
 	}
 	//	for (unsigned int i = 0; i < count; i++) {
 	//		UInt32 manufacturer = kAppleSoftwareAudioCodecManufacturer;
@@ -390,7 +401,7 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
 	//			return &desc;
 	//		}
 	//	}
-	NSLog(@"error getting AudioClassDescription");
+	log_debug(@"error getting AudioClassDescription");
 	return nil;
 }
 

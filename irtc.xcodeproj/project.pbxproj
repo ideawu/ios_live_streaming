@@ -189,6 +189,7 @@
 		31C1688B1C91976B001AFC70 /* AudioDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioDecoder.m; sourceTree = "<group>"; };
 		31C1688E1C927307001AFC70 /* AACCodec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AACCodec.h; sourceTree = "<group>"; };
 		31C1688F1C927307001AFC70 /* AACCodec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AACCodec.m; sourceTree = "<group>"; };
+		31C168961C92C80B001AFC70 /* inc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = inc.h; sourceTree = "<group>"; };
 		31E5BDE11C8EE6F5007E0503 /* AAPLEAGLLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLEAGLLayer.h; sourceTree = "<group>"; };
 		31E5BDE21C8EE6F5007E0503 /* AAPLEAGLLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAPLEAGLLayer.m; sourceTree = "<group>"; };
 		31E5BDE41C8EF884007E0503 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
@@ -401,6 +402,7 @@
 			children = (
 				319207A51C854AA60017C818 /* irtc.h */,
 				319207A71C854AA60017C818 /* irtc.m */,
+				31C168961C92C80B001AFC70 /* inc.h */,
 				31C168861C9176F2001AFC70 /* AudioPlayer.h */,
 				31C168871C9176F2001AFC70 /* AudioPlayer.m */,
 				081420601C8C37CF00A2B03E /* VideoPlayer.h */,
