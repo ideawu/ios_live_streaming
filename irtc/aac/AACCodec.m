@@ -23,8 +23,6 @@
 @property (nonatomic) AudioStreamBasicDescription dstFormat;
 
 @property (nonatomic) AudioConverterRef converter;
-@property (nonatomic) uint8_t *aacBuffer;
-@property (nonatomic) NSUInteger aacBufferSize;
 @property (nonatomic) char *pcmBuffer;
 @property (nonatomic) size_t pcmBufferSize;
 @property (nonatomic) int sampleRate;
@@ -57,10 +55,6 @@
 	_pcmBufferSize = 0;
 	_pcmBuffer = NULL;
 	
-	_aacBufferSize = 8192;
-	_aacBuffer = (uint8_t *)malloc(_aacBufferSize * sizeof(uint8_t));
-	memset(_aacBuffer, 0, _aacBufferSize);
-	
 	_converter = NULL;
 	
 	_condition = [[NSCondition alloc] init];
@@ -88,9 +82,6 @@
 - (void)dealloc{
 	if(_converter){
 		AudioConverterDispose(_converter);
-	}
-	if(_aacBuffer){
-		free(_aacBuffer);
 	}
 }
 
@@ -153,6 +144,12 @@
 - (void)run{
 	OSStatus err;
 	
+	uint8_t *_aacBuffer;
+	NSUInteger _aacBufferSize;
+	_aacBufferSize = 8192;
+	_aacBuffer = (uint8_t *)malloc(_aacBufferSize * sizeof(uint8_t));
+	memset(_aacBuffer, 0, _aacBufferSize);
+	
 	while(_running){
 		AudioBufferList outAudioBufferList;
 		outAudioBufferList.mNumberBuffers = 1;
@@ -160,16 +157,18 @@
 		outAudioBufferList.mBuffers[0].mDataByteSize = (UInt32)_aacBufferSize;
 		outAudioBufferList.mBuffers[0].mData = _aacBuffer;
 		
-		UInt32 outPackets = 1;
+		UInt32 outPackets = 1024 / _dstFormat.mFramesPerPacket;
 		err = AudioConverterFillComplexBuffer(_converter,
 												 inInputDataProc,
 												 (__bridge void *)(self),
 												 &outPackets,
 												 &outAudioBufferList,
 												 NULL);
-		if(err != noErr){
-			NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
-			log_debug(@"AudioConverterFillComplexBuffer error: %@", error);
+		if(err != noErr || outPackets == 0){
+			if(err){
+				NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
+				log_debug(@"AudioConverterFillComplexBuffer error: %@", error);
+			}
 			log_debug(@"dispose converter");
 			AudioConverterDispose(_converter);
 			_converter = NULL;
@@ -178,16 +177,16 @@
 		}
 		int outFrames = _dstFormat.mFramesPerPacket * outPackets;
 		int outBytes = outAudioBufferList.mBuffers[0].mDataByteSize;
-		log_debug(@"outPackets: %d, frames: %d, %d bytes", (int)outPackets, outFrames, outBytes);
+		//log_debug(@"outPackets: %d, frames: %d, %d bytes", (int)outPackets, outFrames, outBytes);
 		
 		if (err == 0) {
 			NSData *data = [NSData dataWithBytes:outAudioBufferList.mBuffers[0].mData length:outBytes];
 			
-			NSData *adts = [self adtsDataForPacketLength:data.length];
-			NSMutableData *full = [[NSMutableData alloc] init];
-			[full appendData:adts];
-			[full appendData:data];
-			data = full;
+//			NSData *adts = [self adtsDataForPacketLength:data.length];
+//			NSMutableData *full = [[NSMutableData alloc] init];
+//			[full appendData:adts];
+//			[full appendData:data];
+//			data = full;
 			
 			// deal with data
 			double duration = outFrames / _dstFormat.mSampleRate;
@@ -200,6 +199,8 @@
 			log_debug(@"%d error: %@", __LINE__, error);
 		}
 	}
+	
+	free(_aacBuffer);
 }
 
 // AudioConverterComplexInputDataProc

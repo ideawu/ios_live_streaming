@@ -34,21 +34,26 @@ int main(int argc, const char * argv[]) {
 	AudioDecoder *decoder = [[AudioDecoder alloc] init];
 
 	
-//	[decoder start:^(NSData *pcm, double duration) {
-//		double pts = 0;
-//		NSLog(@"decoder %d bytes, %f %f", (int)pcm.length, pts, duration);
-//	}];
+	[decoder start:^(NSData *pcm, double duration) {
+		double pts = 0;
+		NSLog(@"decoder %d bytes, %f %f", (int)pcm.length, pts, duration);
+	}];
+	
+	
+	NSData *aac = [NSData dataWithBytes:"123345566666666666" length:10];
+	[decoder decode:aac];
+
 	
 	[encoder start:^(NSData *aac, double duration) {
-		//double pts = 0;
-		//NSLog(@"encoder %d bytes, %f %f", (int)aac.length, pts, duration);
+		double pts = 0;
+		NSLog(@"encoder %d bytes, %f %f", (int)aac.length, pts, duration);
 		
 		
 //		int adts_header = 7;
 //		NSData *aac = [NSData dataWithBytes:data.bytes+adts_header
 //									 length:data.length-adts_header];
-//		[audioPlayer appendData:aac audioFormat:_format];
-		//[decoder decode:aac];
+		//[audioPlayer appendData:aac audioFormat:_format];
+		[decoder decode:aac];
 	}];
 	
 	
@@ -70,21 +75,18 @@ int main(int argc, const char * argv[]) {
 		break;
 	}
 	
-	NSLog(@"done");
-	sleep(100);
-
 	
-	reader = [AudioReader readerWithFile:input];
-	while(1){
-		NSData *data = [reader nextSampleData];
-		if(!data){
-			break;
-		}
-		[audioPlayer appendData:data audioFormat:reader.format];
-	}
+//	reader = [AudioReader readerWithFile:input];
+//	while(1){
+//		NSData *data = [reader nextSampleData];
+//		if(!data){
+//			break;
+//		}
+//		[audioPlayer appendData:data audioFormat:reader.format];
+//	}
 
 	NSLog(@"end");
-//	sleep(10);
+	sleep(10);
 #else
 	return NSApplicationMain(argc, argv);
 #endif

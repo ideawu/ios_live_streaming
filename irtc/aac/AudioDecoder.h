@@ -10,7 +10,7 @@
 
 @interface AudioDecoder : NSObject
 
-- (void)setADTS:(NSData *)adts;
+//- (void)setADTS:(NSData *)adts;
 
 - (void)start:(void (^)(NSData *pcm, double duration))callback;
 - (void)shutdown;
