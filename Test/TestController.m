@@ -54,8 +54,6 @@
 	
 	_audioPlayer = [[AudioPlayer alloc] init];
 	
-	AudioStreamBasicDescription format;
-	
 	[_recorder setupAudio:^(NSData *data, double pts, double duration) {
 		NSLog(@"%d bytes, %f %f", (int)data.length, pts, duration);
 	}];

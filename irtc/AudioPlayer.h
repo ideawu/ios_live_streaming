@@ -11,12 +11,10 @@
 
 @interface AudioPlayer : NSObject
 
-@property AudioStreamBasicDescription format;
-@property AudioQueueRef queue;
-
-- (void)setupAQ;
++ (AudioPlayer *)AACPlayerWithSampleRate:(int)sampleRate channels:(int)channels;
+- (id)setSampleRate:(int)sampleRate channels:(int)channels;
 
 - (void)stop;
-- (void)appendData:(NSData *)data audioFormat:(AudioStreamBasicDescription)format;
+- (void)appendData:(NSData *)data;
 
 @end
