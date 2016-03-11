@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 #import "AudioReader.h"
 #import "AudioEncoder.h"
+#import "AudioDecoder.h"
 #import "AudioPlayer.h"
 
 AudioPlayer *audioPlayer;
@@ -29,26 +30,24 @@ int main(int argc, const char * argv[]) {
 	
 	audioPlayer = [[AudioPlayer alloc] init];
 	
-	AudioStreamBasicDescription _format;
-//	_format.mFormatID = kAudioFormatLinearPCM;
-//	_format.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
-	_format.mFormatID = kAudioFormatMPEG4AAC;
-	_format.mFormatFlags = kMPEG4Object_AAC_LC;
-	_format.mChannelsPerFrame = 2;
-	_format.mSampleRate = 48000.0;
-	_format.mFramesPerPacket = 1024;
-//	_format.mBitsPerChannel = 16;
-//	_format.mBytesPerPacket = _format.mChannelsPerFrame * (_format.mBitsPerChannel / 8);
-//	_format.mBytesPerFrame = _format.mBytesPerPacket;
-	
 	AudioEncoder *encoder = [[AudioEncoder alloc] init];
-	[encoder encodeWithBlock:^(NSData *data, double pts, double duration) {
-		NSLog(@"%d bytes, %f %f", (int)data.length, pts, duration);
+	AudioDecoder *decoder = [[AudioDecoder alloc] init];
+	
+	[decoder start:^(NSData *pcm, double duration) {
+		double pts = 0;
+		NSLog(@"decoder %d bytes, %f %f", (int)pcm.length, pts, duration);
+	}];
+	
+	[encoder start:^(NSData *aac, double duration) {
+		double pts = 0;
+		NSLog(@"encoder %d bytes, %f %f", (int)aac.length, pts, duration);
+		
+		//[decoder decode:aac];
 
-		int adts_header = 7;
-		NSData *aac = [NSData dataWithBytes:data.bytes+adts_header
-									 length:data.length-adts_header];
-		[audioPlayer appendData:aac audioFormat:_format];
+//		int adts_header = 7;
+//		NSData *aac = [NSData dataWithBytes:data.bytes+adts_header
+//									 length:data.length-adts_header];
+//		[audioPlayer appendData:aac audioFormat:_format];
 	}];
 	
 	NSString *input = [NSTemporaryDirectory() stringByAppendingFormat:@"/a.aif"];
@@ -74,7 +73,7 @@ int main(int argc, const char * argv[]) {
 //	}
 
 	NSLog(@"end");
-	sleep(10);
+//	sleep(10);
 #else
 	return NSApplicationMain(argc, argv);
 #endif

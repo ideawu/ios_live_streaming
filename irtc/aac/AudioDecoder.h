@@ -6,13 +6,15 @@
 //  Copyright © 2016 ideawu. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 
 @interface AudioDecoder : NSObject
 
-@property AudioStreamBasicDescription format;
+- (void)setADTS:(NSData *)adts;
 
-- (void)appendData:(NSData *)data pts:(double)pts;
+- (void)start:(void (^)(NSData *pcm, double duration))callback;
+- (void)shutdown;
+
+- (void)decode:(NSData *)aac;
 
 @end

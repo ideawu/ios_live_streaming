@@ -135,7 +135,8 @@
 	__weak typeof(self) me = self;
 	if(_audioDevice){
 		_audioEncoder = [[AudioEncoder alloc] init];
-		[_audioEncoder encodeWithBlock:^(NSData *data, double pts, double duration) {
+		[_audioEncoder start:^(NSData *data, double duration) {
+			double pts = 0;
 			[me onAudioChunk:data pts:pts duration:duration];
 		}];
 	}

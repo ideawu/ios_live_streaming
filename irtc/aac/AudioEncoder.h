@@ -10,8 +10,10 @@
 
 @interface AudioEncoder : NSObject
 
-- (void)encodeWithBlock:(void (^)(NSData *data, double pts, double duration))callback;
-- (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer;
+- (void)start:(void (^)(NSData *aac, double duration))callback;
 - (void)shutdown;
+
+//- (void)encode:(NSData *)raw;
+- (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 
 @end
