@@ -22,6 +22,7 @@ typedef enum{
 	BOOL _inited;
 	PlayerState _state;
 	AudioBufferQueue *_buffers;
+	AudioQueueBufferRef _silence;
 	int _count;
 }
 @property AudioQueueRef queue;
@@ -62,6 +63,8 @@ typedef enum{
 	_format.mBytesPerPacket = _format.mChannelsPerFrame * (_format.mBitsPerChannel / 8);
 	_format.mBytesPerFrame = _format.mBytesPerPacket;
 	_format.mReserved = 0;
+
+	_silence = NULL;
 
 	return self;
 }
@@ -144,11 +147,17 @@ static NSString *formatIDtoString(int fID){
 }
 
 - (void)onCallback:(AudioQueueBufferRef)buffer{
+	OSStatus err;
+
 	_count --;
-	log_debug(@"callback %d", _count);
-	buffer->mAudioDataByteSize = 0;
-	buffer->mPacketDescriptionCount = 0;
-	[_buffers pushFreeBuffer];
+	if(buffer != _silence){
+		log_debug(@"callback %d", _count);
+		buffer->mAudioDataByteSize = 0;
+		buffer->mPacketDescriptionCount = 0;
+		[_buffers pushFreeBuffer];
+	}else{
+		log_debug(@"return silence");
+	}
 
 //	@synchronized(self){
 //		if(_count == 0){
@@ -158,6 +167,16 @@ static NSString *formatIDtoString(int fID){
 //		}
 //	}
 
+	if(_count == 0){
+		// fill silence
+		if(!_silence){
+			err = AudioQueueAllocateBuffer(_queue, 4096, &_silence);
+			_silence->mAudioDataByteSize = _silence->mAudioDataBytesCapacity;
+		}
+		err = AudioQueueEnqueueBuffer(_queue, _silence, 0, NULL);
+		log_debug(@"add silence");
+	}
+
 	return;
 
 	AudioQueueBufferRef audio_buf;
@@ -165,7 +184,6 @@ static NSString *formatIDtoString(int fID){
 
 //	log_debug(@"");
 
-	OSStatus err;
 	err = AudioQueueEnqueueBuffer(_queue,
 								  audio_buf,
 								  audio_buf->mPacketDescriptionCount,
