@@ -10,7 +10,7 @@
 
 @interface AudioEncoder : NSObject
 
-- (void)start:(void (^)(NSData *aac, double duration))callback;
+- (void)start:(void (^)(NSData *aac, double pts, double duration))callback;
 - (void)shutdown;
 
 //- (void)encode:(NSData *)raw;

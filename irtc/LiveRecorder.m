@@ -136,8 +136,7 @@
 	__weak typeof(self) me = self;
 	if(_audioDevice){
 		_audioEncoder = [[AudioEncoder alloc] init];
-		[_audioEncoder start:^(NSData *data, double duration) {
-			double pts = 0;
+		[_audioEncoder start:^(NSData *data, double pts, double duration) {
 			[me onAudioChunk:data pts:pts duration:duration];
 		}];
 	}
@@ -169,7 +168,7 @@
 #pragma mark - Audio Encoder callbacks
 
 - (void)onAudioChunk:(NSData *)data pts:(double)pts duration:(double)duration{
-	// TODO: AudioClip?
+	// TODO: build AudioClip
 	if(_audioCallback){
 		_audioCallback(data, pts, duration);
 	}
@@ -222,6 +221,11 @@
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection{
 	if(captureOutput == _audioDataOutput){
+		// TODO:
+		static int i = 0;
+		if(i++ % 10 == 9){
+			return;
+		}
 		[_audioEncoder encodeSampleBuffer:sampleBuffer];
 	}
 	if(captureOutput == _videoDataOutput){

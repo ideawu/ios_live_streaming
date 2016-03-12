@@ -6,7 +6,11 @@
 #import "AACCodec.h"
 
 @interface AudioEncoder(){
-	void (^_callback)(NSData *aac, double duration);
+	void (^_callback)(NSData *aac, double pts, double duration);
+	double _pts;
+	double _prev_pts;
+	double _prev_duration;
+	double _sync_pts;
 }
 @property AACCodec *codec;
 @end
@@ -15,10 +19,12 @@
 
 - (id)init{
 	self = [super init];
+	_pts = 0;
+	_prev_pts = 0;
 	return self;
 }
 
-- (void)start:(void (^)(NSData *aac, double duration))callback{
+- (void)start:(void (^)(NSData *aac, double pts, double duration))callback{
 	_callback = callback;
 }
 
@@ -38,10 +44,47 @@
 //			[full appendData:adts];
 //			[full appendData:aac];
 //			aac = full;
-			_callback(aac, duration);
+			double pts;
+			@synchronized(self){
+				pts = _pts;
+				_pts += duration;
+			}
+			_callback(aac, pts, duration);
 		}];
+		_pts = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
 	}
-	
+
+	BOOL drop = NO;
+
+	double pts = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
+	double duration = CMTimeGetSeconds(CMSampleBufferGetDuration(sampleBuffer));
+	if(_pts == 0){
+		_pts = pts;
+	}else{
+		double expect_pts = _prev_pts + _prev_duration;
+		double diff = pts - expect_pts;
+		@synchronized(self){
+			// 如果录制设备原始视频丢包, 需要对累积时间进行修复
+			_pts += diff;
+			double encoder_delay = pts - _pts;
+			log_debug(@"%f %f diff: %f, encoder_delay: %f", _pts, pts, diff, encoder_delay);
+			// 如果编码器性能不足, 主动丢包
+			if(encoder_delay > 1){
+				_pts += duration;
+				drop = YES;
+			}else if(encoder_delay < -1){
+				// 如果超前了, 怎么处理?
+			}
+		}
+	}
+	_prev_pts = pts;
+	_prev_duration = duration;
+
+	if(drop){
+		log_debug(@"drop sample buffer");
+		return;
+	}
+
 	NSData *raw = [self sampleBufferToData:sampleBuffer];
 	if(!raw){
 		return;
@@ -140,26 +183,3 @@
 }
 
 @end
-
-/*
-AudioEncoder *encoder = [[AudioEncoder alloc] init];
-[encoder encodeWithBlock:^(NSData *data, double pts, double duration) {
-	NSLog(@"%d bytes, %f %f", (int)data.length, pts, duration);
-}];
-
-NSString *input = [NSTemporaryDirectory() stringByAppendingFormat:@"/a.aif"];
-AudioReader *reader = [AudioReader readerWithFile:input];
-CMSampleBufferRef sampleBuffer;
-while(1){
-	sampleBuffer = [reader nextSampleBuffer];
-	if(!sampleBuffer){
-		break;
-	}
-	
-	[encoder encodeSampleBuffer:sampleBuffer];
-	
-	CFRelease(sampleBuffer);
-}
-NSLog(@"end");
-sleep(1);
-*/

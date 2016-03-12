@@ -70,12 +70,12 @@
 	}];
 
 	[_recorder setupAudio:^(NSData *data, double pts, double duration) {
-		//NSLog(@"%d bytes, %f %f", (int)data.length, pts, duration);
 		int i = [me incr];
 		if(i > 130 && i < 350){
 			//NSLog(@"return %d", i);
 			return;
 		}
+		NSLog(@"%d bytes, %f %f", (int)data.length, pts, duration);
 		if(raw_format){
 			[_audioDecoder decode:data];
 		}else{
