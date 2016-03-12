@@ -47,9 +47,6 @@
 			  clip.hasKeyFrame?@"yes":@"no");
 
 		[_player addClip:clip];
-		if(clip.hasKeyFrame){
-			NSLog(@"%@ %@", clip.sps, clip.pps);
-		}
 	}];
 }
 

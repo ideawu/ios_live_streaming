@@ -1,5 +1,5 @@
 //
-//  AVEncoder.m
+//  VideoEncoder.m
 //  Encoder Demo
 //
 //  Created by Geraint Davies on 14/01/2013.
@@ -17,8 +17,8 @@ static unsigned int to_host(unsigned char* p)
 	return (p[0] << 24) + (p[1] << 16) + (p[2] << 8) + p[3];
 }
 
-#define OUTPUT_FILE_SWITCH_POINT (50 * 1024 * 1024)  // 10 MB switch point
-#define MAX_FILENAME_INDEX  5                        // filenames "capture1.mp4" wraps at capture5.mp4
+#define OUTPUT_FILE_SWITCH_POINT (50 * 1024 * 1024)  // 50 MB switch point
+#define MAX_FILENAME_INDEX  5                       // filenames "capture1.mp4" wraps at capture5.mp4
 
 // store the calculated POC with a frame ready for timestamp assessment
 // (recalculating POC out of order will get an incorrect result)
@@ -27,8 +27,6 @@ static unsigned int to_host(unsigned char* p)
 - (EncodedFrame*) initWithData:(NSArray*) nalus andPOC:(int) poc;
 
 @property int poc;
-@property double pts;
-// 包含 1 或 2 帧
 @property NSArray* frame;
 
 @end
@@ -49,9 +47,11 @@ static unsigned int to_host(unsigned char* p)
 
 
 @interface VideoEncoder ()
+
 {
 	// initial writer, used to obtain SPS/PPS from header
 	VideoFile* _headerWriter;
+
 	// main encoder/writer
 	VideoFile* _writer;
 
@@ -100,15 +100,12 @@ static unsigned int to_host(unsigned char* p)
 	double _firstpts;
 }
 
-@property (readonly, atomic) int bitspersecond;
-@property int bitrate;
 - (void) initForHeight:(int) height andWidth:(int) width;
+@property int bitrate;
 
 @end
 
 @implementation VideoEncoder
-
-@synthesize bitspersecond = _bitspersecond;
 
 + (VideoEncoder*)encoderForHeight:(int) height andWidth:(int) width bitrate:(int)bitrate
 {
@@ -120,7 +117,7 @@ static unsigned int to_host(unsigned char* p)
 
 - (NSString*) makeFilename
 {
-	NSString* filename = [NSString stringWithFormat:@"m%d.mp4", _currentFile];
+	NSString* filename = [NSString stringWithFormat:@"capture%d.mp4", _currentFile];
 	NSString* path = [NSTemporaryDirectory() stringByAppendingPathComponent:filename];
 	return path;
 }
@@ -135,8 +132,6 @@ static unsigned int to_host(unsigned char* p)
 	// swap between 3 filenames
 	_currentFile = 1;
 	_writer = [VideoFile videoForPath:[self makeFilename] Height:height andWidth:width bitrate:_bitrate];
-
-	_frames = [NSMutableArray arrayWithCapacity:2];
 }
 
 - (void) encodeWithBlock:(encoder_handler_t) block onParams:(void (^)(NSData *sps, NSData *pps))paramsHandler
@@ -144,7 +139,7 @@ static unsigned int to_host(unsigned char* p)
 	_outputBlock = block;
 	_paramsBlock = paramsHandler;
 	_needParams = YES;
-	_pendingNALU = [NSMutableArray arrayWithCapacity:2];
+	_pendingNALU = nil;
 	_firstpts = -1;
 	_bitspersecond = 0;
 }
@@ -234,7 +229,8 @@ static unsigned int to_host(unsigned char* p)
 	// main file to extract video from the mdat chunk.
 	if ([self parseParams:_headerWriter.path])
 	{
-		if (_paramsBlock){
+		if (_paramsBlock)
+		{
 			avcCHeader avcC((const BYTE*)[_avcC bytes], (int)[_avcC length]);
 			//	SeqParamSet seqParams;
 			//	seqParams.Parse(avcC.sps());
@@ -245,7 +241,7 @@ static unsigned int to_host(unsigned char* p)
 		_headerWriter = nil;
 		_swapping = NO;
 		_inputFile = [NSFileHandle fileHandleForReadingAtPath:_writer.path];
-		_readQueue = dispatch_queue_create("VideoEncoder.read", DISPATCH_QUEUE_SERIAL);
+		_readQueue = dispatch_queue_create("uk.co.gdcl.VideoEncoder.read", DISPATCH_QUEUE_SERIAL);
 
 		_readSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, [_inputFile fileDescriptor], 0, _readQueue);
 		dispatch_source_set_event_handler(_readSource, ^{
@@ -255,24 +251,27 @@ static unsigned int to_host(unsigned char* p)
 	}
 }
 
-- (void) encodeSampleBuffer:(CMSampleBufferRef) sampleBuffer{
+- (void) encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer{
 	@synchronized(self)
 	{
-		if (_needParams){
+		if (_needParams)
+		{
 			// the avcC record is needed for decoding and it's not written to the file until
 			// completion. We get round that by writing the first frame to two files; the first
 			// file (containing only one frame) is then finished, so we can extract the avcC record.
 			// Only when we've got that do we start reading from the main file.
 			_needParams = NO;
-			if ([_headerWriter encodeFrame:sampleBuffer]){
+			if ([_headerWriter encodeFrame:sampleBuffer])
+			{
 				[_headerWriter finishWithCompletionHandler:^{
 					[self onParamsCompletion];
 				}];
 			}
 		}
 	}
-	double prestime = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
-	NSNumber* pts = [NSNumber numberWithDouble:prestime];
+	CMTime prestime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+	double dPTS = (double)(prestime.value) / prestime.timescale;
+	NSNumber* pts = [NSNumber numberWithDouble:dPTS];
 
 	@synchronized(_times)
 	{
@@ -286,12 +285,14 @@ static unsigned int to_host(unsigned char* p)
 		{
 			struct stat st;
 			fstat([_inputFile fileDescriptor], &st);
-			if (st.st_size > OUTPUT_FILE_SWITCH_POINT){
+			if (st.st_size > OUTPUT_FILE_SWITCH_POINT)
+			{
 				_swapping = YES;
 				VideoFile* oldVideo = _writer;
 
 				// construct a new writer to the next filename
-				if (++_currentFile > MAX_FILENAME_INDEX){
+				if (++_currentFile > MAX_FILENAME_INDEX)
+				{
 					_currentFile = 1;
 				}
 				NSLog(@"Swap to file %d", _currentFile);
@@ -419,7 +420,7 @@ static unsigned int to_host(unsigned char* p)
 	[self readAndDeliver:cReady];
 }
 
-- (void) deliverFrame: (NSArray*) frame withTime:(double) pts poc:(int)poc
+- (void) deliverFrame: (NSArray*) frame withTime:(double) pts
 {
 
 	if (_firstpts < 0)
@@ -440,11 +441,8 @@ static unsigned int to_host(unsigned char* p)
 	{
 		for (NSData* data in frame)
 		{
-			unsigned char* pNal = (unsigned char*)[data bytes];
-			int idc = pNal[0] & 0x60;
-			int naltype = pNal[0] & 0x1f;
-			log_debug(@"notify type: %d, pts: %f, poc: %d", naltype, pts, 0);
-			_outputBlock(data, pts);
+
+		_outputBlock(data, pts);
 		}
 	}
 
@@ -452,75 +450,78 @@ static unsigned int to_host(unsigned char* p)
 
 - (void) processStoredFrames
 {
-	// 处理reordering相关
-	EncodedFrame *first = nil;
 	// first has the last timestamp and rest use up timestamps from the start
 	int n = 0;
-	for (EncodedFrame* f in _frames){
+	for (EncodedFrame* f in _frames)
+	{
 		int index = 0;
-		if (n == 0){
+		if (n == 0)
+		{
 			index = (int) [_frames count] - 1;
-		}else{
+		}
+		else
+		{
 			index = n-1;
 		}
 		double pts = 0;
-		@synchronized(_times){
-			if ([_times count] > 0){
+		@synchronized(_times)
+		{
+			if ([_times count] > 0)
+			{
 				pts = [_times[index] doubleValue];
 			}
 		}
-		f.pts = pts;
-		if(n == 0){
-			first = f;
-		}else{
-			[self deliverFrame:f.frame withTime:pts poc:f.poc];
-		}
+		[self deliverFrame:f.frame withTime:pts];
 		n++;
 	}
-	@synchronized(_times){
+	@synchronized(_times)
+	{
 		[_times removeObjectsInRange:NSMakeRange(0, [_frames count])];
 	}
 	[_frames removeAllObjects];
-	if(first){
-		[self deliverFrame:first.frame withTime:first.pts poc:first.poc];
-	}
 }
 
 - (void) onEncodedFrame
 {
 	int poc = 0;
-	for (NSData* d in _pendingNALU){
+	for (NSData* d in _pendingNALU)
+	{
 		NALUnit nal((const BYTE*)[d bytes], (int)[d length]);
-		if (_pocState.GetPOC(&nal, &poc)){
+		if (_pocState.GetPOC(&nal, &poc))
+		{
 			break;
 		}
 	}
 
-	if (poc == 0){
-		if(_frames.count > 0){
-			[self processStoredFrames];
-
-		}else{
-			double pts = 0;
-			int index = 0;
-			@synchronized(_times)
+	if (poc == 0)
+	{
+		[self processStoredFrames];
+		double pts = 0;
+		int index = 0;
+		@synchronized(_times)
+		{
+			if ([_times count] > 0)
 			{
-				if ([_times count] > 0){
-					pts = [_times[index] doubleValue];
-					[_times removeObjectAtIndex:index];
-				}
+				pts = [_times[index] doubleValue];
+				[_times removeObjectAtIndex:index];
 			}
-			[self deliverFrame:_pendingNALU withTime:pts poc:0];
 		}
+		[self deliverFrame:_pendingNALU withTime:pts];
 		_prevPOC = 0;
-	}else{
-		//NSLog(@"poc: %d", poc);
+	}
+	else
+	{
 		EncodedFrame* f = [[EncodedFrame alloc] initWithData:_pendingNALU andPOC:poc];
-		if (poc > _prevPOC){
+		if (poc > _prevPOC)
+		{
 			// all pending frames come before this, so share out the
 			// timestamps in order of POC
 			[self processStoredFrames];
 			_prevPOC = poc;
+		}
+		if (_frames == nil)
+		{
+			_frames = [NSMutableArray arrayWithCapacity:2];
 		}
 		[_frames addObject:f];
 	}
@@ -534,7 +535,8 @@ static unsigned int to_host(unsigned char* p)
 	int idc = pNal[0] & 0x60;
 	int naltype = pNal[0] & 0x1f;
 
-	if (_pendingNALU.count > 0){
+	if (_pendingNALU)
+	{
 		NALUnit nal(pNal, (int)[nalu length]);
 
 		// we have existing data —is this the same frame?
@@ -543,29 +545,43 @@ static unsigned int to_host(unsigned char* p)
 		BOOL bNew = NO;
 
 		// sei and param sets go with following nalu
-		if (_prev_nal_type < 6){
-			if (naltype >= 6){
+		if (_prev_nal_type < 6)
+		{
+			if (naltype >= 6)
+			{
 				bNew = YES;
-			}else if ((idc != _prev_nal_idc) && ((idc == 0) || (_prev_nal_idc == 0))){
+			}
+			else if ((idc != _prev_nal_idc) && ((idc == 0) || (_prev_nal_idc == 0)))
+			{
 				bNew = YES;
-			}else if ((naltype != _prev_nal_type) && (naltype == 5)){
+			}
+			else if ((naltype != _prev_nal_type) && (naltype == 5))
+			{
 				bNew = YES;
-			}else if ((naltype >= 1) && (naltype <= 5)){
+			}
+			else if ((naltype >= 1) && (naltype <= 5))
+			{
 				nal.Skip(8);
 				int first_mb = (int)nal.GetUE();
-				if (first_mb == 0){
+				if (first_mb == 0)
+				{
 					bNew = YES;
 				}
 			}
 		}
 
-		if (bNew){
+		if (bNew)
+		{
 			[self onEncodedFrame];
-			[_pendingNALU removeAllObjects];
+			_pendingNALU = nil;
 		}
 	}
 	_prev_nal_type = naltype;
 	_prev_nal_idc = idc;
+	if (_pendingNALU == nil)
+	{
+		_pendingNALU = [NSMutableArray arrayWithCapacity:2];
+	}
 	[_pendingNALU addObject:nalu];
 }
 

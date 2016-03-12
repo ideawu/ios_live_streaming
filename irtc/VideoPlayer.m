@@ -203,8 +203,8 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 			[_state reset];
 		}
 
-		//NSLog(@"  time: %.3f expect: %.3f, delay: %+.3f, duration: %.3f",
-		//	  _state.time, _state.nextFrameTime, _state.delay, _state.frameDuration);
+		NSLog(@"  time: %.3f expect: %.3f, delay: %+.3f, duration: %.3f",
+			  _state.time, _state.nextFrameTime, _state.delay, _state.frameDuration);
 		[_state displayFramePTS:pts];
 
 		[self displayPixelBuffer:imageBuffer];
