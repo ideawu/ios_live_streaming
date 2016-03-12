@@ -8,7 +8,7 @@
 
 #import <AVFoundation/AVFoundation.h>
 
-typedef void (^encoder_handler_t)(NSArray* frames, double pts);
+typedef void (^encoder_handler_t)(NSData *nalu, double pts);
 
 @interface VideoEncoder : NSObject
 
