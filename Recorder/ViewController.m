@@ -84,19 +84,19 @@
 	
 	[_videoView.layer addSublayer:_videoLayer];
 	
-//	__weak typeof(self) me = self;
-//	[_recorder start:^(VideoClip *clip) {
-//		NSData *data = clip.data;
-//		NSLog(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, key_frame: %@",
-//			  clip.frameCount, clip.startTime, clip.endTime, clip.duration, (int)data.length,
-//			  clip.hasKeyFrame?@"yes":@"no");
-//		
-//		[me onChunkReady:data];
-//	}];
-	[_recorder setupAudio:^(NSData *data, double pts, double duration) {
-		NSLog(@"%d bytes, %f %f", (int)data.length, pts, duration);
+	__weak typeof(self) me = self;
+	[_recorder setupVideo:^(VideoClip *clip) {
+		NSData *data = clip.data;
+		NSLog(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, key_frame: %@",
+			  clip.frameCount, clip.startTime, clip.endTime, clip.duration, (int)data.length,
+			  clip.hasKeyFrame?@"yes":@"no");
+		
+		[me onChunkReady:data];
 	}];
-	
+//	[_recorder setupAudio:^(NSData *data, double pts, double duration) {
+//		NSLog(@"%d bytes, %f %f", (int)data.length, pts, duration);
+//	}];
+
 	[_recorder start];
 }
 

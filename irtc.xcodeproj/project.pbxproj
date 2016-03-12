@@ -23,6 +23,7 @@
 		081420871C93422900A2B03E /* AudioBufferQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 081420851C93390000A2B03E /* AudioBufferQueue.m */; };
 		0814208A1C934F9F00A2B03E /* AudioRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 081420891C934F9F00A2B03E /* AudioRecorder.m */; };
 		0814208D1C94181D00A2B03E /* AudioClip.m in Sources */ = {isa = PBXBuildFile; fileRef = 0814208C1C94181D00A2B03E /* AudioClip.m */; };
+		0889D5751C9468B3009A822B /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 0889D5741C9468B3009A822B /* libxml2.dylib */; };
 		3187764E1C855ED700FC417F /* libirtc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 319207A21C854AA60017C818 /* libirtc.a */; };
 		3187767E1C85AABF00FC417F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187767D1C85AABF00FC417F /* AppDelegate.m */; };
 		318776811C85AABF00FC417F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776801C85AABF00FC417F /* main.m */; };
@@ -131,6 +132,7 @@
 		081420891C934F9F00A2B03E /* AudioRecorder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioRecorder.m; sourceTree = "<group>"; };
 		0814208B1C94181D00A2B03E /* AudioClip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioClip.h; sourceTree = "<group>"; };
 		0814208C1C94181D00A2B03E /* AudioClip.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioClip.m; sourceTree = "<group>"; };
+		0889D5741C9468B3009A822B /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		3187767A1C85AABF00FC417F /* Test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Test.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3187767C1C85AABF00FC417F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		3187767D1C85AABF00FC417F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -244,6 +246,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0889D5751C9468B3009A822B /* libxml2.dylib in Frameworks */,
 				318777561C8EDBA400FC417F /* libirtc.a in Frameworks */,
 				318777531C8ED95600FC417F /* libxml2.tbd in Frameworks */,
 				318777511C8ED95000FC417F /* libz.tbd in Frameworks */,
@@ -269,6 +272,7 @@
 		081420591C8B1F3F00A2B03E /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				0889D5741C9468B3009A822B /* libxml2.dylib */,
 				31E5BDE41C8EF884007E0503 /* libz.tbd */,
 				081420781C8F3DDC00A2B03E /* libz.dylib */,
 				318777431C8DA30800FC417F /* VideoToolbox.framework */,
@@ -840,8 +844,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "Brand Assets";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				INFOPLIST_FILE = Recorder/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
@@ -860,8 +866,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "Brand Assets";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				INFOPLIST_FILE = Recorder/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
@@ -902,6 +910,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREFIX_HEADER = irtc/PrefixHeader.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -943,6 +952,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = irtc/PrefixHeader.pch;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;

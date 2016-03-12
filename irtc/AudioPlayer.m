@@ -103,14 +103,14 @@ static NSString *formatIDtoString(int fID){
 - (void)printFormat:(AudioStreamBasicDescription)format name:(NSString *)name{
 	log_debug(@"--- begin %@", name);
 	log_debug(@"format.mFormatID:         %@", formatIDtoString(format.mFormatID));
-	log_debug(@"format.mFormatFlags:      %d", format.mFormatFlags);
-	log_debug(@"format.mSampleRate:       %f", format.mSampleRate);
-	log_debug(@"format.mBitsPerChannel:   %d", format.mBitsPerChannel);
-	log_debug(@"format.mChannelsPerFrame: %d", format.mChannelsPerFrame);
-	log_debug(@"format.mBytesPerFrame:    %d", format.mBytesPerFrame);
-	log_debug(@"format.mFramesPerPacket:  %d", format.mFramesPerPacket);
-	log_debug(@"format.mBytesPerPacket:   %d", format.mBytesPerPacket);
-	log_debug(@"format.mReserved:         %d", format.mReserved);
+	log_debug(@"format.mFormatFlags:      %d", (int)format.mFormatFlags);
+	log_debug(@"format.mSampleRate:       %f", (double)format.mSampleRate);
+	log_debug(@"format.mBitsPerChannel:   %d", (int)format.mBitsPerChannel);
+	log_debug(@"format.mChannelsPerFrame: %d", (int)format.mChannelsPerFrame);
+	log_debug(@"format.mBytesPerFrame:    %d", (int)format.mBytesPerFrame);
+	log_debug(@"format.mFramesPerPacket:  %d", (int)format.mFramesPerPacket);
+	log_debug(@"format.mBytesPerPacket:   %d", (int)format.mBytesPerPacket);
+	log_debug(@"format.mReserved:         %d", (int)format.mReserved);
 	log_debug(@"--- end %@", name);
 }
 
@@ -171,7 +171,7 @@ static NSString *formatIDtoString(int fID){
 		if (packets == 0){		// sanity check
 			packets = 1;
 		}
-		log_debug(@"frames: %d packets: %d maxPacketSize: %d", frames, packets, maxPacketSize);
+		log_debug(@"frames: %d packets: %d maxPacketSize: %d", frames, packets, (int)maxPacketSize);
 		bytes = packets * maxPacketSize;
 	}
 	// ?
@@ -217,7 +217,7 @@ static void isRunningProc (void *                     inUserData,
 		OSStatus err = AudioQueueGetProperty(_queue, kAudioQueueProperty_IsRunning, &isRunning, &size);
 		if(err){
 			NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
-			NSLog(@"AudioQueueEnqueueBuffer error: %d %@", err, [error description]);
+			NSLog(@"AudioQueueEnqueueBuffer error: %d %@", (int)err, [error description]);
 			return;
 		}
 
@@ -237,7 +237,7 @@ static void isRunningProc (void *                     inUserData,
 			AudioQueueBufferRef audio_buf;
 			audio_buf = [_buffers popReadyBuffer];
 
-			log_debug(@"enqueue %d bytes, descs: %d", audio_buf->mAudioDataByteSize, audio_buf->mPacketDescriptionCount);
+			log_debug(@"enqueue %d bytes, descs: %d", (int)audio_buf->mAudioDataByteSize, (int)audio_buf->mPacketDescriptionCount);
 
 			err = AudioQueueEnqueueBuffer(_queue,
 										  audio_buf,
@@ -246,7 +246,7 @@ static void isRunningProc (void *                     inUserData,
 			_count ++;
 			if(err){
 				NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
-				NSLog(@"AudioQueueEnqueueBuffer error: %d %@", err, [error description]);
+				NSLog(@"AudioQueueEnqueueBuffer error: %d %@", (int)err, [error description]);
 				return;
 			}
 		}

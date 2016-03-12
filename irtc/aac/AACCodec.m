@@ -279,14 +279,14 @@ static NSString *formatIDtoString(int fID){
 - (void)printFormat:(AudioStreamBasicDescription)format name:(NSString *)name{
 	log_debug(@"--- begin %@", name);
 	log_debug(@"format.mFormatID:         %@", formatIDtoString(format.mFormatID));
-	log_debug(@"format.mFormatFlags:      %d", format.mFormatFlags);
-	log_debug(@"format.mSampleRate:       %f", format.mSampleRate);
-	log_debug(@"format.mBitsPerChannel:   %d", format.mBitsPerChannel);
-	log_debug(@"format.mChannelsPerFrame: %d", format.mChannelsPerFrame);
-	log_debug(@"format.mBytesPerFrame:    %d", format.mBytesPerFrame);
-	log_debug(@"format.mFramesPerPacket:  %d", format.mFramesPerPacket);
-	log_debug(@"format.mBytesPerPacket:   %d", format.mBytesPerPacket);
-	log_debug(@"format.mReserved:         %d", format.mReserved);
+	log_debug(@"format.mFormatFlags:      %d", (int)format.mFormatFlags);
+	log_debug(@"format.mSampleRate:       %f", (double)format.mSampleRate);
+	log_debug(@"format.mBitsPerChannel:   %d", (int)format.mBitsPerChannel);
+	log_debug(@"format.mChannelsPerFrame: %d", (int)format.mChannelsPerFrame);
+	log_debug(@"format.mBytesPerFrame:    %d", (int)format.mBytesPerFrame);
+	log_debug(@"format.mFramesPerPacket:  %d", (int)format.mFramesPerPacket);
+	log_debug(@"format.mBytesPerPacket:   %d", (int)format.mBytesPerPacket);
+	log_debug(@"format.mReserved:         %d", (int)format.mReserved);
 	log_debug(@"--- end %@", name);
 }
 
@@ -357,7 +357,7 @@ static NSString *formatIDtoString(int fID){
 			NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 			log_debug(@"line: %d, error: %@", __LINE__, error);
 		}else{
-			log_debug(@"set bitrate: %d", bitrate);
+			log_debug(@"set bitrate: %d", (int)bitrate);
 		}
 	}
 
@@ -404,7 +404,7 @@ static NSString *formatIDtoString(int fID){
 		return nil;
 	}
 	for (unsigned int i = 0; i < count; i++) {
-		log_debug(@"%d %d %d", descriptions[i].mType, descriptions[i].mSubType, descriptions[i].mManufacturer);
+		log_debug(@"%d %d %d", (int)descriptions[i].mType, (int)descriptions[i].mSubType, (int)descriptions[i].mManufacturer);
 	}
 	//	for (unsigned int i = 0; i < count; i++) {
 	//		UInt32 manufacturer = kAppleSoftwareAudioCodecManufacturer;
