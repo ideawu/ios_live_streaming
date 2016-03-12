@@ -17,14 +17,19 @@ AudioStreamBasicDescription format;
 
 int main(int argc, const char * argv[]) {
 
-#if 0
-	audioPlayer = [[AudioPlayer alloc] init];
-	[audioPlayer setSampleRate:48000 channels:2];
+#if 1
 
 	AudioEncoder *encoder = [[AudioEncoder alloc] init];
 	AudioDecoder *decoder = [[AudioDecoder alloc] init];
 
-	
+	int raw_format = 0;
+	if(raw_format){
+		audioPlayer = [[AudioPlayer alloc] init];
+		[audioPlayer setSampleRate:48000 channels:2];
+	}else{
+		audioPlayer = [AudioPlayer AACPlayerWithSampleRate:48000 channels:2];
+	}
+
 	[decoder start:^(NSData *pcm, double duration) {
 		double pts = 0;
 		NSLog(@"decoder %d bytes, %f %f", (int)pcm.length, pts, duration);
@@ -32,36 +37,39 @@ int main(int argc, const char * argv[]) {
 	}];
 
 
-//	audioPlayer = [AudioPlayer AACPlayerWithSampleRate:48000 channels:2];
-
 	[encoder start:^(NSData *aac, double duration) {
-		double pts = 0;
-		NSLog(@"encoder %d bytes, %f %f", (int)aac.length, pts, duration);
-		
+//		double pts = 0;
+//		NSLog(@"encoder %d bytes, %f %f", (int)aac.length, pts, duration);
+
 //		int adts_header = 7;
 //		NSData *aac = [NSData dataWithBytes:data.bytes+adts_header
 //									 length:data.length-adts_header];
-//		[audioPlayer appendData:aac];
-		[decoder decode:aac];
+		if(raw_format){
+			[decoder decode:aac];
+		}else{
+			[audioPlayer appendData:aac];
+		}
 	}];
 	
 
-	
-	NSString *input = [NSHomeDirectory() stringByAppendingFormat:@"/Downloads/sourcePCM.aif"];
-	AudioReader *reader = [AudioReader readerWithFile:input];
-	
-	CMSampleBufferRef sampleBuffer;
+
 	while(1){
-		sampleBuffer = [reader nextSampleBuffer];
-		if(!sampleBuffer){
-			break;
+		NSString *input = [NSHomeDirectory() stringByAppendingFormat:@"/Downloads/sourcePCM.aif"];
+		AudioReader *reader = [AudioReader readerWithFile:input];
+
+		CMSampleBufferRef sampleBuffer;
+		while(1){
+			sampleBuffer = [reader nextSampleBuffer];
+			if(!sampleBuffer){
+				break;
+			}
+			[encoder encodeSampleBuffer:sampleBuffer];
+			CFRelease(sampleBuffer);
+			usleep(200 * 1000);
+			//break;
 		}
-		[encoder encodeSampleBuffer:sampleBuffer];
-		CFRelease(sampleBuffer);
-		usleep(100 * 1000);
-		//break;
 	}
-	
+
 	
 //	reader = [AudioReader readerWithFile:input];
 //	while(1){

@@ -72,9 +72,6 @@
 }
 
 - (void)dealloc{
-	if(_converter){
-		AudioConverterDispose(_converter);
-	}
 }
 
 - (void)setupCodecWithFormat:(AudioStreamBasicDescription)srcFormat dstFormat:(AudioStreamBasicDescription)dstFormat{
@@ -199,6 +196,9 @@
 		}
 	}
 	
+	if(_converter){
+		AudioConverterDispose(_converter);
+	}
 	free(_aacBuffer);
 }
 

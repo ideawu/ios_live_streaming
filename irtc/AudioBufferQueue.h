@@ -10,7 +10,7 @@
 
 @interface AudioBufferQueue : NSObject
 
-- (id)initWithAudioQueue:(AudioQueueRef)queue;
+- (id)initWithAudioQueue:(AudioQueueRef)queue bufferSize:(int)bufferSize;
 
 - (int)freeCount;
 - (int)readyCount;

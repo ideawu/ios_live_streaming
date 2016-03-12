@@ -26,10 +26,10 @@
 
 @implementation AudioBufferQueue
 
-- (id)initWithAudioQueue:(AudioQueueRef)queue{
+- (id)initWithAudioQueue:(AudioQueueRef)queue bufferSize:(int)bufferSize{
 	self = [super init];
 	_queue = queue;
-	_total = 13;
+	_total = 8;
 
 	_free_index = 0;
 	_free_count = _total;
@@ -43,7 +43,7 @@
 
 	for(int i=0; i<_total; i++){
 		AudioQueueBufferRef buffer;
-		OSStatus err = AudioQueueAllocateBufferWithPacketDescriptions(_queue, 16*1024, 32, &buffer);
+		OSStatus err = AudioQueueAllocateBufferWithPacketDescriptions(_queue, bufferSize, 32, &buffer);
 		if(err){
 			NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 			log_debug(@"error %@", error);
@@ -56,13 +56,18 @@
 }
 
 - (void)dealloc{
-	for(int i=0; i<_total; i++){
-		if(_free_items[i]){
-			AudioQueueFreeBuffer(_queue, _free_items[i]);
-		}
-	}
+//	log_debug(@"dealloc");
+//	for(int i=0; i<_total; i++){
+//		if(_free_items[i]){
+//			// dispose queue 之后会自动 dispose buffer
+//			AudioQueueFreeBuffer(_queue, _free_items[i]);
+//		}
+//	}
 	free(_free_items);
 	free(_ready_items);
+	_queue = NULL;
+	_free_items = NULL;
+	_ready_items = NULL;
 }
 
 - (AudioQueueBufferRef)getFreeBuffer{
@@ -116,9 +121,7 @@
 
 - (int)readyCount{
 	int ret;
-	[_ready_condition lock];
 	ret = _ready_count;
-	[_ready_condition unlock];
 	return ret;
 }
 
