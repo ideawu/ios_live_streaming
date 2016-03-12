@@ -83,7 +83,6 @@ typedef enum{
 
 - (void)stop{
 	@synchronized(self){
-		log_debug(@"%@", self);
 		if(_queue){
 			AudioQueueDispose(_queue, YES);
 			_buffers = nil;
@@ -176,7 +175,8 @@ static NSString *formatIDtoString(int fID){
 		bytes = packets * maxPacketSize;
 	}
 	// ?
-	bytes = MAX(bytes, 8192);
+	bytes = MAX(bytes, 16 * 1024);
+//	bytes = 8192;
 	return bytes;
 }
 
@@ -194,10 +194,10 @@ static NSString *formatIDtoString(int fID){
 			NSLog(@"AQ pause");
 			AudioQueuePause(_queue);
 
-			// 不能调用 stop 只能 pause
+			// 对于 AAC 不能调用 stop 只能 pause
 //			_state = PlayerStateStop;
 //			NSLog(@"AQ stop");
-//			//AudioQueueStop(_queue, NO); // 不能在 callback 中调用 stop
+//			AudioQueueStop(_queue, NO); // 不能在 callback 中调用 stop
 		}
 	}
 }
@@ -289,7 +289,7 @@ static void isRunningProc (void *                     inUserData,
 		}else{
 			bitrate = 64000.0;
 		}
-		double buffering_time = 1.1;
+		double buffering_time = 0.05;
 
 		AudioQueueBufferRef buffer;
 		buffer = [_buffers getFreeBuffer];
@@ -316,10 +316,6 @@ static void isRunningProc (void *                     inUserData,
 			[self enqueueBuffer];
 		}
 	}
-
-//	double duration = (double)buffer->mAudioDataByteSize / (_format.mSampleRate * _format.mBitsPerChannel * _format.mChannelsPerFrame / 8);
-//	NSLog(@"add %d byte(s), duration: %.3f", buffer->mAudioDataByteSize, duration);
-
 }
 
 

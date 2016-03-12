@@ -17,12 +17,12 @@ AudioStreamBasicDescription format;
 
 int main(int argc, const char * argv[]) {
 
-#if 1
+#if 0
 
 	AudioEncoder *encoder = [[AudioEncoder alloc] init];
 	AudioDecoder *decoder = [[AudioDecoder alloc] init];
 
-	int raw_format = 0;
+	int raw_format = 1;
 	if(raw_format){
 		audioPlayer = [[AudioPlayer alloc] init];
 		[audioPlayer setSampleRate:48000 channels:2];
@@ -31,8 +31,8 @@ int main(int argc, const char * argv[]) {
 	}
 
 	[decoder start:^(NSData *pcm, double duration) {
-		double pts = 0;
-		NSLog(@"decoder %d bytes, %f %f", (int)pcm.length, pts, duration);
+//		double pts = 0;
+//		NSLog(@"decoder %d bytes, %f %f", (int)pcm.length, pts, duration);
 		[audioPlayer appendData:pcm];
 	}];
 

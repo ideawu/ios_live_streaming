@@ -11,6 +11,7 @@
 
 @interface AudioPlayer : NSObject
 
+// 直接播放AAC有一些问题
 + (AudioPlayer *)AACPlayerWithSampleRate:(int)sampleRate channels:(int)channels;
 - (id)setSampleRate:(int)sampleRate channels:(int)channels;
 
