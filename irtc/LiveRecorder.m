@@ -221,11 +221,11 @@
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection{
 	if(captureOutput == _audioDataOutput){
-		// TODO:
-		static int i = 0;
-		if(i++ % 10 == 9){
-			return;
-		}
+//		// TODO: 模拟设备丢包
+//		static int i = 0;
+//		if(i++ % 10 == 9){
+//			return;
+//		}
 		[_audioEncoder encodeSampleBuffer:sampleBuffer];
 	}
 	if(captureOutput == _videoDataOutput){

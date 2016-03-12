@@ -22,6 +22,7 @@
 		081420861C93390000A2B03E /* AudioBufferQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 081420851C93390000A2B03E /* AudioBufferQueue.m */; };
 		081420871C93422900A2B03E /* AudioBufferQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 081420851C93390000A2B03E /* AudioBufferQueue.m */; };
 		0814208A1C934F9F00A2B03E /* AudioRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 081420891C934F9F00A2B03E /* AudioRecorder.m */; };
+		0814208D1C94181D00A2B03E /* AudioClip.m in Sources */ = {isa = PBXBuildFile; fileRef = 0814208C1C94181D00A2B03E /* AudioClip.m */; };
 		3187764E1C855ED700FC417F /* libirtc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 319207A21C854AA60017C818 /* libirtc.a */; };
 		3187767E1C85AABF00FC417F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3187767D1C85AABF00FC417F /* AppDelegate.m */; };
 		318776811C85AABF00FC417F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 318776801C85AABF00FC417F /* main.m */; };
@@ -128,6 +129,8 @@
 		081420851C93390000A2B03E /* AudioBufferQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioBufferQueue.m; sourceTree = "<group>"; };
 		081420881C934F9F00A2B03E /* AudioRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioRecorder.h; sourceTree = "<group>"; };
 		081420891C934F9F00A2B03E /* AudioRecorder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioRecorder.m; sourceTree = "<group>"; };
+		0814208B1C94181D00A2B03E /* AudioClip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioClip.h; sourceTree = "<group>"; };
+		0814208C1C94181D00A2B03E /* AudioClip.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioClip.m; sourceTree = "<group>"; };
 		3187767A1C85AABF00FC417F /* Test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Test.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3187767C1C85AABF00FC417F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		3187767D1C85AABF00FC417F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -414,6 +417,8 @@
 				31C168871C9176F2001AFC70 /* AudioPlayer.m */,
 				081420841C93390000A2B03E /* AudioBufferQueue.h */,
 				081420851C93390000A2B03E /* AudioBufferQueue.m */,
+				0814208B1C94181D00A2B03E /* AudioClip.h */,
+				0814208C1C94181D00A2B03E /* AudioClip.m */,
 				081420601C8C37CF00A2B03E /* VideoPlayer.h */,
 				081420611C8C37CF00A2B03E /* VideoPlayer.m */,
 				3187773B1C8D60B900FC417F /* VideoPlayerState.h */,
@@ -683,6 +688,7 @@
 				0814208A1C934F9F00A2B03E /* AudioRecorder.m in Sources */,
 				31C168881C9176F2001AFC70 /* AudioPlayer.m in Sources */,
 				31E5BDE31C8EE6F5007E0503 /* AAPLEAGLLayer.m in Sources */,
+				0814208D1C94181D00A2B03E /* AudioClip.m in Sources */,
 				31E5BDF11C8FDD03007E0503 /* LiveRecorder.m in Sources */,
 				318777191C89B21700FC417F /* MP4Atom.m in Sources */,
 				31C168901C927307001AFC70 /* AACCodec.m in Sources */,

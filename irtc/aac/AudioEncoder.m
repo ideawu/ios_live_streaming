@@ -67,7 +67,7 @@
 			// 如果录制设备原始视频丢包, 需要对累积时间进行修复
 			_pts += diff;
 			double encoder_delay = pts - _pts;
-			log_debug(@"%f %f diff: %f, encoder_delay: %f", _pts, pts, diff, encoder_delay);
+			//log_debug(@"%f %f diff: %f, encoder_delay: %f", _pts, pts, diff, encoder_delay);
 			// 如果编码器性能不足, 主动丢包
 			if(encoder_delay > 1){
 				_pts += duration;
