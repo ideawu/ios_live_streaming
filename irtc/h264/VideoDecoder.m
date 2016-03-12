@@ -43,12 +43,12 @@
 	uint8_t*  parameterSetPointers[2] = {(uint8_t*)sps.bytes, (uint8_t*)pps.bytes};
 	size_t parameterSetSizes[2] = {sps.length, sps.length};
 	
-	OSStatus status;
-	status = CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault, 2,
+	OSStatus err;
+	err = CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault, 2,
 																 (const uint8_t *const*)parameterSetPointers,
 																 parameterSetSizes, 4,
 																 &_formatDesc);
-	if(status != noErr) NSLog(@"Create Format Description ERROR: %d", (int)status);
+	if(err != noErr) NSLog(@"Create Format Description ERROR: %d", (int)err);
 	
 	if(_decodeSession){
 		VTDecompressionSessionInvalidate(_decodeSession);
@@ -94,7 +94,7 @@ void decompressionSessionDecodeFrameCallback(void *decompressionOutputRefCon,
 											 CMTime presentationDuration){
 	if(status != noErr){
 		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-		NSLog(@"Decompressed error: %@", error);
+		log_debug(@"Decompressed error: %@", error);
 		return;
 	}
 	//NSLog(@"%f %f", CMTimeGetSeconds(presentationTimeStamp), CMTimeGetSeconds(presentationDuration));
@@ -113,7 +113,7 @@ void decompressionSessionDecodeFrameCallback(void *decompressionOutputRefCon,
 	//int nal_ref_idc = pNal[0] & 0x60;
 	int nal_type = pNal[0] & 0x1f;
 //	NSLog(@"NALU Type \"%d\"", nal_type);
-	
+
 	CMSampleBufferRef sampleBuffer = NULL;
 	CMBlockBufferRef blockBuffer = NULL;
 	

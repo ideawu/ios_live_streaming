@@ -30,7 +30,11 @@
     _writer = [AVAssetWriter assetWriterWithURL:url fileType:AVFileTypeMPEG4 error:nil];
 	NSMutableDictionary *cs = [[NSMutableDictionary alloc] init];
 	[cs setObject:@(_bitrate) forKey:AVVideoAverageBitRateKey];
+#if DEBUG
+	[cs setObject:@(20) forKey:AVVideoMaxKeyFrameIntervalKey];
+#else
 	[cs setObject:@(90) forKey:AVVideoMaxKeyFrameIntervalKey];
+#endif
 #if !TARGET_OS_MAC
 	[cs setObject:@(NO) forKey:AVVideoAllowFrameReorderingKey];
 #else

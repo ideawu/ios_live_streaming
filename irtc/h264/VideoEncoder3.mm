@@ -24,26 +24,25 @@ static unsigned int to_host(unsigned char* p)
 // (recalculating POC out of order will get an incorrect result)
 @interface EncodedFrame : NSObject
 
-- (EncodedFrame*) initWithData:(NSData*) nalus poc:(int)poc;
+- (EncodedFrame*) initWithData:(NSArray*) nalus andPOC:(int) poc;
 
-@property (readonly) int type;
 @property int poc;
-@property NSData* nalu;
+@property double pts;
+// 包含 1 或 2 帧
+@property NSArray* frame;
 
 @end
 
 @implementation EncodedFrame
 
-- (EncodedFrame *)initWithData:(NSData*)nalu poc:(int)poc{
-    _poc = poc;
-    _nalu = nalu;
-    return self;
-}
+@synthesize poc;
+@synthesize frame;
 
-- (int)type{
-	unsigned char* pNal = (unsigned char*)[_nalu bytes];
-	int naltype = pNal[0] & 0x1f;
-	return naltype;
+- (EncodedFrame*) initWithData:(NSArray*) nalus andPOC:(int) POC
+{
+    self.poc = POC;
+    self.frame = nalus;
+    return self;
 }
 
 @end
@@ -74,7 +73,6 @@ static unsigned int to_host(unsigned char* p)
     // POC
     POCState _pocState;
     int _prevPOC;
-	EncodedFrame *_SEI;
     
     // location of mdat
     BOOL _foundMDAT;
@@ -421,197 +419,171 @@ static unsigned int to_host(unsigned char* p)
     [self readAndDeliver:cReady];
 }
 
-//- (void) deliverFrame: (NSArray*) frame withTime:(double) pts poc:(int)poc
-//{
-//
-//    if (_firstpts < 0)
-//    {
-//        _firstpts = pts;
-//    }
-//    if ((pts - _firstpts) < 1)
-//    {
-//        int bytes = 0;
-//        for (NSData* data in frame)
-//        {
-//            bytes += [data length];
-//        }
-//        _bitspersecond += (bytes * 8);
-//    }
-// 
-//    if (_outputBlock != nil)
-//    {
-//        _outputBlock(frame, pts);
-//    }
-//    
-//}
-//
-//- (void) processStoredFrames
-//{
-//	// 处理reordering相关
-//	EncodedFrame *first = nil;
-//    // first has the last timestamp and rest use up timestamps from the start
-//    int n = 0;
-//    for (EncodedFrame* f in _frames){
-//        int index = 0;
-//        if (n == 0){
-//            index = (int) [_frames count] - 1;
-//        }else{
-//            index = n-1;
-//        }
-//        double pts = 0;
-//        @synchronized(_times){
-//            if ([_times count] > 0){
-//                pts = [_times[index] doubleValue];
-//            }
-//        }
-//		f.pts = pts;
-//		if(n == 0){
-//			first = f;
-//		}else{
-//			[self deliverFrame:f.frame withTime:pts poc:f.poc];
-//		}
-//        n++;
-//    }
-//    @synchronized(_times){
-//        [_times removeObjectsInRange:NSMakeRange(0, [_frames count])];
-//    }
-//    [_frames removeAllObjects];
-//	if(first){
-//		[self deliverFrame:first.frame withTime:first.pts poc:first.poc];
-//	}
-//}
+- (void) deliverFrame: (NSArray*) frame withTime:(double) pts poc:(int)poc
+{
 
-//- (void) onEncodedFrame
-//{
-//    int poc = 0;
-//    for (NSData* d in _pendingNALU){
-//        NALUnit nal((const BYTE*)[d bytes], (int)[d length]);
-//        if (_pocState.GetPOC(&nal, &poc)){
-//            break;
-//        }
-//    }
-//    
-//    if (poc == 0){
-//		if(_frames.count > 0){
-//			NSLog(@"process stored");
-//			[self processStoredFrames];
-//		}else{
-//			double pts = 0;
-//			int index = 0;
-//			@synchronized(_times)
-//			{
-//				if ([_times count] > 0){
-//					pts = [_times[index] doubleValue];
-//					[_times removeObjectAtIndex:index];
-//				}
-//			}
-//			for(NSData *data in _pendingNALU){
-//				unsigned char* pNal = (unsigned char*)[data bytes];
-//				int naltype = pNal[0] & 0x1f;
-//				if(naltype == 5 || naltype == 6){
-//					log_debug(@"TYPE %d", naltype);
-//				}
-//			}
-//			NSLog(@"delever");
-//			[self deliverFrame:_pendingNALU withTime:pts poc:0];
-//		}
-//		[_pendingNALU removeAllObjects];
-//        _prevPOC = 0;
-//    }else{
-//		//NSLog(@"poc: %d", poc);
-//        EncodedFrame* f = [[EncodedFrame alloc] initWithData:_pendingNALU andPOC:poc];
-//        if (poc > _prevPOC){
-//            // all pending frames come before this, so share out the
-//            // timestamps in order of POC
-//            [self processStoredFrames];
-//            _prevPOC = poc;
-//        }
-//		for(NSData *data in f.frame){
-//			unsigned char* pNal = (unsigned char*)[data bytes];
-//			int naltype = pNal[0] & 0x1f;
-//			if(naltype == 5 || naltype == 6){
-//				log_debug(@"TYPE %d", naltype);
-//			}
-//		}
-//        [_frames addObject:f];
-//    }
-//}
+    if (_firstpts < 0)
+    {
+        _firstpts = pts;
+    }
+    if ((pts - _firstpts) < 1)
+    {
+        int bytes = 0;
+        for (NSData* data in frame)
+        {
+            bytes += [data length];
+        }
+        _bitspersecond += (bytes * 8);
+    }
+ 
+    if (_outputBlock != nil)
+    {
+		for (NSData* data in frame){
+			unsigned char* pNal = (unsigned char*)[data bytes];
+			int idc = pNal[0] & 0x60;
+			int naltype = pNal[0] & 0x1f;
+			log_debug("ouput, type: %d, idc: %d", naltype, idc);
 
-- (void)notifyFrame:(EncodedFrame *)frame{
-	double pts = 0;
-	@synchronized(_times){
-		if ([_times count] > 0){
-			pts = [_times[0] doubleValue];
-			[_times removeObjectAtIndex:0];
-		}else{
-			log_debug("");
+			_outputBlock(data, pts);
 		}
+    }
+    
+}
+
+- (void) processStoredFrames
+{
+	// 处理reordering相关
+	EncodedFrame *first = nil;
+    // first has the last timestamp and rest use up timestamps from the start
+    int n = 0;
+    for (EncodedFrame* f in _frames){
+        int index = 0;
+        if (n == 0){
+            index = (int) [_frames count] - 1;
+        }else{
+            index = n-1;
+        }
+        double pts = 0;
+        @synchronized(_times){
+            if ([_times count] > 0){
+                pts = [_times[index] doubleValue];
+            }
+        }
+		f.pts = pts;
+		if(n == 0){
+			first = f;
+		}else{
+			[self deliverFrame:f.frame withTime:pts poc:f.poc];
+		}
+        n++;
+    }
+    @synchronized(_times){
+        [_times removeObjectsInRange:NSMakeRange(0, [_frames count])];
+    }
+    [_frames removeAllObjects];
+	if(first){
+		[self deliverFrame:first.frame withTime:first.pts poc:first.poc];
 	}
-	if(frame.type == 5 && _SEI){
-		log_debug(@"notify type: %d, pts: %f", _SEI.type, pts);
-		_outputBlock(_SEI.nalu, pts);
-		_SEI = nil;
-	}
-	log_debug(@"notify type: %d, pts: %f, poc: %d", frame.type, pts, frame.poc);
-	_outputBlock(frame.nalu, pts);
+}
+
+- (void) onEncodedFrame
+{
+    int poc = 0;
+    for (NSData* d in _pendingNALU){
+        NALUnit nal((const BYTE*)[d bytes], (int)[d length]);
+        if (_pocState.GetPOC(&nal, &poc)){
+            break;
+        }
+    }
+    
+    if (poc == 0){
+        [self processStoredFrames];
+        double pts = 0;
+        int index = 0;
+        @synchronized(_times)
+        {
+            if ([_times count] > 0){
+                pts = [_times[index] doubleValue];
+                [_times removeObjectAtIndex:index];
+            }
+        }
+		[self deliverFrame:_pendingNALU withTime:pts poc:0];
+        _prevPOC = 0;
+    }else{
+		//NSLog(@"poc: %d", poc);
+        EncodedFrame* f = [[EncodedFrame alloc] initWithData:_pendingNALU andPOC:poc];
+        if (poc > _prevPOC){
+            // all pending frames come before this, so share out the
+            // timestamps in order of POC
+            [self processStoredFrames];
+            _prevPOC = poc;
+        }
+        [_frames addObject:f];
+    }
 }
 
 // combine multiple NALUs into a single frame, and in the process, convert to BSF
 // by adding 00 00 01 startcodes before each NALU.
-- (void)onNALU:(NSData*)nalu{
-	int poc = 0;
-	NALUnit nal((const BYTE*)[nalu bytes], (int)[nalu length]);
-	if (_pocState.GetPOC(&nal, &poc)){
-		//
-	}
+- (void) onNALU:(NSData*) nalu
+{
+    unsigned char* pNal = (unsigned char*)[nalu bytes];
+    int idc = pNal[0] & 0x60;
+    int naltype = pNal[0] & 0x1f;
+	log_debug("onNALU, type: %d, idc: %d", naltype, idc);
 
-	EncodedFrame *frame = [[EncodedFrame alloc] initWithData:nalu poc:poc];
-//	log_debug(@"read type: %d, poc: %d", frame.type, frame.poc);
-	if(frame.type == 6){
-		_SEI = frame;
-		return;
-	}
-
-	if(poc == 0){
-		[self processStoredFrames];
-		[self notifyFrame:frame];
-		_prevPOC = 0;
-	}else{
-		if(poc > _prevPOC){
-			[self processStoredFrames];
-			_prevPOC = poc;
-		}
-		[_frames addObject:frame];
-	}
-
+    if (_pendingNALU.count > 0){
+        NALUnit nal(pNal, (int)[nalu length]);
+        
+        // we have existing data —is this the same frame?
+        // typically there are a couple of NALUs per frame in iOS encoding.
+        // This is not general-purpose: it assumes that arbitrary slice ordering is not allowed.
+        BOOL bNew = NO;
+        
+        // sei and param sets go with following nalu
+        if (_prev_nal_type < 6){
+            if (naltype >= 6){
+                bNew = YES;
+            }else if ((idc != _prev_nal_idc) && ((idc == 0) || (_prev_nal_idc == 0))){
+                bNew = YES;
+            }else if ((naltype != _prev_nal_type) && (naltype == 5)){
+                bNew = YES;
+            }else if ((naltype >= 1) && (naltype <= 5)){
+                nal.Skip(8);
+                int first_mb = (int)nal.GetUE();
+                if (first_mb == 0){
+                    bNew = YES;
+                }
+            }
+        }
+        
+        if (bNew){
+            [self onEncodedFrame];
+			[_pendingNALU removeAllObjects];
+        }
+    }
+    _prev_nal_type = naltype;
+    _prev_nal_idc = idc;
+    [_pendingNALU addObject:nalu];
 }
 
-- (void)processStoredFrames{
-	if(_frames.count == 0){
-		return;
-	}
-	// first has the last timestamp and rest use up timestamps from the start
-	// 处理reordering相关
-	for(int i=1; i<_frames.count; i++){
-		[self notifyFrame:_frames[i]];
-	}
-	[self notifyFrame:_frames[0]];
-	[_frames removeAllObjects];
-}
-
-- (NSData*) getConfigData{
+- (NSData*) getConfigData
+{
     return [_avcC copy];
 }
 
-- (void) shutdown{
-    @synchronized(self){
+- (void) shutdown
+{
+    @synchronized(self)
+    {
         _readSource = nil;
-        if (_headerWriter){
+        if (_headerWriter)
+        {
             [_headerWriter finishWithCompletionHandler:^{
                 _headerWriter = nil;
             }];
         }
-        if (_writer){
+        if (_writer)
+        {
             [_writer finishWithCompletionHandler:^{
                 _writer = nil;
             }];
@@ -621,36 +593,3 @@ static unsigned int to_host(unsigned char* p)
 }
 
 @end
-//    if (_pendingNALU.count > 0){
-//        NALUnit nal(pNal, (int)[nalu length]);
-//
-//        // we have existing data —is this the same frame?
-//        // typically there are a couple of NALUs per frame in iOS encoding.
-//        // This is not general-purpose: it assumes that arbitrary slice ordering is not allowed.
-//        BOOL bNew = NO;
-//
-//        // sei and param sets go with following nalu
-//        if (_prev_nal_type < 6){
-//            if (naltype >= 6){
-//                bNew = YES;
-//            }else if ((idc != _prev_nal_idc) && ((idc == 0) || (_prev_nal_idc == 0))){
-//                bNew = YES;
-//            }else if ((naltype != _prev_nal_type) && (naltype == 5)){
-//                bNew = YES;
-//            }else if ((naltype >= 1) && (naltype <= 5)){
-//                nal.Skip(8);
-//                int first_mb = (int)nal.GetUE();
-//                if (first_mb == 0){
-//                    bNew = YES;
-//                }
-//            }
-//        }
-//
-//        if (bNew){
-//            [self onEncodedFrame];
-//			[_pendingNALU removeAllObjects];
-//        }
-//    }
-//    _prev_nal_type = naltype;
-//    _prev_nal_idc = idc;
-//    [_pendingNALU addObject:nalu];

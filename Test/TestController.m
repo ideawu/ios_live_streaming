@@ -20,7 +20,7 @@
 	AudioPlayer *_audioPlayer;
 	AudioDecoder *_audioDecoder;
 }
-
+@property int num;
 @end
 
 @implementation TestController
@@ -42,47 +42,50 @@
 	_recorder.clipDuration = 0.2;
 	//_recorder.bitrate = 800 * 1024;
 
-//	_player = [[VideoPlayer alloc] init];
-//	_player.layer = _videoLayer;
-//	[_player play];
+	_player = [[VideoPlayer alloc] init];
+	_player.layer = _videoLayer;
+	[_player play];
+
+	[_recorder setupVideo:^(VideoClip *clip) {
+		NSData *data = clip.data;
+		NSLog(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, key_frame: %@",
+			  clip.frameCount, clip.startTime, clip.endTime, clip.duration, (int)data.length,
+			  clip.hasKeyFrame?@"yes":@"no");
+		if(_num ++ < 3){
+//			return;
+		}
+		
+		VideoClip *c = [VideoClip clipFromData:data];
+		[_player addClip:c];
+	}];
+
+//	int raw_format = 1;
+//	if(raw_format){
+//		_audioPlayer = [[AudioPlayer alloc] init];
+//		[_audioPlayer setSampleRate:44100 channels:2];
+//	}else{
+//		_audioPlayer = [AudioPlayer AACPlayerWithSampleRate:44100 channels:2];
+//	}
 //
-//	[_recorder setupVideo:^(VideoClip *clip) {
-//		NSData *data = clip.data;
-//		NSLog(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, key_frame: %@",
-//			  clip.frameCount, clip.startTime, clip.endTime, clip.duration, (int)data.length,
-//			  clip.hasKeyFrame?@"yes":@"no");
-//		
-//		VideoClip *c = [VideoClip clipFromData:data];
-//		[_player addClip:c];
+//	_audioDecoder = [[AudioDecoder alloc] init];
+//	[_audioDecoder start:^(NSData *pcm, double duration) {
+//		[_audioPlayer appendData:pcm];
+//	}];
+//
+//	[_recorder setupAudio:^(NSData *data, double pts, double duration) {
+//		int i = [me incr];
+//		if(i > 130 && i < 350){
+//			//NSLog(@"return %d", i);
+//			return;
+//		}
+//		NSLog(@"%d bytes, %f %f", (int)data.length, pts, duration);
+//		if(raw_format){
+//			[_audioDecoder decode:data];
+//		}else{
+//			[_audioPlayer appendData:data];
+//		}
 //	}];
 
-	int raw_format = 1;
-	if(raw_format){
-		_audioPlayer = [[AudioPlayer alloc] init];
-		[_audioPlayer setSampleRate:44100 channels:2];
-	}else{
-		_audioPlayer = [AudioPlayer AACPlayerWithSampleRate:44100 channels:2];
-	}
-
-	_audioDecoder = [[AudioDecoder alloc] init];
-	[_audioDecoder start:^(NSData *pcm, double duration) {
-		[_audioPlayer appendData:pcm];
-	}];
-
-	[_recorder setupAudio:^(NSData *data, double pts, double duration) {
-		int i = [me incr];
-		if(i > 130 && i < 350){
-			//NSLog(@"return %d", i);
-			return;
-		}
-		NSLog(@"%d bytes, %f %f", (int)data.length, pts, duration);
-		if(raw_format){
-			[_audioDecoder decode:data];
-		}else{
-			[_audioPlayer appendData:data];
-		}
-	}];
-	
 	[_recorder start];
 }
 

@@ -148,29 +148,6 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 	});
 }
 
-// CVImageBufferRef 即是 CVPixelBufferRef
-- (CGImageRef)pixelBufferToImageRef:(CVImageBufferRef)imageBuffer{
-	CVPixelBufferLockBaseAddress(imageBuffer, 0);
-	uint8_t *baseAddress = (uint8_t *)CVPixelBufferGetBaseAddress(imageBuffer);
-	size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
-	size_t width = CVPixelBufferGetWidth(imageBuffer);
-	size_t height = CVPixelBufferGetHeight(imageBuffer);
-	
-	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-	CGContextRef context = CGBitmapContextCreate(baseAddress,
-												 width, height,
-												 8, bytesPerRow,
-												 colorSpace,
-												 kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst);
-	CGImageRef image = NULL;
-	if(context){
-		image = CGBitmapContextCreateImage(context);
-	}
-	CGContextRelease(context);
-	CGColorSpaceRelease(colorSpace);
-	return image;
-}
-
 - (void)displayFrameForTickTime:(double)tick{
 	while(1){
 		// TODO: 如果clip数量太多, 应该丢弃一些
@@ -226,102 +203,49 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 			[_state reset];
 		}
 
-		NSLog(@"  time: %.3f expect: %.3f, delay: %+.3f, duration: %.3f",
-			  _state.time, _state.nextFrameTime, _state.delay, _state.frameDuration);
+		//NSLog(@"  time: %.3f expect: %.3f, delay: %+.3f, duration: %.3f",
+		//	  _state.time, _state.nextFrameTime, _state.delay, _state.frameDuration);
 		[_state displayFramePTS:pts];
 
-		CGImageRef image = [self pixelBufferToImageRef:imageBuffer];
-		if(!image){
-			CFRelease(imageBuffer);
-		}else{
-			dispatch_async(dispatch_get_main_queue(), ^{
-				self.layer.contents = (__bridge id)(image);
-				CFRelease(image);
-			});
-		}
-
+		[self displayPixelBuffer:imageBuffer];
 		return;
-		
-		
-		
-//		if(_clock.time == 0){
-//			first_time = item.clip.startTime;
-//			last_time_e = item.clip.startTime;
-//		}
-//		
-//		if(!item.isReading){
-//			// 将影片时间转成时钟时间
-//			double clip_s = item.clip.startTime - first_time;
-//			double clip_e = item.clip.endTime - first_time;
-//			
-//			double time_gap = item.clip.startTime - last_time_e;
-//			if(time_gap > 5 || time_gap < -5){
-//				NSLog(@"===== reset clock =====");
-//				[_clock reset];
-//				continue;
-//			}
-//			if(time_gap >= -5 && time_gap < 0){
-//				// drop mis-order clip
-//				NSLog(@"drop mis-order clip[%.3f~%.3f]", clip_s, clip_e);
-//				[_items removeObjectAtIndex:0];
-//				continue;
-//			}
-//			
-//			double delay = _clock.time - clip_s;
-//			if(delay > item.clip.duration/2){
-//				// drop delayed clip
-//				NSLog(@"drop delayed %.3f s clip[%.3f~%.3f]", delay, clip_s, clip_e);
-//				last_time_s = item.clip.startTime;
-//				last_time_e = item.clip.startTime;
-//				[_items removeObjectAtIndex:0];
-//				continue;
-//			}
-//			
-//			last_time_s = item.clip.startTime;
-//			last_time_e = item.clip.endTime;
-//			
-//			double stime = _clock.time - delay;
-//			NSLog(@"start session at %.3f, clip[%.3f~%.3f], delay: %.3f, time: %.3f", stime, clip_s, clip_e, delay, _clock.time);
-//			//NSLog(@"start session at %.3f, clip[%.3f~%.3f], delay: %.3f", stime, clip_s, clip_e, delay);
-//			[item startSessionAtSourceTime:stime];
-//		}
-//		
-//		if(![item hasNextFrameForTime:_clock.time]){
-//			return;
-//		}
-//		
-//		double expect = 0;
-//		expect = item.clip.nextFramePTS - item.clip.startTime + item.sessionStartTime;
-//		
-//		NSData *frame = [item nextFrame];
-//		if(!frame || item.isCompleted){
-//			NSLog(@"stop session at %.3f", _clock.time);
-//			[_items removeObjectAtIndex:0];
-//			continue;
-//		}
-//		
-//		uint8_t *pNal = (uint8_t*)[frame bytes];
-//		int nal_ref_idc = pNal[0] & 0x60;
-//		int nal_type = pNal[0] & 0x1f;
-//		// TODO: 到底应该怎么处理 SEI?
-//		if (nal_ref_idc == 0 && nal_type == 6) { // SEI
-//			//NSLog(@"ignore SEI");
-//			continue;
-//		}
-//
-////		double delay = _clock.time - expect;
-////		NSLog(@"time: %.3f, expect: %.3f, delay: %+.3f", _clock.time, expect, delay);
-//
-//		CMSampleBufferRef sampleBuffer = [_decoder processFrame:frame];
-//		if(sampleBuffer){
-//			dispatch_async(dispatch_get_main_queue(), ^{
-//				[_videoLayer enqueueSampleBuffer:sampleBuffer];
-//				CFRelease(sampleBuffer);
-//			});
-//		}
-//
-//		return;
 	}
+}
+
+- (void)displayPixelBuffer:(CVPixelBufferRef)pixelBuffer{
+	CGImageRef image = [self pixelBufferToImageRef:pixelBuffer];
+	if(!image){
+		CFRelease(pixelBuffer);
+	}else{
+		dispatch_async(dispatch_get_main_queue(), ^{
+			self.layer.contents = (__bridge id)(image);
+			CFRelease(image);
+		});
+	}
+
+}
+
+// CVImageBufferRef 即是 CVPixelBufferRef
+- (CGImageRef)pixelBufferToImageRef:(CVImageBufferRef)imageBuffer{
+	CVPixelBufferLockBaseAddress(imageBuffer, 0);
+	uint8_t *baseAddress = (uint8_t *)CVPixelBufferGetBaseAddress(imageBuffer);
+	size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
+	size_t width = CVPixelBufferGetWidth(imageBuffer);
+	size_t height = CVPixelBufferGetHeight(imageBuffer);
+
+	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+	CGContextRef context = CGBitmapContextCreate(baseAddress,
+												 width, height,
+												 8, bytesPerRow,
+												 colorSpace,
+												 kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst);
+	CGImageRef image = NULL;
+	if(context){
+		image = CGBitmapContextCreateImage(context);
+	}
+	CGContextRelease(context);
+	CGColorSpaceRelease(colorSpace);
+	return image;
 }
 
 @end
