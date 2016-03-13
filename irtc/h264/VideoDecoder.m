@@ -11,6 +11,7 @@
 
 @interface VideoDecoder(){
 	void (^_callback)(CVImageBufferRef imageBuffer, double pts);
+	dispatch_queue_t _processQueue;
 }
 @property (nonatomic, assign) VTDecompressionSessionRef decodeSession;
 @property (nonatomic, assign) CMVideoFormatDescriptionRef formatDesc;
@@ -109,6 +110,15 @@ void decompressionSessionDecodeFrameCallback(void *decompressionOutputRefCon,
 }
 
 - (void)appendFrame:(NSData *)frame pts:(double)pts{
+	if(!_processQueue){
+		_processQueue = dispatch_queue_create("decoder queue", DISPATCH_QUEUE_SERIAL);
+	}
+	dispatch_async(_processQueue, ^{
+		[self decode:frame pts:pts];
+	});
+}
+
+- (void)decode:(NSData *)frame pts:(double)pts{
 	uint8_t *pNal = (uint8_t*)[frame bytes];
 	//int nal_ref_idc = pNal[0] & 0x60;
 	int nal_type = pNal[0] & 0x1f;

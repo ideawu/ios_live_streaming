@@ -8,6 +8,7 @@
 
 #import <AVFoundation/AVFoundation.h>
 
+// TODO: 处理帧乱序!
 typedef void (^encoder_handler_t)(NSData *nalu, double pts);
 
 @interface VideoEncoder : NSObject
