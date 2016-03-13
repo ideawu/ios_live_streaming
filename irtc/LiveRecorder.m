@@ -142,16 +142,16 @@
 	}
 	if(_videoDevice){
 		// TODO:
-		double _width = 340;
-		double _height = 480;
-		double _bitrate = 400 * 1024;
-		
-		_videoEncoder = [VideoEncoder encoderForHeight:_height andWidth:_width bitrate:_bitrate];
-		[_videoEncoder encodeWithBlock:^void(NSData *nalu, double pts) {
-			[me onVideoFrames:nalu pts:pts];
-		} onParams:^(NSData *sps, NSData *pps) {
-			[me onVideoSps:sps pps:pps];
-		}];
+//		double _width = 480;
+//		double _height = 640;
+//		double _bitrate = 400 * 1024;
+//		
+//		_videoEncoder = [VideoEncoder encoderForHeight:_height andWidth:_width bitrate:_bitrate];
+//		[_videoEncoder encodeWithBlock:^void(NSData *nalu, double pts) {
+//			[me onVideoFrames:nalu pts:pts];
+//		} onParams:^(NSData *sps, NSData *pps) {
+//			[me onVideoSps:sps pps:pps];
+//		}];
 	}
 	
 	[_session startRunning];

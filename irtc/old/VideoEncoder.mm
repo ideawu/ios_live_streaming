@@ -604,6 +604,7 @@ static unsigned int to_host(unsigned char* p)
 		if (_writer)
 		{
 			[_writer finishWithCompletionHandler:^{
+				log_debug(@"finish writer");
 				_writer = nil;
 			}];
 		}

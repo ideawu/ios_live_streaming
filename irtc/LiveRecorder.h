@@ -21,5 +21,6 @@
 - (void)setupVideo:(void (^)(VideoClip *clip))callback;
 
 - (void)start;
+- (void)stop;
 
 @end

@@ -20,10 +20,15 @@
 @implementation AudioReader
 
 + (AudioReader *)readerWithFile:(NSString *)file{
-	AudioReader *ret = [[AudioReader alloc] init];
-	ret.url = [NSURL fileURLWithPath:file];
-	[ret open];
+	AudioReader *ret = [[AudioReader alloc] initWithFile:file];
 	return ret;
+}
+
+- (id)initWithFile:(NSString *)file{
+	self = [super init];
+	_url = [NSURL fileURLWithPath:file];
+	[self open];
+	return self;
 }
 
 - (void)open{

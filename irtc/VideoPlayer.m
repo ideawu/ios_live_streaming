@@ -63,7 +63,7 @@
 
 		_decoder = [[VideoDecoder alloc] init];
 		__weak typeof(self) me = self;
-		[_decoder setCallback:^(CVImageBufferRef imageBuffer, double pts) {
+		[_decoder start:^(CVImageBufferRef imageBuffer, double pts) {
 			[me onDecompressFrame:imageBuffer pts:pts];
 		}];
 		
@@ -142,7 +142,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 				[_items removeObjectAtIndex:0];
 				break;
 			}else{
-				[_decoder appendFrame:frame pts:pts];
+				[_decoder decode:frame pts:pts];
 			}
 		}
 	});

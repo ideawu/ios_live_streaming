@@ -89,6 +89,11 @@
 	[_recorder start];
 }
 
+- (void)stop{
+	log_debug(@"stop");
+	[_recorder stop];
+}
+
 - (int)incr{
 	static int i = 0;
 	return i++;

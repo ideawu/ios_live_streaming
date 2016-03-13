@@ -16,6 +16,8 @@
 
 + (AudioReader *)readerWithFile:(NSString *)file;
 
+- (id)initWithFile:(NSString *)file;
+
 - (CMSampleBufferRef)nextSampleBuffer;
 - (NSData *)nextSampleData;
 

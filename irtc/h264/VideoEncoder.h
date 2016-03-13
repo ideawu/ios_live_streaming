@@ -1,22 +1,21 @@
 //
-//  AVEncoder.h
-//  Encoder Demo
+//  VideoEncoder.h
+//  irtc
 //
-//  Created by Geraint Davies on 14/01/2013.
-//  Copyright (c) 2013 GDCL http://www.gdcl.co.uk/license.htm
+//  Created by ideawu on 16-3-13.
+//  Copyright (c) 2016年 ideawu. All rights reserved.
 //
 
 #import <AVFoundation/AVFoundation.h>
 
-// TODO: 处理帧乱序!
-typedef void (^encoder_handler_t)(NSData *nalu, double pts);
-
 @interface VideoEncoder : NSObject
 
-+ (VideoEncoder*)encoderForHeight:(int)height andWidth:(int)width bitrate:(int)bitrate;
+@property (readonly) NSData *sps;
+@property (readonly) NSData *pps;
 
-- (void) encodeWithBlock:(encoder_handler_t) block onParams:(void (^)(NSData *sps, NSData *pps))paramsHandler;
-- (void) encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer;
-- (void) shutdown;
+- (void)start:(void (^)(NSData *h264, double pts, double duration))callback;
+- (void)shutdown;
+
+- (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 
 @end

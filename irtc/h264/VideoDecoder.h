@@ -8,9 +8,20 @@
 
 #import <AVFoundation/AVFoundation.h>
 
+@interface VideoDecoder : NSObject
+
+- (BOOL)isReadyForFrame;
+
+- (void)setSps:(NSData *)sps pps:(NSData *)pps;
+
+- (void)start:(void (^)(CVImageBufferRef imageBuffer, double pts))callback;
+- (void)shutdown;
+
+- (void)decode:(NSData *)frame pts:(double)pts;
+
+
 /*
  http://stackoverflow.com/questions/29525000/how-to-use-videotoolbox-to-decompress-h-264-video-stream/
- 
  
  Video Deocde Acceleration Framework for Mac
  https://developer.apple.com/library/mac/technotes/tn2267/_index.html
@@ -41,15 +52,5 @@
  Instantaneous Decoder Refresh (IDR). This VCL NALU is a self contained image slice. That is, an IDR can be decoded and displayed without referencing any other NALU save SPS and PPS.
  Access Unit Delimiter (AUD). An AUD is an optional NALU that can be use to delimit frames in an elementary stream. It is not required (unless otherwise stated by the container/protocol, like TS), and is often not included in order to save space, but it can be useful to finds the start of a frame without having to fully parse each NALU.
  */
-
-
-@interface VideoDecoder : NSObject
-
-- (BOOL)isReadyForFrame;
-
-- (void)setCallback:(void (^)(CVImageBufferRef imageBuffer, double pts))callback;
-- (void)setSps:(NSData *)sps pps:(NSData *)pps;
-
-- (void)appendFrame:(NSData *)frame pts:(double)pts;
 
 @end

@@ -11,9 +11,8 @@
 
 @interface VideoDecoder(){
 	void (^_callback)(CVImageBufferRef imageBuffer, double pts);
-	dispatch_queue_t _processQueue;
 }
-@property (nonatomic, assign) VTDecompressionSessionRef decodeSession;
+@property (nonatomic, assign) VTDecompressionSessionRef session;
 @property (nonatomic, assign) CMVideoFormatDescriptionRef formatDesc;
 @end
 
@@ -23,16 +22,32 @@
 - (id)init{
 	self = [super init];
 	_callback = NULL;
-	_decodeSession = NULL;
+	_session = NULL;
 	_formatDesc = NULL;
 	return self;
 }
 
-- (BOOL)isReadyForFrame{
-	return _decodeSession != NULL;
+- (void)dealloc{
+	[self shutdown];
 }
 
-- (void)setCallback:(void (^)(CVImageBufferRef imageBuffer, double pts))callback{
+- (void)shutdown{
+	if(_session){
+		VTDecompressionSessionInvalidate(_session);
+		CFRelease(_session);
+		_session = NULL;
+	}
+	if(_formatDesc){
+		CFRelease(_formatDesc);
+		_formatDesc = NULL;
+	}
+}
+
+- (BOOL)isReadyForFrame{
+	return _session != NULL;
+}
+
+- (void)start:(void (^)(CVImageBufferRef imageBuffer, double pts))callback{
 	_callback = callback;
 }
 
@@ -51,14 +66,14 @@
 																 &_formatDesc);
 	if(err != noErr) NSLog(@"Create Format Description ERROR: %d", (int)err);
 	
-	if(_decodeSession){
-		VTDecompressionSessionInvalidate(_decodeSession);
-		CFRelease(_decodeSession);
-	}
-	[self createDecompessSession];
+	[self createSession];
 }
 
-- (void)createDecompessSession{
+- (void)createSession{
+	if(_session){
+		[self shutdown];
+	}
+
 	VTDecompressionOutputCallbackRecord callBackRecord;
 	callBackRecord.decompressionOutputCallback = decompressionSessionDecodeFrameCallback;
 	callBackRecord.decompressionOutputRefCon = (__bridge void *)self;
@@ -82,8 +97,9 @@
 	OSStatus status =  VTDecompressionSessionCreate(NULL, _formatDesc,
 													(__bridge CFDictionaryRef)(decoderParameters),
 													(__bridge CFDictionaryRef)(pixelBufferAttrs),
-													&callBackRecord, &_decodeSession);
+													&callBackRecord, &_session);
 	if(status != noErr) NSLog(@"\t\t VTD ERROR type: %d", (int)status);
+	log_debug(@"decode session created");
 }
 
 void decompressionSessionDecodeFrameCallback(void *decompressionOutputRefCon,
@@ -104,18 +120,10 @@ void decompressionSessionDecodeFrameCallback(void *decompressionOutputRefCon,
 }
 
 - (void)callbackImageBuffer:(CVImageBufferRef)imageBuffer pts:(double)pts{
+	log_debug(@"");
 	if(_callback){
 		_callback(imageBuffer, pts);
 	}
-}
-
-- (void)appendFrame:(NSData *)frame pts:(double)pts{
-	if(!_processQueue){
-		_processQueue = dispatch_queue_create("decoder queue", DISPATCH_QUEUE_SERIAL);
-	}
-	dispatch_async(_processQueue, ^{
-		[self decode:frame pts:pts];
-	});
 }
 
 - (void)decode:(NSData *)frame pts:(double)pts{
@@ -131,7 +139,7 @@ void decompressionSessionDecodeFrameCallback(void *decompressionOutputRefCon,
 	
 	if(nal_type == 5 || nal_type == 1){
 		uint8_t *data = NULL;
-		size_t nalu_len = frame.length + 4;
+		size_t nalu_len = frame.length + 4; // 这里有问题?
 		size_t data_len = frame.length;
 		data = malloc(nalu_len);
 		memcpy(data + 4, frame.bytes, data_len);
@@ -143,7 +151,7 @@ void decompressionSessionDecodeFrameCallback(void *decompressionOutputRefCon,
 		memcpy(data, &len, 4);
 		
 		OSStatus status;
-		// create a block buffer from the IDR NALU
+		CMBlockBufferReplaceDataBytes
 		status = CMBlockBufferCreateWithMemoryBlock(NULL, data,  // memoryBlock to hold buffered data
 													nalu_len,  // block length of the mem block in bytes.
 													kCFAllocatorNull, NULL,
@@ -174,7 +182,7 @@ void decompressionSessionDecodeFrameCallback(void *decompressionOutputRefCon,
 			VTDecodeInfoFlags flagOut;
 			NSNumber *framePTS = @(pts);
 			//NSLog(@"sampleBuffer: %d", (int)CFGetRetainCount(sampleBuffer));
-			VTDecompressionSessionDecodeFrame(_decodeSession, sampleBuffer, flags,
+			VTDecompressionSessionDecodeFrame(_session, sampleBuffer, flags,
 											  (void*)CFBridgingRetain(framePTS), &flagOut);
 			CFRelease(sampleBuffer);
 			
