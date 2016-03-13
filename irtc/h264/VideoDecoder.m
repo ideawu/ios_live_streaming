@@ -120,80 +120,137 @@ void decompressionSessionDecodeFrameCallback(void *decompressionOutputRefCon,
 }
 
 - (void)callbackImageBuffer:(CVImageBufferRef)imageBuffer pts:(double)pts{
-	log_debug(@"");
 	if(_callback){
 		_callback(imageBuffer, pts);
 	}
 }
 
 - (void)decode:(NSData *)frame pts:(double)pts{
-	uint8_t *pNal = (uint8_t*)[frame bytes];
-	//int nal_ref_idc = pNal[0] & 0x60;
-	int nal_type = pNal[0] & 0x1f;
-//	NSLog(@"NALU Type \"%d\"", nal_type);
-
 	CMSampleBufferRef sampleBuffer = NULL;
 	CMBlockBufferRef blockBuffer = NULL;
-	
-	// 如何处理 SEI?
-	
-	if(nal_type == 5 || nal_type == 1){
-		uint8_t *data = NULL;
-		size_t nalu_len = frame.length + 4; // 这里有问题?
-		size_t data_len = frame.length;
-		data = malloc(nalu_len);
-		memcpy(data + 4, frame.bytes, data_len);
-		
-		// replace the start code header on this NALU with its size.
-		// AVCC format requires that you do this.
-		// htonl converts the unsigned int from host to network byte order
-		uint32_t len = htonl(data_len);
-		memcpy(data, &len, 4);
-		
-		OSStatus status;
-		CMBlockBufferReplaceDataBytes
-		status = CMBlockBufferCreateWithMemoryBlock(NULL, data,  // memoryBlock to hold buffered data
-													nalu_len,  // block length of the mem block in bytes.
-													kCFAllocatorNull, NULL,
-													0, // offsetToData
-													nalu_len, // dataLength of relevant bytes, starting at offsetToData
-													0, &blockBuffer);
-		if(status == noErr){
-			//NSLog(@"blockBuffer: %d", (int)CFGetRetainCount(blockBuffer));
-			const size_t sampleSize = nalu_len;
-			status = CMSampleBufferCreate(kCFAllocatorDefault,
-										  blockBuffer, true, NULL, NULL,
-										  _formatDesc,
-										  1, // num samples
-										  0, NULL,
-										  1, &sampleSize,
-										  &sampleBuffer);
-			//NSLog(@"blockBuffer: %d", (int)CFGetRetainCount(blockBuffer));
-		}
-		
-		//free(data); //由 blockBuffer 释放
-		// 在这里可以放心地 release blockBuffer, 而且必须 release, 因为 sampleBuffer 已经 retain 了
+	OSStatus err;
+	err = CMBlockBufferCreateWithMemoryBlock(NULL,
+											 NULL,
+											 frame.length,
+											 kCFAllocatorDefault,
+											 NULL,
+											 0,
+											 frame.length,
+											 kCMBlockBufferAssureMemoryNowFlag,
+											 &blockBuffer);
+	if (err != 0) {
+		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
+		log_debug(@"error: %@", error);
+	}else{
+		err = CMBlockBufferReplaceDataBytes(frame.bytes + 0,
+									  blockBuffer,
+									  0, frame.length - 0);
+	}
+	if (err != 0) {
+		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
+		log_debug(@"error: %@", error);
+	}else{
+		const size_t sampleSize = frame.length;
+		err = CMSampleBufferCreate(kCFAllocatorDefault,
+								   blockBuffer,
+								   true, NULL, NULL,
+								   _formatDesc,
+								   1, // num samples
+								   0, NULL,
+								   1, &sampleSize,
+								   &sampleBuffer);
+	}
+	if (err != 0) {
+		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
+		log_debug(@"error: %@", error);
+	}else{
+		// 不能异步, 否则会乱序
+		//VTDecodeFrameFlags flags = kVTDecodeFrame_EnableAsynchronousDecompression;
+		VTDecodeFrameFlags flags = 0;
+		VTDecodeInfoFlags flagOut;
+		NSNumber *framePTS = @(pts);
+		//NSLog(@"sampleBuffer: %d", (int)CFGetRetainCount(sampleBuffer));
+		VTDecompressionSessionDecodeFrame(_session, sampleBuffer, flags,
+										  (void*)CFBridgingRetain(framePTS), &flagOut);
+	}
+
+	if(blockBuffer){
 		CFRelease(blockBuffer);
-		
-		if(status == noErr){
-			// 不能异步, 否则会乱序
-			//VTDecodeFrameFlags flags = kVTDecodeFrame_EnableAsynchronousDecompression;
-			VTDecodeFrameFlags flags = 0;
-			VTDecodeInfoFlags flagOut;
-			NSNumber *framePTS = @(pts);
-			//NSLog(@"sampleBuffer: %d", (int)CFGetRetainCount(sampleBuffer));
-			VTDecompressionSessionDecodeFrame(_session, sampleBuffer, flags,
-											  (void*)CFBridgingRetain(framePTS), &flagOut);
-			CFRelease(sampleBuffer);
-			
-			//NSLog(@"sampleBuffer: %d", (int)CFGetRetainCount(sampleBuffer));
-			// set some values of the sample buffer's attachments
-//			CFArrayRef attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, YES);
-//			CFMutableDictionaryRef dict = (CFMutableDictionaryRef)CFArrayGetValueAtIndex(attachments, 0);
-//			CFDictionarySetValue(dict, kCMSampleAttachmentKey_DisplayImmediately, kCFBooleanTrue);
-			// either send the samplebuffer to a VTDecompressionSession or to an AVSampleBufferDisplayLayer
-		}
+	}
+	if(sampleBuffer){
+		CFRelease(sampleBuffer);
 	}
 }
+
+
+//- (void)decode:(NSData *)frame pts:(double)pts{
+//	uint8_t *pNal = (uint8_t*)[frame bytes];
+//	//int nal_ref_idc = pNal[0] & 0x60;
+//	int nal_type = pNal[0] & 0x1f;
+////	NSLog(@"NALU Type \"%d\"", nal_type);
+//
+//	CMSampleBufferRef sampleBuffer = NULL;
+//	CMBlockBufferRef blockBuffer = NULL;
+//
+//	// 如何处理 SEI?
+//
+//	if(1 || nal_type == 5 || nal_type == 1){
+//		uint8_t *data = NULL;
+//		size_t nalu_len = frame.length;
+//		data = malloc(nalu_len);
+//		memcpy(data, frame.bytes, nalu_len);
+//		
+//		// replace the start code header on this NALU with its size.
+//		// AVCC format requires that you do this.
+//		// htonl converts the unsigned int from host to network byte order
+//		size_t data_len = frame.length - 4;
+//		uint32_t len = htonl(data_len);
+//		memcpy(data, &len, 4);
+//		
+//		OSStatus status;
+//
+//		status = CMBlockBufferCreateWithMemoryBlock(NULL, data,  // memoryBlock to hold buffered data
+//													nalu_len,  // block length of the mem block in bytes.
+//													kCFAllocatorNull, NULL,
+//													0, // offsetToData
+//													nalu_len, // dataLength of relevant bytes, starting at offsetToData
+//													0, &blockBuffer);
+//		if(status == noErr){
+//			//NSLog(@"blockBuffer: %d", (int)CFGetRetainCount(blockBuffer));
+//			const size_t sampleSize = nalu_len;
+//			status = CMSampleBufferCreate(kCFAllocatorDefault,
+//										  blockBuffer, true, NULL, NULL,
+//										  _formatDesc,
+//										  1, // num samples
+//										  0, NULL,
+//										  1, &sampleSize,
+//										  &sampleBuffer);
+//			//NSLog(@"blockBuffer: %d", (int)CFGetRetainCount(blockBuffer));
+//		}
+//		
+//		//free(data); //由 blockBuffer 释放
+//		// 在这里可以放心地 release blockBuffer, 而且必须 release, 因为 sampleBuffer 已经 retain 了
+//		CFRelease(blockBuffer);
+//		
+//		if(status == noErr){
+//			// 不能异步, 否则会乱序
+//			//VTDecodeFrameFlags flags = kVTDecodeFrame_EnableAsynchronousDecompression;
+//			VTDecodeFrameFlags flags = 0;
+//			VTDecodeInfoFlags flagOut;
+//			NSNumber *framePTS = @(pts);
+//			//NSLog(@"sampleBuffer: %d", (int)CFGetRetainCount(sampleBuffer));
+//			VTDecompressionSessionDecodeFrame(_session, sampleBuffer, flags,
+//											  (void*)CFBridgingRetain(framePTS), &flagOut);
+//			CFRelease(sampleBuffer);
+//			
+//			//NSLog(@"sampleBuffer: %d", (int)CFGetRetainCount(sampleBuffer));
+//			// set some values of the sample buffer's attachments
+////			CFArrayRef attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, YES);
+////			CFMutableDictionaryRef dict = (CFMutableDictionaryRef)CFArrayGetValueAtIndex(attachments, 0);
+////			CFDictionarySetValue(dict, kCMSampleAttachmentKey_DisplayImmediately, kCFBooleanTrue);
+//			// either send the samplebuffer to a VTDecompressionSession or to an AVSampleBufferDisplayLayer
+//		}
+//	}
+//}
 
 @end

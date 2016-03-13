@@ -103,8 +103,8 @@ static void compressCallback(
 	}
 	
 	double pts = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
-	double dts = CMTimeGetSeconds(CMSampleBufferGetDecodeTimeStamp(sampleBuffer));
 	double duration = CMTimeGetSeconds(CMSampleBufferGetOutputPresentationTimeStamp(sampleBuffer));
+//	double dts = CMTimeGetSeconds(CMSampleBufferGetDecodeTimeStamp(sampleBuffer));
 //	log_debug(@"encoded pts: %f, duration: %f, dts: %f", pts, duration, dts);
 
 	//printf("status: %d\n", (int) status);
@@ -142,8 +142,19 @@ static void compressCallback(
 	CMBlockBufferGetDataPointer(blockBuffer, 0, NULL, &size, &buf);
 
 	if(_callback){
+		// CMSampleBufferRef 里多个NALU的集合, 前4个字节是NALU payload数量,, 后面是去掉了NAL START CODE的 NAL payload
+		// 所以这里应该将NALU分离, 再调用 callback
 		NSData *data = [NSData dataWithBytes:buf length:size];
 		_callback(data, pts, duration);
+		{
+			NSData *d = [NSData dataWithBytes:data.bytes length:16];
+			NSLog(@"%@, %d", d, (int)data.length);
+			uint8_t *pNal = (uint8_t*)[d bytes];
+			for(int i=0; i<d.length; i++){
+			}
+			int nal_type = pNal[4] & 0x1f;
+			NSLog(@"NALU Type \"%d\"", nal_type);
+		}
 	}
 }
 
