@@ -55,7 +55,7 @@
 									 _height,
 									 kCMVideoCodecType_H264,
 									 NULL,
-									 NULL,
+									 NULL, // kCVPixelBufferOpenGLESCompatibilityKey
 									 NULL,
 									 compressCallback,
 									 (__bridge void *)self,
@@ -147,7 +147,7 @@ static void compressCallback(
 		NSData *data = [NSData dataWithBytes:buf length:size];
 		_callback(data, pts, duration);
 		{
-			NSData *d = [NSData dataWithBytes:data.bytes length:16];
+			NSData *d = [NSData dataWithBytes:data.bytes length:256];
 			NSLog(@"%@, %d", d, (int)data.length);
 			uint8_t *pNal = (uint8_t*)[d bytes];
 			for(int i=0; i<d.length; i++){
