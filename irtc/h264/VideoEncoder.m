@@ -53,7 +53,9 @@
 	NSDictionary *params = nil;
 	NSDictionary *pixelBufferAttrs = nil;
 #else
-	NSDictionary *params = nil;
+	NSDictionary *params = @{
+//							 (id)kVTCompressionPropertyKey_RealTime: @YES,
+							 };
 	NSDictionary *pixelBufferAttrs = nil;
 #endif
 /*
@@ -119,11 +121,10 @@ static void compressCallback(
 	}
 	
 	double pts = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
-	double duration = CMTimeGetSeconds(CMSampleBufferGetOutputPresentationTimeStamp(sampleBuffer));
+	double duration = CMTimeGetSeconds(CMSampleBufferGetOutputDuration(sampleBuffer));
 //	double dts = CMTimeGetSeconds(CMSampleBufferGetDecodeTimeStamp(sampleBuffer));
 //	log_debug(@"encoded pts: %f, duration: %f, dts: %f", pts, duration, dts);
 
-	//printf("status: %d\n", (int) status);
 	if(!_sps){
 		bool isKeyframe = false;
 		CFArrayRef attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, false);
@@ -173,11 +174,10 @@ static void compressCallback(
 			p += 4 + len;
 
 			int type = nalu[0] & 0x1f;
-			NSLog(@"NALU Type \"%d\", len: %u", type, len);
-
+//			NSLog(@"NALU Type \"%d\", len: %u", type, len);
 			if(type == 6){
 				// just drop SEI?
-				log_debug(@"%@", [NSData dataWithBytes:nalu length:len]);
+				//log_debug(@"%@", [NSData dataWithBytes:nalu length:len]);
 			}else{
 				[data appendBytes:nalu length:len];
 			}
@@ -190,13 +190,25 @@ static void compressCallback(
 	}
 }
 
+//- (void)encode:(NSData *)frame{
+//	return [self encode:frame pts:0 duration:0];
+//}
+//
+//- (void)encode:(NSData *)frame pts:(double)pts{
+//	return [self encode:frame pts:0 duration:0];
+//}
+//
+//- (void)encode:(NSData *)frame pts:(double)pts duration:(double)duration{
+//	// TODO: 如何创建 sample buffer?
+//}
+
 - (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer{
 	if(!_session){
 		[self createSessionFromSampleBuffer:sampleBuffer];
 	}
 
 	CMTime pts = CMSampleBufferGetOutputPresentationTimeStamp(sampleBuffer);
-	CMTime duration = CMSampleBufferGetOutputPresentationTimeStamp(sampleBuffer);
+	CMTime duration = CMSampleBufferGetOutputDuration(sampleBuffer);
 //	double dts = CMTimeGetSeconds(CMSampleBufferGetDecodeTimeStamp(sampleBuffer));
 //	log_debug(@"encoding pts: %f, duration: %f, dts: %f", CMTimeGetSeconds(pts), CMTimeGetSeconds(duration), dts);
 
@@ -221,7 +233,7 @@ static void compressCallback(
 		log_debug(@"error: %@", error);
 		return;
 	}
-//	VTCompressionSessionCompleteFrames()
+	VTCompressionSessionCompleteFrames(_session, kCMTimeInvalid);
 }
 
 @end

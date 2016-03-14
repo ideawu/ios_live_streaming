@@ -19,11 +19,14 @@
 
 - (void)setSps:(NSData *)sps pps:(NSData *)pps;
 
-- (void)start:(void (^)(CVImageBufferRef imageBuffer, double pts))callback;
+// CVImageBufferRef 即是 CVPixelBufferRef
+- (void)start:(void (^)(CVPixelBufferRef pixelBuffer, double pts, double duration))callback;
 - (void)shutdown;
 
-// MUST in AVCC format, not Annex-B
+// MUST in 4 bytes length AVCC format, or 4 bytes start_code Annex-B
+- (void)decode:(NSData *)frame;
 - (void)decode:(NSData *)frame pts:(double)pts;
+- (void)decode:(NSData *)frame pts:(double)pts duration:(double)duration;
 
 
 /*

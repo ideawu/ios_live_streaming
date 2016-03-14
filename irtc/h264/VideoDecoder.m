@@ -10,7 +10,7 @@
 #import <VideoToolbox/VideoToolbox.h>
 
 @interface VideoDecoder(){
-	void (^_callback)(CVImageBufferRef imageBuffer, double pts);
+	void (^_callback)(CVPixelBufferRef pixelBuffer, double pts, double duration);
 }
 @property (nonatomic, assign) VTDecompressionSessionRef session;
 @property (nonatomic, assign) CMVideoFormatDescriptionRef formatDesc;
@@ -47,7 +47,7 @@
 	return _session != NULL;
 }
 
-- (void)start:(void (^)(CVImageBufferRef imageBuffer, double pts))callback{
+- (void)start:(void (^)(CVPixelBufferRef pixelBuffer, double pts, double duration))callback{
 	_callback = callback;
 }
 
@@ -102,86 +102,105 @@
 	log_debug(@"decode session created");
 }
 
-void decompressionSessionDecodeFrameCallback(void *decompressionOutputRefCon,
-											 void *sourceFrameRefCon,
-											 OSStatus status,
-											 VTDecodeInfoFlags infoFlags,
-											 CVImageBufferRef imageBuffer,
-											 CMTime presentationTimeStamp,
-											 CMTime presentationDuration){
+// VTDecompressionOutputCallback
+static void decompressionSessionDecodeFrameCallback(void *decompressionOutputRefCon,
+													void *sourceFrameRefCon,
+													OSStatus status,
+													VTDecodeInfoFlags infoFlags,
+													CVImageBufferRef imageBuffer,
+													CMTime pts,
+													CMTime duration){
 	if(status != noErr){
 		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
 		log_debug(@"Decompressed error: %@", error);
 		return;
 	}
-	//NSLog(@"%f %f", CMTimeGetSeconds(presentationTimeStamp), CMTimeGetSeconds(presentationDuration));
+//	NSLog(@"%f %f", CMTimeGetSeconds(pts), CMTimeGetSeconds(duration));
 	VideoDecoder *decoder = (__bridge VideoDecoder *)decompressionOutputRefCon;
-	[decoder callbackImageBuffer:imageBuffer pts:[(__bridge NSNumber *)sourceFrameRefCon doubleValue]];
+	[decoder callbackImageBuffer:imageBuffer pts:CMTimeGetSeconds(pts) duration:CMTimeGetSeconds(duration)];
 }
 
-- (void)callbackImageBuffer:(CVImageBufferRef)imageBuffer pts:(double)pts{
+- (void)callbackImageBuffer:(CVImageBufferRef)imageBuffer pts:(double)pts duration:(double)duration{
 	if(_callback){
-		_callback(imageBuffer, pts);
+		_callback(imageBuffer, pts, duration);
 	}
 }
 
+- (void)decode:(NSData *)frame{
+	return [self decode:frame pts:0 duration:0];
+}
+
 - (void)decode:(NSData *)frame pts:(double)pts{
-//	Boolean needNewSession = ( VTDecompressionSessionCanAcceptFormatDescription(session, formatDesc2 ) == false);
+	return [self decode:frame pts:pts duration:0];
+}
+
+- (void)decode:(NSData *)frame pts:(double)pts duration:(double)duration{
+	// BOOL needNewSession = ( VTDecompressionSessionCanAcceptFormatDescription(session, formatDesc2 ) == false);
+	CMSampleBufferRef sampleBuffer = [self createSampleBufferWithFrame:frame pts:pts duration:duration];
+	if(sampleBuffer){
+		// 不能异步, 否则会乱序
+		//VTDecodeFrameFlags flags = kVTDecodeFrame_EnableAsynchronousDecompression;
+		VTDecodeFrameFlags flags = 0;
+		VTDecodeInfoFlags flagOut;
+		//NSLog(@"sampleBuffer: %d", (int)CFGetRetainCount(sampleBuffer));
+		// decode 接受的1帧, 可以分隔多个NALU, AVCC 格式
+		VTDecompressionSessionDecodeFrame(_session, sampleBuffer, flags, NULL, &flagOut);
+		CFRelease(sampleBuffer);
+	}
+}
+
+- (CMSampleBufferRef)createSampleBufferWithFrame:(NSData *)frame pts:(double)pts duration:(double)duration{
 	CMSampleBufferRef sampleBuffer = NULL;
 	CMBlockBufferRef blockBuffer = NULL;
+	size_t length = frame.length;
 	OSStatus err;
 	err = CMBlockBufferCreateWithMemoryBlock(NULL,
 											 NULL,
-											 frame.length,
+											 length,
 											 kCFAllocatorDefault,
 											 NULL,
 											 0,
-											 frame.length,
+											 length,
 											 kCMBlockBufferAssureMemoryNowFlag,
 											 &blockBuffer);
 	if (err != 0) {
 		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 		log_debug(@"error: %@", error);
 	}else{
-		err = CMBlockBufferReplaceDataBytes(frame.bytes + 0,
-									  blockBuffer,
-									  0, frame.length - 0);
+		err = CMBlockBufferReplaceDataBytes(frame.bytes, blockBuffer, 0, length);
+		// 兼容 Annex-B 封装
+		UInt8 *p = (UInt8 *)frame.bytes;
+		if(p[0] == 0 && p[1] == 0 && p[2] == 0 && p[3] == 1){
+			UInt32 len = ntohl(length - 4);
+			err = CMBlockBufferReplaceDataBytes(&len, blockBuffer, 0, 4);
+		}
 	}
 	if (err != 0) {
 		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 		log_debug(@"error: %@", error);
 	}else{
-		const size_t sampleSize = frame.length;
+		CMSampleTimingInfo time;
+		time.presentationTimeStamp = CMTimeMakeWithSeconds(pts, 60000);
+		time.duration = CMTimeMakeWithSeconds(duration, 60000);
 		err = CMSampleBufferCreate(kCFAllocatorDefault,
 								   blockBuffer,
 								   true, NULL, NULL,
 								   _formatDesc,
 								   1, // num samples
-								   0, NULL,
-								   1, &sampleSize,
+								   1, &time,
+								   1, &length,
 								   &sampleBuffer);
 	}
 	if (err != 0) {
 		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 		log_debug(@"error: %@", error);
-	}else{
-		// 不能异步, 否则会乱序
-		//VTDecodeFrameFlags flags = kVTDecodeFrame_EnableAsynchronousDecompression;
-		VTDecodeFrameFlags flags = 0;
-		VTDecodeInfoFlags flagOut;
-		NSNumber *framePTS = @(pts);
-		//NSLog(@"sampleBuffer: %d", (int)CFGetRetainCount(sampleBuffer));
-		// decode 接受的1帧, 可以分隔多个NALU, AVCC 格式
-		VTDecompressionSessionDecodeFrame(_session, sampleBuffer, flags,
-										  (void*)CFBridgingRetain(framePTS), &flagOut);
 	}
 
 	if(blockBuffer){
 		CFRelease(blockBuffer);
 	}
-	if(sampleBuffer){
-		CFRelease(sampleBuffer);
-	}
+
+	return sampleBuffer;
 }
 
 

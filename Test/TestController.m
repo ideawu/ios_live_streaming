@@ -36,7 +36,7 @@
 	_videoView.layer.backgroundColor = [NSColor blackColor].CGColor;
 
 
-	__weak typeof(self) me = self;
+//	__weak typeof(self) me = self;
 
 	_recorder = [[LiveRecorder alloc] init];
 	_recorder.clipDuration = 0.2;

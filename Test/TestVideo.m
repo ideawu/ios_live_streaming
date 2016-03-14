@@ -29,18 +29,18 @@
 
 - (void)run{
 	_decoder = [[VideoDecoder alloc] init];
-	[_decoder start:^(CVImageBufferRef imageBuffer, double pts) {
-		log_debug(@"decoded, pts: %f", pts);
+	[_decoder start:^(CVPixelBufferRef pixelBuffer, double pts, double duration) {
+		log_debug(@"decoded, pts: %f, duration: %f", pts, duration);
 	}];
 
 	_encoder = [[VideoEncoder alloc] init];
 	[_encoder start:^(NSData *h264, double pts, double duration) {
-		log_debug(@"encoded %d bytes, pts: %f, duration: %f", (int)h264.length, pts, duration);
+		log_debug(@"encoded, pts: %f, duration: %f, %d bytes", pts, duration, (int)h264.length);
 		if(!_decoder.isReadyForFrame && _encoder.sps){
 			log_debug(@"init decoder");
 			[_decoder setSps:_encoder.sps pps:_encoder.pps];
 		}
-		[_decoder decode:h264 pts:pts];
+		[_decoder decode:h264 pts:pts duration:duration];
 	}];
 
 	NSString *file = [NSHomeDirectory() stringByAppendingFormat:@"/Downloads/m1.mp4"];

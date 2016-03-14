@@ -63,7 +63,7 @@
 
 		_decoder = [[VideoDecoder alloc] init];
 		__weak typeof(self) me = self;
-		[_decoder start:^(CVImageBufferRef imageBuffer, double pts) {
+		[_decoder start:^(CVImageBufferRef imageBuffer, double pts, double duration) {
 			[me onDecompressFrame:imageBuffer pts:pts];
 		}];
 		
