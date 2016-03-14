@@ -238,7 +238,8 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 												 width, height,
 												 8, bytesPerRow,
 												 colorSpace,
-												 kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst);
+												 kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst
+												 );
 	CGImageRef image = NULL;
 	if(context){
 		image = CGBitmapContextCreateImage(context);
