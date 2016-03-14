@@ -40,7 +40,7 @@
 	}
 }
 
-- (void)start:(void (^)(NSData *h264, double pts, double duration))callback{
+- (void)start:(void (^)(NSData *nalu, double pts, double duration))callback{
 	_callback = callback;
 }
 

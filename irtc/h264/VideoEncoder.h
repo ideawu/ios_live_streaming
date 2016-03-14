@@ -13,7 +13,8 @@
 @property (readonly) NSData *sps;
 @property (readonly) NSData *pps;
 
-- (void)start:(void (^)(NSData *h264, double pts, double duration))callback;
+// AVCC 格式, 只有一个 NALU
+- (void)start:(void (^)(NSData *nalu, double pts, double duration))callback;
 - (void)shutdown;
 
 - (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer;

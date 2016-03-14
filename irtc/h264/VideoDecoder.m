@@ -171,7 +171,7 @@ void decompressionSessionDecodeFrameCallback(void *decompressionOutputRefCon,
 		VTDecodeInfoFlags flagOut;
 		NSNumber *framePTS = @(pts);
 		//NSLog(@"sampleBuffer: %d", (int)CFGetRetainCount(sampleBuffer));
-		// decode 接受的1帧, 可以分隔多个NALU, AAC格式
+		// decode 接受的1帧, 可以分隔多个NALU, AVCC 格式
 		VTDecompressionSessionDecodeFrame(_session, sampleBuffer, flags,
 										  (void*)CFBridgingRetain(framePTS), &flagOut);
 	}
