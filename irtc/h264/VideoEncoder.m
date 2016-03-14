@@ -171,31 +171,31 @@ static void compressCallback(
 	if(_callback){
 		// 1 sample buffer contains multiple NALUs in AVCC format
 		// http://stackoverflow.com/questions/28396622/extracting-h264-from-cmblockbuffer
-//		NSData *data = [NSData dataWithBytes:buf length:size];
-		
-		NSMutableData *data = [[NSMutableData alloc] initWithCapacity:size];
-		[data appendBytes:"0000" length:4]; // the len
-		
-		UInt8 *p = (UInt8 *)buf;
-		while(p < (UInt8 *)buf + size){
-//			log_debug(@"%02x %02x %02x %02x", (UInt8)p[0], (UInt8)p[1], (UInt8)p[2], (UInt8)p[3]);
-			uint32_t len = (p[0]<<24) + (p[1]<<16) + (p[2]<<8) + p[3];
-			UInt8 *nalu = p + 4;
-			p += 4 + len;
+		NSData *data = [NSData dataWithBytes:buf length:size];
 
-			int type = nalu[0] & 0x1f;
-//			NSLog(@"NALU Type \"%d\", len: %u", type, len);
-			if(type == 6){
-				// just drop SEI?
-				//log_debug(@"%@", [NSData dataWithBytes:nalu length:len]);
-			}else{
-				[data appendBytes:nalu length:len];
-			}
-		}
-		
-		UInt32 len = ntohl(data.length - 4);
-		[data replaceBytesInRange:NSMakeRange(0, 4) withBytes:&len];
-		
+//		NSMutableData *data = [[NSMutableData alloc] initWithCapacity:size];
+//		[data appendBytes:"0000" length:4]; // the len
+//		
+//		UInt8 *p = (UInt8 *)buf;
+//		while(p < (UInt8 *)buf + size){
+////			log_debug(@"%02x %02x %02x %02x", (UInt8)p[0], (UInt8)p[1], (UInt8)p[2], (UInt8)p[3]);
+//			uint32_t len = (p[0]<<24) + (p[1]<<16) + (p[2]<<8) + p[3];
+//			UInt8 *nalu = p + 4;
+//			p += 4 + len;
+//
+//			int type = nalu[0] & 0x1f;
+////			NSLog(@"NALU Type \"%d\", len: %u", type, len);
+//			if(type == 6){
+//				// just drop SEI?
+//				//log_debug(@"%@", [NSData dataWithBytes:nalu length:len]);
+//			}else{
+//				[data appendBytes:nalu length:len];
+//			}
+//		}
+//		
+//		UInt32 len = ntohl(data.length - 4);
+//		[data replaceBytesInRange:NSMakeRange(0, 4) withBytes:&len];
+
 //		log_debug(@"%d", (int)size);
 		_callback(data, pts, duration);
 	}

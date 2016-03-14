@@ -80,14 +80,15 @@
 
 	// you can set some desired attributes for the destination pixel buffer.  I didn't use this but you may
 	// if you need to set some attributes, be sure to uncomment the dictionary in VTDecompressionSessionCreate
+#if !TARGET_OS_MAC
 	NSDictionary *decoderParameters = @{
 										(id)kVTDecompressionPropertyKey_RealTime: @(YES),
 										};
-#if !TARGET_OS_MAC
 	NSDictionary *pixelBufferAttrs = @{
 									   (id)kCVPixelBufferOpenGLESCompatibilityKey: @(YES),
 									   };
 #else
+	NSDictionary *decoderParameters = nil;
 	NSDictionary *pixelBufferAttrs = @{
 									   (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
 									   };

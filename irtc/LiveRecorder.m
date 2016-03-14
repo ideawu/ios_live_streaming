@@ -149,10 +149,10 @@
 		_videoEncoder = [[VideoEncoder alloc] init];
 		[_videoEncoder start:^(NSData *nalu, double pts, double duration) {
 			//log_debug(@"encoded, pts: %f, duration: %f, %d bytes", pts, duration, (int)nalu.length);
-			if(!_sps && _videoEncoder.sps){
-				log_debug(@"init decoder");
-				[me onVideoSps:_videoEncoder.sps pps:_videoEncoder.pps];
-			}
+//			if(!_sps && _videoEncoder.sps){
+//				log_debug(@"init decoder");
+//				[me onVideoSps:_videoEncoder.sps pps:_videoEncoder.pps];
+//			}
 			[me onVideoFrames:nalu pts:pts];
 		}];
 	}
@@ -179,30 +179,30 @@
 
 #pragma mark - Video Encoder callbacks
 
-- (void)onVideoSps:(NSData *)sps pps:(NSData *)pps{
-	_sps = sps;
-	_pps = pps;
-	
-	NSMutableString *desc = [[NSMutableString alloc] init];
-	[desc appendString:@"sps:"];
-	for(int i=0; i<_sps.length; i++){
-		unsigned char c = ((const unsigned char *)_sps.bytes)[i];
-		[desc appendFormat:@" %02x", c];
-	}
-	[desc appendString:@" pps:"];
-	for(int i=0; i<_pps.length; i++){
-		unsigned char c = ((const unsigned char *)_pps.bytes)[i];
-		[desc appendFormat:@" %02x", c];
-	}
-	NSLog(@"%@", desc);
-}
+//- (void)onVideoSps:(NSData *)sps pps:(NSData *)pps{
+//	_sps = sps;
+//	_pps = pps;
+//	
+//	NSMutableString *desc = [[NSMutableString alloc] init];
+//	[desc appendString:@"sps:"];
+//	for(int i=0; i<_sps.length; i++){
+//		unsigned char c = ((const unsigned char *)_sps.bytes)[i];
+//		[desc appendFormat:@" %02x", c];
+//	}
+//	[desc appendString:@" pps:"];
+//	for(int i=0; i<_pps.length; i++){
+//		unsigned char c = ((const unsigned char *)_pps.bytes)[i];
+//		[desc appendFormat:@" %02x", c];
+//	}
+//	NSLog(@"%@", desc);
+//}
 
 - (void)onVideoFrames:(NSData *)nalu pts:(double)pts{
 //	NSLog(@"pts: %.3f", pts);
 	if(!_videoClip){
 		_videoClip = [[VideoClip alloc] init];
-		_videoClip.sps = _sps;
-		_videoClip.pps = _pps;
+		_videoClip.sps = _videoEncoder.sps;
+		_videoClip.pps = _videoEncoder.pps;
 	}
 
 //	UInt8 *p = (UInt8 *)nalu.bytes;
@@ -211,7 +211,7 @@
 	
 	[_videoClip appendFrame:nalu pts:pts];
 
-	if(_videoClip.duration >= _clipDuration){
+	if(1 || _videoClip.duration >= _clipDuration){
 		if(_videoCallback){
 			_videoCallback(_videoClip);
 		}
