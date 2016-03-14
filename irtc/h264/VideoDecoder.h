@@ -17,16 +17,27 @@
 
 - (BOOL)isReadyForFrame;
 
+/**
+ set SPS PPS with start_code/AVCC header
+ */
 - (void)setSps:(NSData *)sps pps:(NSData *)pps;
 
 // CVImageBufferRef 即是 CVPixelBufferRef
 - (void)start:(void (^)(CVPixelBufferRef pixelBuffer, double pts, double duration))callback;
 - (void)shutdown;
 
-// MUST in 4 bytes length AVCC format, or 4 bytes start_code Annex-B
-- (void)decode:(NSData *)frame;
-- (void)decode:(NSData *)frame pts:(double)pts;
-- (void)decode:(NSData *)frame pts:(double)pts duration:(double)duration;
+/**
+ MUST in 4 bytes length AVCC format, or 4 bytes start_code Annex-B
+ */
+- (void)decode:(NSData *)nalu;
+/**
+ MUST in 4 bytes length AVCC format, or 4 bytes start_code Annex-B
+ */
+- (void)decode:(NSData *)nalu pts:(double)pts;
+/**
+ MUST in 4 bytes length AVCC format, or 4 bytes start_code Annex-B
+ */
+- (void)decode:(NSData *)nalu pts:(double)pts duration:(double)duration;
 
 
 /*

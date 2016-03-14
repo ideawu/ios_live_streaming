@@ -13,6 +13,7 @@
 	double _nextFramePTS;
 }
 @property (readonly) int nextFrameIndex;
+@property NSMutableArray *frames;
 @end
 
 @implementation VideoClip
@@ -81,12 +82,13 @@
 
 - (void)appendNALUWithFrame:(NSData *)frame toData:(NSMutableData *)data{
 	[data appendData:_naluStartCode];
-	[data appendData:frame];
+	UInt8 *p = (UInt8 *)frame.bytes;
+	[data appendBytes:p + 4 length:frame.length - 4];
 }
 
 - (void)appendFrame:(NSData *)frame pts:(double)pts{
 	unsigned char* pNal = (unsigned char*)[frame bytes];
-	int nal_type = pNal[0] & 0x1f;
+	int nal_type = pNal[4] & 0x1f;
 //	NSLog(@"append frame %d, pts: %f, type: %d", (int)frame.length, pts, nal_type);
 	if (nal_type == 5){
 		_hasKeyFrame = YES;
@@ -127,8 +129,8 @@
 	*pts = _nextFramePTS;
 	
 	uint8_t *pNal = (uint8_t*)[frame bytes];
-	int nal_ref_idc = pNal[0] & 0x60;
-	int nal_type = pNal[0] & 0x1f;
+	int nal_ref_idc = pNal[4] & 0x60;
+	int nal_type = pNal[4] & 0x1f;
 	if (nal_ref_idc == 0 && nal_type == 6) { // SEI
 		//
 	}else{
@@ -150,9 +152,9 @@
 	
 	for (NSData *frame in _frames) {
 		uint8_t *pNal = (uint8_t*)[frame bytes];
-		int nal_ref_idc = pNal[0] & 0x60;
-		int nal_type = pNal[0] & 0x1f;
-		if (nal_ref_idc == 0 && nal_type == 6) { // SEI
+		//int nal_ref_idc = pNal[4] & 0x60;
+		int nal_type = pNal[4] & 0x1f;
+		if (nal_type == 6) { // SEI
 			_sei = frame;
 		} else if (nal_type == 5) { // I Frame
 			[self appendNALUWithFrame:_sps toData:ret];
@@ -204,7 +206,8 @@
 			range.location = data.length;
 		}
 		
-		NSData *frame = [data subdataWithRange:NSMakeRange(pos, range.location - pos)];
+		// with start_code
+		NSData *frame = [data subdataWithRange:NSMakeRange(pos-4, range.location - pos + 4)];
 		//NSLog(@"parsed frame: %d", (int)frame.length);
 		
 		[self appendFrame:frame pts:0];

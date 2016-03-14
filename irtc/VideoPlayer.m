@@ -159,7 +159,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 				return;
 			}
 			if(clip.sps){
-				NSLog(@"init sps and pps");
+				log_debug(@"player init decoder sps and pps");
 				[_decoder setSps:clip.sps pps:clip.pps];
 			}else{
 				NSLog(@"not started, expecting sps and pps, drop clip");

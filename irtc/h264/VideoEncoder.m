@@ -114,6 +114,14 @@ static void compressCallback(
 	[me onCodecCallback:sampleBuffer];
 }
 
+- (NSData *)buildAVCC:(const UInt8 *)data length:(int)len{
+	NSMutableData *ret = [[NSMutableData alloc] initWithCapacity:4 + len];
+	UInt32 bigendian_len = htonl(len);
+	[ret appendBytes:&bigendian_len length:4];
+	[ret appendBytes:data length:len];
+	return ret;
+}
+
 - (void)onCodecCallback:(CMSampleBufferRef)sampleBuffer{
 	if(!sampleBuffer){
 		log_debug(@"sample buffer dropped");
@@ -145,8 +153,10 @@ static void compressCallback(
 			CMVideoFormatDescriptionGetH264ParameterSetAtIndex(format, 0, &sps, &sps_size, NULL, NULL);
 			CMVideoFormatDescriptionGetH264ParameterSetAtIndex(format, 1, &pps, &pps_size, NULL, NULL);
 
-			_sps = [NSData dataWithBytes:sps length:sps_size];
-			_pps = [NSData dataWithBytes:pps length:pps_size];
+//			_sps = [NSData dataWithBytes:sps length:sps_size];
+//			_pps = [NSData dataWithBytes:pps length:pps_size];
+			_sps = [self buildAVCC:sps length:(int)sps_size];
+			_pps = [self buildAVCC:pps length:(int)pps_size];
 
 			log_debug(@"sps(%d): %@", (int)sps_size, _sps);
 			log_debug(@"pps(%d): %@", (int)pps_size, _pps);
@@ -186,6 +196,7 @@ static void compressCallback(
 		UInt32 len = ntohl(data.length - 4);
 		[data replaceBytesInRange:NSMakeRange(0, 4) withBytes:&len];
 		
+//		log_debug(@"%d", (int)size);
 		_callback(data, pts, duration);
 	}
 }
@@ -234,6 +245,34 @@ static void compressCallback(
 		return;
 	}
 	VTCompressionSessionCompleteFrames(_session, kCMTimeInvalid);
+}
+
+- (void)encodePixelBuffer:(CVPixelBufferRef)pixelBuffer pts:(double)pts duration:(double)duration{
+	OSStatus err;
+	CMSampleBufferRef sampleBuffer = NULL;
+	CMVideoFormatDescriptionRef videoInfo = NULL;
+	
+	err = CMVideoFormatDescriptionCreateForImageBuffer(NULL, pixelBuffer, &videoInfo);
+	if(!err){
+		CMSampleTimingInfo time;
+		time.presentationTimeStamp = CMTimeMakeWithSeconds(pts, 60000);
+		time.duration = CMTimeMakeWithSeconds(duration, 60000);
+		err = CMSampleBufferCreateForImageBuffer(NULL,
+												 pixelBuffer, true, NULL, NULL,
+												 videoInfo,
+												 &time,
+												 &sampleBuffer);
+	}
+	if(!err){
+		[self encodeSampleBuffer:sampleBuffer];
+	}
+	
+	if(videoInfo){
+		CFRelease(videoInfo);
+	}
+	if(sampleBuffer){
+		CFRelease(sampleBuffer);
+	}
 }
 
 @end

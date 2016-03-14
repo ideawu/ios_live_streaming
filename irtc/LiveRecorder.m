@@ -145,13 +145,16 @@
 //		double _width = 480;
 //		double _height = 640;
 //		double _bitrate = 400 * 1024;
-//		
-//		_videoEncoder = [VideoEncoder encoderForHeight:_height andWidth:_width bitrate:_bitrate];
-//		[_videoEncoder encodeWithBlock:^void(NSData *nalu, double pts) {
-//			[me onVideoFrames:nalu pts:pts];
-//		} onParams:^(NSData *sps, NSData *pps) {
-//			[me onVideoSps:sps pps:pps];
-//		}];
+	
+		_videoEncoder = [[VideoEncoder alloc] init];
+		[_videoEncoder start:^(NSData *nalu, double pts, double duration) {
+			//log_debug(@"encoded, pts: %f, duration: %f, %d bytes", pts, duration, (int)nalu.length);
+			if(!_sps && _videoEncoder.sps){
+				log_debug(@"init decoder");
+				[me onVideoSps:_videoEncoder.sps pps:_videoEncoder.pps];
+			}
+			[me onVideoFrames:nalu pts:pts];
+		}];
 	}
 	
 	[_session startRunning];
@@ -202,19 +205,10 @@
 		_videoClip.pps = _pps;
 	}
 
-//	uint8_t *pNal = (uint8_t*)[nalu bytes];
-//	int nal_type = pNal[0] & 0x1f;
-//	if(nal_type == 5 || nal_type == 6){
-//		NSLog(@"NALU Type \"%d\"", nal_type);
-//	}
-//		static NSData *d;
-//		if(nal_type == 5){
-//			//NSLog(@"%@", data);
-//			if([data isEqualToData:d]){
-//				NSLog(@"equal==================");
-//			}
-//			d = data;
-//		}
+//	UInt8 *p = (UInt8 *)nalu.bytes;
+//	int type = p[4] & 0x1f;
+//	NSLog(@"NALU Type \"%d\"", type);
+	
 	[_videoClip appendFrame:nalu pts:pts];
 
 	if(_videoClip.duration >= _clipDuration){

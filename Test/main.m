@@ -11,7 +11,7 @@
 #import "TestVideo.h"
 
 int main(int argc, const char * argv[]) {
-#if 1
+#if 0
 	TestVideo *test = [[TestVideo alloc] init];
 	NSLog(@"end");
 	sleep(15);
