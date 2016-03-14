@@ -49,13 +49,29 @@
 		[self shutdown];
 	}
 
+#if !TARGET_OS_MAC
+	NSDictionary *params = nil;
+	NSDictionary *pixelBufferAttrs = nil;
+#else
+	NSDictionary *params = nil;
+	NSDictionary *pixelBufferAttrs = nil;
+#endif
+/*
+ kVTCompressionPropertyKey_AllowFrameReordering
+ kVTCompressionPropertyKey_AverageBitRate
+ kVTCompressionPropertyKey_H264EntropyMode
+ kVTH264EntropyMode_CAVLC/kVTH264EntropyMode_CABAC
+ kVTCompressionPropertyKey_RealTime
+ kVTCompressionPropertyKey_ProfileLevel
+ for example: kVTProfileLevel_H264_Main_AutoLevel
+ */
 	OSStatus err;
 	err = VTCompressionSessionCreate(NULL,
 									 _width,
 									 _height,
 									 kCMVideoCodecType_H264,
-									 NULL,
-									 NULL, // kCVPixelBufferOpenGLESCompatibilityKey
+									 (__bridge CFDictionaryRef)(params),
+									 (__bridge CFDictionaryRef)(pixelBufferAttrs),
 									 NULL,
 									 compressCallback,
 									 (__bridge void *)self,
@@ -142,19 +158,35 @@ static void compressCallback(
 	CMBlockBufferGetDataPointer(blockBuffer, 0, NULL, &size, &buf);
 
 	if(_callback){
-		// CMSampleBufferRef 里多个NALU的集合, 前4个字节是NALU payload数量,, 后面是去掉了NAL START CODE的 NAL payload
-		// 所以这里应该将NALU分离, 再调用 callback
-		NSData *data = [NSData dataWithBytes:buf length:size];
-		_callback(data, pts, duration);
-		{
-			NSData *d = [NSData dataWithBytes:data.bytes length:256];
-			NSLog(@"%@, %d", d, (int)data.length);
-			uint8_t *pNal = (uint8_t*)[d bytes];
-			for(int i=0; i<d.length; i++){
+		// 1 sample buffer contains multiple NALUs in AVCC format
+		// http://stackoverflow.com/questions/28396622/extracting-h264-from-cmblockbuffer
+//		NSData *data = [NSData dataWithBytes:buf length:size];
+		
+		NSMutableData *data = [[NSMutableData alloc] initWithCapacity:size];
+		[data appendBytes:"0000" length:4]; // the len
+		
+		UInt8 *p = (UInt8 *)buf;
+		while(p < (UInt8 *)buf + size){
+//			log_debug(@"%02x %02x %02x %02x", (UInt8)p[0], (UInt8)p[1], (UInt8)p[2], (UInt8)p[3]);
+			uint32_t len = (p[0]<<24) + (p[1]<<16) + (p[2]<<8) + p[3];
+			UInt8 *nalu = p + 4;
+			p += 4 + len;
+
+			int type = nalu[0] & 0x1f;
+			NSLog(@"NALU Type \"%d\", len: %u", type, len);
+
+			if(type == 6){
+				// just drop SEI?
+				log_debug(@"%@", [NSData dataWithBytes:nalu length:len]);
+			}else{
+				[data appendBytes:nalu length:len];
 			}
-			int nal_type = pNal[4] & 0x1f;
-			NSLog(@"NALU Type \"%d\"", nal_type);
 		}
+		
+		UInt32 len = ntohl(data.length - 4);
+		[data replaceBytesInRange:NSMakeRange(0, 4) withBytes:&len];
+		
+		_callback(data, pts, duration);
 	}
 }
 
@@ -189,6 +221,7 @@ static void compressCallback(
 		log_debug(@"error: %@", error);
 		return;
 	}
+//	VTCompressionSessionCompleteFrames()
 }
 
 @end

@@ -8,6 +8,11 @@
 
 #import <AVFoundation/AVFoundation.h>
 
+/*
+ Annex-B byte stream format: with start code(0x000001 or 0x00000001)
+ AVCC format: start with length(mostly 4 bytes)
+ */
+
 @interface VideoDecoder : NSObject
 
 - (BOOL)isReadyForFrame;
@@ -17,6 +22,7 @@
 - (void)start:(void (^)(CVImageBufferRef imageBuffer, double pts))callback;
 - (void)shutdown;
 
+// MUST in AVCC format, not Annex-B
 - (void)decode:(NSData *)frame pts:(double)pts;
 
 
@@ -27,6 +33,7 @@
  https://developer.apple.com/library/mac/technotes/tn2267/_index.html
  */
 /*
+ Emulation Prevention bytes: 如果数据中包括 00 00, 那么必须在(00 00)后面插入 03, 
  // H.264
  帧分隔符: 00 00 00 01 或 00 00 01
  PTS: Present Time Stamp

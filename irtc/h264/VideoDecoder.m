@@ -126,6 +126,7 @@ void decompressionSessionDecodeFrameCallback(void *decompressionOutputRefCon,
 }
 
 - (void)decode:(NSData *)frame pts:(double)pts{
+//	Boolean needNewSession = ( VTDecompressionSessionCanAcceptFormatDescription(session, formatDesc2 ) == false);
 	CMSampleBufferRef sampleBuffer = NULL;
 	CMBlockBufferRef blockBuffer = NULL;
 	OSStatus err;
