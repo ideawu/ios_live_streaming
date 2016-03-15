@@ -111,6 +111,7 @@ static NSString *base64_encode_data(NSData *data){
 	return ret;
 }
 
+// TODO: 自己写 socket, 实现 HTTP pipelining(请求和响应是分开的, 不用等响应回来就发下一个请求)
 - (void)upload{
 	if(_uploading){
 		return;

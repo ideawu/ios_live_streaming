@@ -50,7 +50,7 @@
 		return;
 	}
 	_session = [[AVCaptureSession alloc] init];
-	[_session setSessionPreset:AVCaptureSessionPresetMedium];
+	[_session setSessionPreset:AVCaptureSessionPreset640x480];
 	
 	_captureQueue = dispatch_queue_create("capture", DISPATCH_QUEUE_SERIAL);
 	_processQueue = dispatch_queue_create("process", DISPATCH_QUEUE_SERIAL);
@@ -112,7 +112,7 @@
 	_videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
 	[_videoDataOutput setSampleBufferDelegate:self queue:_captureQueue];
 	NSDictionary* settings = @{
-//							   (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
+							   (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
 							   };
 	_videoDataOutput.videoSettings = settings;
 	
@@ -137,17 +137,22 @@
 	__weak typeof(self) me = self;
 	if(_audioDevice){
 		_audioEncoder = [[AudioEncoder alloc] init];
+		
 		[_audioEncoder start:^(NSData *data, double pts, double duration) {
 			[me onAudioChunk:data pts:pts duration:duration];
 		}];
 	}
 	if(_videoDevice){
-		// TODO:
-//		double _width = 480;
-//		double _height = 640;
-//		double _bitrate = 400 * 1024;
-	
 		_videoEncoder = [[VideoEncoder alloc] init];
+		if(_width > 0){
+			_videoEncoder.width = _width;
+		}
+		if(_height > 0){
+			_videoEncoder.height = _height;
+		}
+		_width = _videoEncoder.width;
+		_height = _videoEncoder.height;
+		
 		[_videoEncoder start:^(NSData *frame, double pts, double duration) {
 //			log_debug(@"encoded, pts: %f, duration: %f, %d bytes", pts, duration, (int)frame.length);
 			[me onVideoFrame:frame pts:pts];
@@ -155,27 +160,6 @@
 	}
 	
 	[_session startRunning];
-	// TEST
-//	[self performSelectorInBackground:@selector(fileCapture) withObject:nil];
-}
-
-- (void)fileCapture{
-	while(1){
-		NSString *file = [NSHomeDirectory() stringByAppendingFormat:@"/Downloads/m1.mp4"];
-		VideoReader *reader = [[VideoReader alloc] initWithFile:file];
-		CMSampleBufferRef sampleBuffer;
-		while(1){
-			sampleBuffer = [reader nextSampleBuffer];
-			if(!sampleBuffer){
-				break;
-			}
-			
-			[_videoEncoder encodeSampleBuffer:sampleBuffer];
-			
-			CFRelease(sampleBuffer);
-			usleep(20 * 1000);
-		}
-	}
 }
 
 - (void)stop{

@@ -10,14 +10,17 @@
 
 @interface VideoEncoder : NSObject
 
+@property (nonatomic) int width;
+@property (nonatomic) int height;
+
 /**
  SPS without header
  */
-@property (readonly) NSData *sps;
+@property (nonatomic, readonly) NSData *sps;
 /**
  PPS without header
  */
-@property (readonly) NSData *pps;
+@property (nonatomic, readonly) NSData *pps;
 
 /**
  AVCC 格式的一个或者多个 NALU

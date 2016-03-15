@@ -76,6 +76,7 @@
 	
 	_recorder = [[LiveRecorder alloc] init];
 	_recorder.clipDuration = 0.3;
+	//_recorder.width = 640;
 
 	_videoLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:_recorder.session];
 	_videoLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
@@ -98,6 +99,7 @@
 //	}];
 
 	[_recorder start];
+	log_debug(@"started");
 }
 
 static NSString *base64_encode_data(NSData *data){

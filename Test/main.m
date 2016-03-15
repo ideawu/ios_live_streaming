@@ -20,7 +20,7 @@
 
 int main(int argc, const char * argv[]) {
 	int count = 0;
-	int flag = 1;
+	int flag = 2;
 
 	if(flag == count++){
 		return NSApplicationMain(argc, argv);

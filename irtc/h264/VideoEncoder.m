@@ -14,8 +14,6 @@
 }
 @property (nonatomic, assign) VTCompressionSessionRef session;
 @property (nonatomic, assign) CMVideoFormatDescriptionRef formatDesc;
-@property (nonatomic) int width;
-@property (nonatomic) int height;
 @end
 
 
@@ -23,8 +21,8 @@
 
 - (id)init{
 	self = [super init];
-	_width = 360;
-	_height = 480;
+	_width = 480;
+	_height = 640;
 	return self;
 }
 
@@ -200,11 +198,11 @@ static void compressCallback(
 //	log_debug(@"encoding pts: %f, duration: %f, dts: %f", CMTimeGetSeconds(pts), CMTimeGetSeconds(duration), dts);
 
 	CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-//	log_debug(@"width: %d, height: %d, %d bytes",
-//			  (int)CVPixelBufferGetWidth(imageBuffer),
-//			  (int)CVPixelBufferGetHeight(imageBuffer),
-//			  (int)CVPixelBufferGetDataSize(imageBuffer)
-//			  );
+	log_debug(@"width: %d, height: %d, %d bytes",
+			  (int)CVPixelBufferGetWidth(imageBuffer),
+			  (int)CVPixelBufferGetHeight(imageBuffer),
+			  (int)CVPixelBufferGetDataSize(imageBuffer)
+			  );
 	
 	NSDictionary *properties = nil;
 //	BOOL forceKeyFrame = NO;

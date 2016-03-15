@@ -15,7 +15,9 @@
 @interface LiveRecorder : NSObject
 
 @property (nonatomic, readonly) AVCaptureSession *session;
-@property(nonatomic) double clipDuration;
+@property (nonatomic) double clipDuration;
+@property (nonatomic) double width;
+@property (nonatomic) double height;
 
 - (void)setupAudio:(void (^)(NSData *data, double pts, double duration))callback;
 - (void)setupVideo:(void (^)(VideoClip *clip))callback;
