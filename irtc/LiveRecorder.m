@@ -50,7 +50,7 @@
 		return;
 	}
 	_session = [[AVCaptureSession alloc] init];
-	[_session setSessionPreset:AVCaptureSessionPreset640x480];
+	[_session setSessionPreset:AVCaptureSessionPresetMedium];
 	
 	_captureQueue = dispatch_queue_create("capture", DISPATCH_QUEUE_SERIAL);
 	_processQueue = dispatch_queue_create("process", DISPATCH_QUEUE_SERIAL);
