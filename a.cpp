@@ -4,16 +4,21 @@
 #include <memory>
 #include <string>
 
-#define MAX_ATOM_DEPTH 32
+#define MAX_ATOM_DEPTH 16
+
+typedef struct{
+	uint32_t length;
+	uint32_t type;
+	long size;
+}mp4_atom;
 
 typedef struct{
 	FILE *fp;
-	long filesize;
-	long curr;
-	int atom_size;
-	int nalu_size;
-	int sub_depth;
-	int sub_size_list[MAX_ATOM_DEPTH];
+
+	int depth;
+	mp4_atom subs[MAX_ATOM_DEPTH];
+	mp4_atom *atom;
+	mp4_atom nalu;
 }mp4_reader;
 
 void mp4_reader_free(mp4_reader *mp4){
@@ -33,83 +38,97 @@ mp4_reader* mp4_reader_open(const char *filename){
 	fseek(fp, 0, SEEK_SET);
 
 	mp4_reader *ret = (mp4_reader *)malloc(sizeof(mp4_reader));
+	memset(&ret->nalu, 0, sizeof(ret->nalu));
+	memset(&ret->subs, 0, sizeof(ret->subs));
 	ret->fp = fp;
-	ret->filesize = filesize;
-	ret->curr = 0;
-	ret->atom_size = 0;
-	ret->nalu_size = 0;
-	ret->sub_depth = 0;
+	ret->depth = 1;
+	ret->subs[0].size = filesize; // subs[0] is file
+	ret->atom = &ret->subs[1];    // subs[1] is current
+	ret->atom->length = 0;
 	return ret;
 }
 
 // return 0 or 1
-int mp4_reader_next_atom(mp4_reader *mp4, uint32_t *type){
-	uint32_t size;
-	if(mp4->atom_size > 0){
-		fseek(mp4->fp, mp4->atom_size, SEEK_CUR);
-		mp4->atom_size = 0;
+int mp4_reader_next_atom(mp4_reader *mp4){
+	mp4_atom *atom = mp4->atom;
+	mp4_atom *parent = &mp4->subs[mp4->depth - 1];
+	if(atom->size > 0){
+		fseek(mp4->fp, atom->size, SEEK_CUR);
 	}
+	//printf("%d\n", __LINE__);
+	parent->size -= atom->length;
+	if(parent->size <= 0){
+		return 0;
+	}
+
+	uint32_t length, type;
 	int len;
-	len = fread(&size, 4, 1, mp4->fp);
+	len = fread(&length, 4, 1, mp4->fp);
 	if(len <= 0){
 		return 0;
 	}
-	size = __builtin_bswap32(size);
-	fread(type, 4, 1, mp4->fp);
-	*type = __builtin_bswap32(*type);
-	//printf("%u '%c%c%c%c'\n", size, (char)(type>>24)&255, (char)(type>>16)&255, (char)(type>>8)&255, (char)type&255);
-	mp4->atom_size = size - 8;
+	fread(&type, 4, 1, mp4->fp);
+
+	length = __builtin_bswap32(length);
+	type = __builtin_bswap32(type);
+	
+	atom->length = length;
+	atom->type = type;
+	atom->size = length - 8;
+
 	return 1;
 }
 
 int mp4_reader_read_atom_data(mp4_reader *mp4, char *buf, int len){
-	if(len > mp4->atom_size){
-		len = mp4->atom_size;
-	}
+	mp4_atom *atom = mp4->atom;
+	mp4_atom *parent = &mp4->subs[mp4->depth - 1];
+	len = (len <= atom->size)? len : atom->size;
 	if(len <= 0){
 		return 0;
 	}
 	fread(buf, len, 1, mp4->fp);
-	mp4->atom_size -= len;
+	atom->size -= len;
 	return len;
 }
 
 int mp4_reader_next_nalu(mp4_reader *mp4){
-	if(mp4->nalu_size > 0){
-		fseek(mp4->fp, mp4->nalu_size, SEEK_CUR);
-		mp4->atom_size -= mp4->nalu_size;
+	mp4_atom *atom = mp4->atom;
+	if(mp4->nalu.size > 0){
+		fseek(mp4->fp, mp4->nalu.size, SEEK_CUR);
 	}
-	if(mp4->atom_size <= 0){
+	atom->size -= mp4->nalu.length;
+	if(atom->size <= 0){
 		return 0;
 	}
-	uint32_t size;
-	fread(&size, 4, 1, mp4->fp);
-	size = __builtin_bswap32(size);
-	mp4->nalu_size = size;
-	mp4->atom_size -= 4;
+	uint32_t length;
+	fread(&length, 4, 1, mp4->fp);
+	length = __builtin_bswap32(length);
+	//printf("'%02x%02x%02x%02x', size: %ld\n", (char)(length>>24)&255, (char)(length>>16)&255, (char)(length>>8)&255, (char)length&255, length);
+
+	// 根据mp4定义, length 不包括自身的长度在内, 但我们设计的结构休 length 字段是包括的
+	mp4->nalu.length = length + 4;
+	mp4->nalu.size = length;
 	return 1;
 }
 
+// return bytes read
 int mp4_reader_read_nalu(mp4_reader *mp4, char *buf, int len){
-	if(len > mp4->nalu_size){
-		len = mp4->nalu_size;
-	}
+	len = (len <= mp4->nalu.size)? len : mp4->nalu.size;
 	if(len <= 0){
 		return 0;
 	}
 	fread(buf, len, 1, mp4->fp);
-	mp4->nalu_size -= len;
-	mp4->atom_size -= len;
+	mp4->nalu.size -= len;
 	return len;
 }
+
 
 //#include <inttypes.h>
 void read_mp4(const char *filename);
 
 int main(int argc, char **argv){
-	read_mp4("params.mp4");
-	read_mp4("m1.mp4");
-	read_mp4("capture.mp4");
+	read_mp4("../../Downloads/m.mp4");
+	read_mp4("../../Downloads/m1.mp4");
 	return 0;
 }
 
@@ -119,14 +138,15 @@ int main(int argc, char **argv){
 void read_mp4(const char *filename){
 	mp4_reader *mp4 = mp4_reader_open(filename);
 	if(mp4){
-		uint32_t type;
-		while(mp4_reader_next_atom(mp4, &type)){
-			printf("'%c%c%c%c', len: %d\n", (char)(type>>24)&255, (char)(type>>16)&255, (char)(type>>8)&255, (char)type&255, mp4->atom_size);
+		while(mp4_reader_next_atom(mp4)){
+			uint32_t type = mp4->atom->type;
+			long size = mp4->atom->size;
+			printf("'%c%c%c%c', size: %ld\n", (char)(type>>24)&255, (char)(type>>16)&255, (char)(type>>8)&255, (char)type&255, size);
 			if(type == 'moov'){
 			}
 			if(type == 'mdat'){
 				while(mp4_reader_next_nalu(mp4)){
-					printf("    nalu len: %6d, atom: %d\n", mp4->nalu_size, mp4->atom_size);
+					printf("    nalu len: %6u, atom: %ld\n", mp4->nalu.length, mp4->atom->size);
 				}
 			}
 		}
