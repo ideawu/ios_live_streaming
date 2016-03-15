@@ -80,7 +80,7 @@
 
 	// you can set some desired attributes for the destination pixel buffer.  I didn't use this but you may
 	// if you need to set some attributes, be sure to uncomment the dictionary in VTDecompressionSessionCreate
-#if !TARGET_OS_MAC
+#if TARGET_OS_IPHONE
 	NSDictionary *decoderParameters = @{
 										(id)kVTDecompressionPropertyKey_RealTime: @(YES),
 										};
@@ -91,6 +91,7 @@
 	NSDictionary *decoderParameters = nil;
 	NSDictionary *pixelBufferAttrs = @{
 									   (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
+									   //(id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange), // 据说更快, 但导致转img出错
 									   };
 #endif
 	OSStatus status =  VTDecompressionSessionCreate(NULL, _formatDesc,

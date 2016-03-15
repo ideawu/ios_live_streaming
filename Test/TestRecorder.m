@@ -25,6 +25,8 @@
 
 - (void)run{
 	_recorder = [[LiveRecorder alloc] init];
+	_recorder.width = 640;
+	_recorder.height = 480;
 	[_recorder setupVideo:^(VideoClip *clip){
 		//
 	}];

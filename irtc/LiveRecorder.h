@@ -7,9 +7,6 @@
 //
 
 #import <AVFoundation/AVFoundation.h>
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
 #import "VideoClip.h"
 
 @interface LiveRecorder : NSObject

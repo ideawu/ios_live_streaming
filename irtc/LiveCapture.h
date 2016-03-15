@@ -7,6 +7,9 @@
 //
 
 #import <AVFoundation/AVFoundation.h>
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#endif
 
 @interface LiveCapture : NSObject
 

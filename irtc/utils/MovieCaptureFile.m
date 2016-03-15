@@ -72,7 +72,7 @@
 				 //AVVideoExpectedSourceFrameRateKey: @(30),
 				 //AVVideoAllowFrameReorderingKey: @NO,
 				 };
-#if TARGET_OS_MAC
+#if !TARGET_OS_IPHONE
 #ifdef NSFoundationVersionNumber10_9_2
 	if(NSFoundationVersionNumber <= NSFoundationVersionNumber10_9_2){
 		NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:settings];

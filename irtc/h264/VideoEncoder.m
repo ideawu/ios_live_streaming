@@ -47,15 +47,19 @@
 		[self shutdown];
 	}
 
-#if !TARGET_OS_MAC
+#if TARGET_OS_IPHONE
 	NSDictionary *params = nil;
 	NSDictionary *pixelBufferAttrs = @{
 									   (id)kCVPixelBufferOpenGLESCompatibilityKey: @YES
 									   };
 #else
+	// 似乎无论如何, Mac 也不能使用硬件加速. 但 AVFoundation 是可以的. 为什么?
 	NSDictionary *params = @{
-//							 (id)kVTVideoEncoderSpecification_EnableHardwareAcceleratedVideoEncoder: @YES,
 //							 (id)kVTVideoEncoderSpecification_RequireHardwareAcceleratedVideoEncoder: @YES,
+//							 (id)kVTVideoEncoderSpecification_EnableHardwareAcceleratedVideoEncoder: @YES,
+//							 (id)kVTVideoEncoderSpecification_EncoderID: @"com.apple.videotoolbox.videoencoder.h264.gva",
+//							 (id)kVTCompressionPropertyKey_UsingHardwareAcceleratedVideoEncoder: @YES,
+//							 (id)kVTCompressionPropertyKey_RealTime: @YES,
 							 };
 	NSDictionary *pixelBufferAttrs = nil;
 #endif
@@ -67,7 +71,9 @@
  kVTCompressionPropertyKey_RealTime
  kVTCompressionPropertyKey_ProfileLevel
  for example: kVTProfileLevel_H264_Main_AutoLevel
- */
+ // kVTCompressionPropertyKey_AverageBitRate
+	// kVTCompressionPropertyKey_DataRateLimits
+*/
 	OSStatus err;
 	err = VTCompressionSessionCreate(NULL,
 									 _width,
@@ -84,9 +90,16 @@
 		log_debug(@"error: %@", error);
 		return;
 	}
-	// kVTCompressionPropertyKey_AverageBitRate
-	// kVTCompressionPropertyKey_DataRateLimits
+	VTCompressionSessionPrepareToEncodeFrames(_session);
 	log_debug(@"encode session created, width: %d, height: %d", _width, _height);
+	
+	//	{
+	//		CFArrayRef arr;
+	//		OSStatus err = VTCopyVideoEncoderList(NULL, &arr);
+	//		log_debug(@"%d %@", err, arr);
+	//		CFRelease(arr);
+	//		//exit(0);
+	//	}
 }
 
 - (void)createSessionFromSampleBuffer:(CMSampleBufferRef)sampleBuffer{
