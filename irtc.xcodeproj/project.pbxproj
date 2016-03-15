@@ -80,6 +80,10 @@
 		31C168901C927307001AFC70 /* AACCodec.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C1688F1C927307001AFC70 /* AACCodec.m */; };
 		31C168911C927A19001AFC70 /* AACCodec.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C1688F1C927307001AFC70 /* AACCodec.m */; };
 		31C1689C1C97BE7B001AFC70 /* TestRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C1689B1C97BE7B001AFC70 /* TestRecorder.m */; };
+		31C1689F1C97E966001AFC70 /* MovieCaptureFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C1689E1C97E966001AFC70 /* MovieCaptureFile.m */; };
+		31C168A21C97EA49001AFC70 /* LiveCapture.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168A11C97EA49001AFC70 /* LiveCapture.m */; };
+		31C168A31C97ECCD001AFC70 /* LiveCapture.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168A11C97EA49001AFC70 /* LiveCapture.m */; };
+		31C168A41C97F6AC001AFC70 /* MovieCaptureFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C1689E1C97E966001AFC70 /* MovieCaptureFile.m */; };
 		31E5BDE31C8EE6F5007E0503 /* AAPLEAGLLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 31E5BDE21C8EE6F5007E0503 /* AAPLEAGLLayer.m */; };
 		31E5BDE81C8FC6DE007E0503 /* VideoClip.m in Sources */ = {isa = PBXBuildFile; fileRef = 31E5BDE71C8FC6DE007E0503 /* VideoClip.m */; };
 		31E5BDE91C8FC6F7007E0503 /* VideoClip.m in Sources */ = {isa = PBXBuildFile; fileRef = 31E5BDE71C8FC6DE007E0503 /* VideoClip.m */; };
@@ -202,6 +206,10 @@
 		31C168991C92F538001AFC70 /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 		31C1689A1C97BE7B001AFC70 /* TestRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestRecorder.h; sourceTree = "<group>"; };
 		31C1689B1C97BE7B001AFC70 /* TestRecorder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestRecorder.m; sourceTree = "<group>"; };
+		31C1689D1C97E966001AFC70 /* MovieCaptureFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MovieCaptureFile.h; sourceTree = "<group>"; };
+		31C1689E1C97E966001AFC70 /* MovieCaptureFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MovieCaptureFile.m; sourceTree = "<group>"; };
+		31C168A01C97EA49001AFC70 /* LiveCapture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveCapture.h; sourceTree = "<group>"; };
+		31C168A11C97EA49001AFC70 /* LiveCapture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveCapture.m; sourceTree = "<group>"; };
 		31E5BDE11C8EE6F5007E0503 /* AAPLEAGLLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLEAGLLayer.h; sourceTree = "<group>"; };
 		31E5BDE21C8EE6F5007E0503 /* AAPLEAGLLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAPLEAGLLayer.m; sourceTree = "<group>"; };
 		31E5BDE41C8EF884007E0503 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
@@ -429,6 +437,8 @@
 				31E5BDE71C8FC6DE007E0503 /* VideoClip.m */,
 				31E5BDEF1C8FDD03007E0503 /* LiveRecorder.h */,
 				31E5BDF01C8FDD03007E0503 /* LiveRecorder.m */,
+				31C168A01C97EA49001AFC70 /* LiveCapture.h */,
+				31C168A11C97EA49001AFC70 /* LiveCapture.m */,
 				31E5BDEA1C8FD184007E0503 /* aac */,
 				3187770F1C89B21700FC417F /* h264 */,
 				31C1687E1C9151AC001AFC70 /* utils */,
@@ -446,6 +456,8 @@
 				31C168801C9151ED001AFC70 /* AudioReader.m */,
 				0889D5801C956826009A822B /* VideoReader.h */,
 				0889D5811C956826009A822B /* VideoReader.m */,
+				31C1689D1C97E966001AFC70 /* MovieCaptureFile.h */,
+				31C1689E1C97E966001AFC70 /* MovieCaptureFile.m */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -634,6 +646,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0889D58D1C956F70009A822B /* TestAudio.m in Sources */,
+				31C168A41C97F6AC001AFC70 /* MovieCaptureFile.m in Sources */,
 				0889D5791C946CCB009A822B /* LiveStream.m in Sources */,
 				31C168891C917A56001AFC70 /* AudioPlayer.m in Sources */,
 				31C1689C1C97BE7B001AFC70 /* TestRecorder.m in Sources */,
@@ -644,6 +657,7 @@
 				081420631C8C652600A2B03E /* VideoPlayer.m in Sources */,
 				0889D5891C956CC6009A822B /* TestVideo.m in Sources */,
 				0814205E1C8B2F9500A2B03E /* TestController.m in Sources */,
+				31C168A31C97ECCD001AFC70 /* LiveCapture.m in Sources */,
 				31C168821C9161AF001AFC70 /* AudioReader.m in Sources */,
 				31C168911C927A19001AFC70 /* AACCodec.m in Sources */,
 				318776811C85AABF00FC417F /* main.m in Sources */,
@@ -683,12 +697,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				3187774A1C8DA78800FC417F /* VideoDecoder.m in Sources */,
+				31C1689F1C97E966001AFC70 /* MovieCaptureFile.m in Sources */,
 				31C1688C1C91976B001AFC70 /* AudioDecoder.m in Sources */,
 				081420861C93390000A2B03E /* AudioBufferQueue.m in Sources */,
 				081420621C8C37CF00A2B03E /* VideoPlayer.m in Sources */,
 				0889D5821C956827009A822B /* VideoReader.m in Sources */,
 				31C168851C916469001AFC70 /* LiveStream.m in Sources */,
 				3187773D1C8D60B900FC417F /* VideoPlayerState.m in Sources */,
+				31C168A21C97EA49001AFC70 /* LiveCapture.m in Sources */,
 				319207A81C854AA60017C818 /* irtc.m in Sources */,
 				0814208A1C934F9F00A2B03E /* AudioRecorder.m in Sources */,
 				31C168881C9176F2001AFC70 /* AudioPlayer.m in Sources */,

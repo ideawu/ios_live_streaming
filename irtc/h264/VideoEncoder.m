@@ -48,12 +48,15 @@
 	}
 
 #if !TARGET_OS_MAC
-	NSDictionary *params = @{
-//							 (id)kVTCompressionPropertyKey_RealTime: @YES,
-							 };
-	NSDictionary *pixelBufferAttrs = nil;
-#else
 	NSDictionary *params = nil;
+	NSDictionary *pixelBufferAttrs = @{
+									   (id)kCVPixelBufferOpenGLESCompatibilityKey: @YES
+									   };
+#else
+	NSDictionary *params = @{
+//							 (id)kVTVideoEncoderSpecification_EnableHardwareAcceleratedVideoEncoder: @YES,
+//							 (id)kVTVideoEncoderSpecification_RequireHardwareAcceleratedVideoEncoder: @YES,
+							 };
 	NSDictionary *pixelBufferAttrs = nil;
 #endif
 /*
