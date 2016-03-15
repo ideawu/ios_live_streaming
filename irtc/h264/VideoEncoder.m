@@ -10,7 +10,7 @@
 #import <VideoToolbox/VideoToolbox.h>
 
 @interface VideoEncoder(){
-	void (^_callback)(NSData *h264, double pts, double duration);
+	void (^_callback)(NSData *nalus, double pts, double duration);
 }
 @property (nonatomic, assign) VTCompressionSessionRef session;
 @property (nonatomic, assign) CMVideoFormatDescriptionRef formatDesc;
@@ -40,7 +40,7 @@
 	}
 }
 
-- (void)start:(void (^)(NSData *nalu, double pts, double duration))callback{
+- (void)start:(void (^)(NSData *nalus, double pts, double duration))callback{
 	_callback = callback;
 }
 
@@ -153,51 +153,35 @@ static void compressCallback(
 			CMVideoFormatDescriptionGetH264ParameterSetAtIndex(format, 0, &sps, &sps_size, NULL, NULL);
 			CMVideoFormatDescriptionGetH264ParameterSetAtIndex(format, 1, &pps, &pps_size, NULL, NULL);
 
-//			_sps = [NSData dataWithBytes:sps length:sps_size];
-//			_pps = [NSData dataWithBytes:pps length:pps_size];
-			_sps = [self buildAVCC:sps length:(int)sps_size];
-			_pps = [self buildAVCC:pps length:(int)pps_size];
+			_sps = [NSData dataWithBytes:sps length:sps_size];
+			_pps = [NSData dataWithBytes:pps length:pps_size];
 
 			log_debug(@"sps(%d): %@", (int)sps_size, _sps);
 			log_debug(@"pps(%d): %@", (int)pps_size, _pps);
 		}
 	}
 
-	char *buf;
+	UInt8 *buf;
 	size_t size;
 	CMBlockBufferRef blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer);
-	CMBlockBufferGetDataPointer(blockBuffer, 0, NULL, &size, &buf);
+	CMBlockBufferGetDataPointer(blockBuffer, 0, NULL, &size, (char **)&buf);
 
 	if(_callback){
-		// 1 sample buffer contains multiple NALUs in AVCC format
-		// http://stackoverflow.com/questions/28396622/extracting-h264-from-cmblockbuffer
-		NSData *data = [NSData dataWithBytes:buf length:size];
-
-//		NSMutableData *data = [[NSMutableData alloc] initWithCapacity:size];
-//		[data appendBytes:"0000" length:4]; // the len
-//		
-//		UInt8 *p = (UInt8 *)buf;
-//		while(p < (UInt8 *)buf + size){
-////			log_debug(@"%02x %02x %02x %02x", (UInt8)p[0], (UInt8)p[1], (UInt8)p[2], (UInt8)p[3]);
-//			uint32_t len = (p[0]<<24) + (p[1]<<16) + (p[2]<<8) + p[3];
-//			UInt8 *nalu = p + 4;
-//			p += 4 + len;
-//
-//			int type = nalu[0] & 0x1f;
-////			NSLog(@"NALU Type \"%d\", len: %u", type, len);
-//			if(type == 6){
-//				// just drop SEI?
-//				//log_debug(@"%@", [NSData dataWithBytes:nalu length:len]);
-//			}else{
-//				[data appendBytes:nalu length:len];
-//			}
-//		}
-//		
-//		UInt32 len = ntohl(data.length - 4);
-//		[data replaceBytesInRange:NSMakeRange(0, 4) withBytes:&len];
-
-//		log_debug(@"%d", (int)size);
-		_callback(data, pts, duration);
+		// strip leading SEIs
+		while(size > 0){
+			uint32_t len = (buf[0]<<24) + (buf[1]<<16) + (buf[2]<<8) + buf[3];
+			int type = buf[4] & 0x1f;
+			if(type == 6){ // SEI
+				buf += 4 + len;
+				size -= 4 + len;
+			}else{
+				break;
+			}
+		}
+		if(size >= 5){
+			NSData *data = [NSData dataWithBytes:buf length:size];
+			_callback(data, pts, duration);
+		}
 	}
 }
 

@@ -56,8 +56,8 @@
 		CFRelease(_formatDesc);
 	}
 	// no start code
-	uint8_t*  arr[2] = {(uint8_t*)sps.bytes + 4, (uint8_t*)pps.bytes + 4};
-	size_t sizes[2] = {sps.length - 4, sps.length - 4};
+	uint8_t*  arr[2] = {(uint8_t*)sps.bytes, (uint8_t*)pps.bytes};
+	size_t sizes[2] = {sps.length, sps.length};
 	
 	OSStatus err;
 	err = CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault, 2,
@@ -166,13 +166,6 @@ static void decompressCallback(void *decompressionOutputRefCon,
 		log_debug(@"error: %@", error);
 	}else{
 		err = CMBlockBufferReplaceDataBytes(frame.bytes, blockBuffer, 0, length);
-		// 兼容 Annex-B 封装
-		UInt8 *p = (UInt8 *)frame.bytes;
-		if(p[0] == 0 && p[1] == 0 && p[2] == 0 && p[3] == 1){
-			//log_debug(@"build AVCC");
-			UInt32 len = ntohl(length - 4);
-			err = CMBlockBufferReplaceDataBytes(&len, blockBuffer, 0, 4);
-		}
 	}
 	if (err != 0) {
 		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];

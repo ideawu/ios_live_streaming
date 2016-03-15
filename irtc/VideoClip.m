@@ -18,12 +18,6 @@
 
 @implementation VideoClip
 
-+ (VideoClip *)clipFromData:(NSData *)data{
-	VideoClip *ret = [[VideoClip alloc] init];
-	[ret parseData:data];
-	return ret;
-}
-
 - (id)init{
 	self = [super init];
 	_frames = [[NSMutableArray alloc] init];
@@ -80,32 +74,23 @@
 	return @"v\n%.5f\n%.5f\n%d\n\n";
 }
 
-- (void)appendNALUWithFrame:(NSData *)frame toData:(NSMutableData *)data{
-	[data appendData:_naluStartCode];
-	UInt8 *p = (UInt8 *)frame.bytes;
-	[data appendBytes:p + 4 length:frame.length - 4];
-}
-
 - (void)appendFrame:(NSData *)frame pts:(double)pts{
 	unsigned char* pNal = (unsigned char*)[frame bytes];
-	int nal_type = pNal[4] & 0x1f;
-//	NSLog(@"append frame %d, pts: %f, type: %d", (int)frame.length, pts, nal_type);
-	if (nal_type == 5){
+	int type = pNal[4] & 0x1f;
+	NSLog(@"add frame type: %d, pts: %f", type, pts);
+	if (type == 5){
 		_hasKeyFrame = YES;
 		_frameCount ++;
-	}else if(nal_type == 1){
+	}else if(type == 1){
 		_frameCount ++;
-	}else if(nal_type == 6){ // SEI
-		// ?
-		//NSLog(@"SEI");
-	}else if(nal_type == 7){
+	}else if(type == 7){
 		_sps = frame;
 		return;
-	}else if(nal_type == 8){
+	}else if(type == 7){
 		_pps = frame;
 		return;
 	}else{
-		NSLog(@"unknown nal_type: %d", nal_type);
+		NSLog(@"unknown nal_type: %d", type);
 		return;
 	}
 	
@@ -129,9 +114,9 @@
 	*pts = _nextFramePTS;
 	
 	uint8_t *pNal = (uint8_t*)[frame bytes];
-	int nal_ref_idc = pNal[4] & 0x60;
-	int nal_type = pNal[4] & 0x1f;
-	if (nal_ref_idc == 0 && nal_type == 6) { // SEI
+	int idc = pNal[4] & 0x60;
+	int type = pNal[4] & 0x1f;
+	if (idc == 0 && type == 6) { // SEI
 		//
 	}else{
 		if(_nextFrameIndex == _frames.count - 1){
@@ -144,77 +129,140 @@
 }
 
 
-- (NSData *)data{
-	NSData *_sei = nil;
+// 1 sample buffer contains multiple NALUs(slices) in AVCC format
+// http://stackoverflow.com/questions/28396622/extracting-h264-from-cmblockbuffer
+// slice header has the 1-byte type, then one UE value,
+// then the frame number.
+// 8 bits NALU type
+// 1 bit
+// 1 bit, first mb in slice: 1 - frame begin
+
+- (void)appendNALUWithFrame:(NSData *)frame toData:(NSMutableData *)data{
+	[data appendData:_naluStartCode];
+	UInt8 *p = (UInt8 *)frame.bytes;
+	[data appendBytes:p + 4 length:frame.length - 4];
+}
+
+- (NSData *)stream{
+	static UInt8 start_code[4] = {0, 0, 0, 1};
+
 	NSMutableData *ret = [[NSMutableData alloc] init];
-	
 	[ret appendData:[[self metastr] dataUsingEncoding:NSUTF8StringEncoding]];
-	
-	for (NSData *frame in _frames) {
-		uint8_t *pNal = (uint8_t*)[frame bytes];
-		//int nal_ref_idc = pNal[4] & 0x60;
-		int nal_type = pNal[4] & 0x1f;
-		if (nal_type == 6) { // SEI
-			_sei = frame;
-		} else if (nal_type == 5) { // I Frame
-			[self appendNALUWithFrame:_sps toData:ret];
-			[self appendNALUWithFrame:_pps toData:ret];
-			if (_sei) {
-				[self appendNALUWithFrame:_sei toData:ret];
-				_sei = nil;
+
+	for(NSData *frame in _frames){
+		UInt8 *buf = (UInt8 *)frame.bytes;
+		int size = (int)frame.length;
+		int type = buf[4] & 0x1f;
+		if(type == 5){ // IDR
+			[ret appendBytes:&start_code length:4];
+			[ret appendData:_sps];
+			[ret appendBytes:&start_code length:4];
+			[ret appendData:_pps];
+		}
+		while(size > 0){
+			uint32_t len = (buf[0]<<24) + (buf[1]<<16) + (buf[2]<<8) + buf[3];
+			if(len == 1){
+				// 虽然要求 Annex-B, 但也兼容 AVCC
+				[ret appendData:frame];
+				break;
 			}
-			[self appendNALUWithFrame:frame toData:ret];
-		} else {
-			[self appendNALUWithFrame:frame toData:ret];
+			[ret appendBytes:&start_code length:4];
+			[ret appendBytes:buf+4 length:len];
+			buf += 4 + len;
+			size -= 4 + len;
 		}
 	}
 	return ret;
 }
 
-- (void)parseData:(NSData *)data{
+- (void)parseStream:(NSData *)stream{
 	NSData *spr = [@"\n\n" dataUsingEncoding:NSUTF8StringEncoding];
-	NSRange range = [data rangeOfData:spr options:0 range:NSMakeRange(0, data.length)];
+	NSRange range = [stream rangeOfData:spr options:0 range:NSMakeRange(0, stream.length)];
 	if(range.length == 0){
 		return;
 	}
-	NSData *metadata = [data subdataWithRange:NSMakeRange(0, range.location)];
+	NSData *metadata = [stream subdataWithRange:NSMakeRange(0, range.location+range.length)];
 	NSString *metastr = [[NSString alloc] initWithData:metadata encoding:NSUTF8StringEncoding];
 	if(!metastr){
+		log_debug(@"no metadata");
 		return;
 	}
 	NSArray *ps = [metastr componentsSeparatedByString:@"\n"];
 	if(ps.count < 4){
+		log_debug(@"bad metadata");
 		return;
 	}
 	double stime = [ps[1] doubleValue];
 	double etime = [ps[2] doubleValue];
 	//int frameCount = [ps[3] intValue];
 	//NSLog(@"parsed stime: %.3f, etime: %.3f, duration: %.3f, frames: %d", stime, etime, (etime-stime), frameCount);
-	
-	NSUInteger pos = range.location + range.length;
-	NSUInteger len = data.length - pos;
-	range = [data rangeOfData:_naluStartCode options:0 range:NSMakeRange(pos, len)];
-	if(range.length == 0){
-		NSLog(@"bad payload");
-		return;
-	}
-	pos = range.location + range.length;
-	while(pos < data.length){
-		len = data.length - pos;
-		range = [data rangeOfData:_naluStartCode options:0 range:NSMakeRange(pos, len)];
-		if(range.length == 0){
-			range.location = data.length;
+
+	UInt8 *buf = (UInt8 *)stream.bytes + metadata.length;
+	size_t size = stream.length - metadata.length;
+	uint32_t header = (buf[0]<<24) + (buf[1]<<16) + (buf[2]<<8) + buf[3];
+	if(header == 1){
+		log_debug(@"");
+		// Annex-B
+		NSData *data = [NSData dataWithBytesNoCopy:buf length:size];
+
+		NSUInteger pos = 4;
+		while(pos < data.length){
+			size = data.length - pos;
+			range = [data rangeOfData:_naluStartCode options:0 range:NSMakeRange(pos, size)];
+			if(range.length == 0){
+				range.location = data.length;
+			}
+
+			NSMutableData *ret = [[NSMutableData alloc] init];
+			uint32_t len = (UInt32)range.location - (UInt32)pos;
+			uint32_t bigendian_len = htonl(len);
+			[ret appendBytes:&bigendian_len length:4];
+			[ret appendBytes:buf + 4 length:len];
+			NSLog(@"parsed frame: %d", (int)ret.length);
+			[self appendFrame:ret pts:0];
+
+			pos = range.location + range.length;
+			buf += 4 + len;
+			size -= 4 + len;
 		}
-		
-		// with start_code
-		NSData *frame = [data subdataWithRange:NSMakeRange(pos-4, range.location - pos + 4)];
-		//NSLog(@"parsed frame: %d", (int)frame.length);
-		
-		[self appendFrame:frame pts:0];
-		pos = range.location + range.length;
+	}else{
+		// AVCC
+		NSMutableData *ret = nil;
+		while(size > 0){
+			uint32_t len = (buf[0]<<24) + (buf[1]<<16) + (buf[2]<<8) + buf[3];
+			UInt8 first_mb = buf[5] & 0x80;
+			int type = buf[4] & 0x1f;
+			if(first_mb == 0x80){
+				if(ret){
+					[self appendFrame:ret pts:0];
+				}
+				ret = [[NSMutableData alloc] init];
+			}
+			uint32_t bigendian_len = htonl(len);
+			[ret appendBytes:&bigendian_len length:4];
+			[ret appendBytes:buf+4 length:len];
+
+			if(type == 7){
+				_sps = ret;
+				ret = [[NSMutableData alloc] init];
+			}else if(type == 8){
+				_pps = ret;
+				ret = [[NSMutableData alloc] init];
+			}
+
+			buf += 4 + len;
+			size -= 4 + len;
+		}
+		if(ret){
+			[self appendFrame:ret pts:0];
+		}
 	}
 	_startTime = stime;
 	_endTime = etime;
+}
+
+- (void)findNALU:(NSData *)nalu{
+
 }
 
 @end

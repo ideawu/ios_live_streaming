@@ -20,35 +20,31 @@
 @property (readonly) double nextFramePTS;
 
 /**
- SPS with start_code or AVCC header, depends on setter/appendFrame
+ SPS without header
  */
 @property NSData *sps;
 /**
- PPS with start_code or AVCC header, depends on setter/appendFrame
+ PPS without header
  */
 @property NSData *pps;
-
-/**
- Annex-B 格式的流
- */
-+ (VideoClip *)clipFromData:(NSData *)data;
-
-/**
- Annex-B 格式的流
- */
-- (NSData *)data;
 
 - (void)reset;
 
 /**
- AVCC/Annex-B 格式, 只有一个 NALU
+ AVCC/Annex-B 格式, 一个或者多个 NALU
  */
-- (void)appendFrame:(NSData *)nalu pts:(double)pts;
+- (void)appendFrame:(NSData *)nalus pts:(double)pts;
 
 /**
  Annex-B 格式
  作为 Reader 的时候使用
  */
 - (NSData *)nextFrame:(double *)pts;
+
+/**
+ Annex-B 格式的流
+ */
+- (NSData *)stream;
+- (void)parseStream:(NSData *)stream;
 
 @end

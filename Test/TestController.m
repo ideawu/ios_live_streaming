@@ -12,6 +12,9 @@
 #import "VideoPlayer.h"
 #import "AudioPlayer.h"
 #import "AudioDecoder.h"
+#import "VideoDecoder.h"
+#import "VideoEncoder.h"
+#import "VideoReader.h"
 
 @interface TestController (){
 	CALayer *_videoLayer;
@@ -19,11 +22,38 @@
 	VideoPlayer *_player;
 	AudioPlayer *_audioPlayer;
 	AudioDecoder *_audioDecoder;
+	VideoDecoder *_decoder;
+	VideoEncoder *_encoder;
+
 }
 @property int num;
 @end
 
 @implementation TestController
+
+// CVImageBufferRef 即是 CVPixelBufferRef
+- (CGImageRef)pixelBufferToImageRef:(CVImageBufferRef)imageBuffer{
+	CVPixelBufferLockBaseAddress(imageBuffer, 0);
+	uint8_t *baseAddress = (uint8_t *)CVPixelBufferGetBaseAddress(imageBuffer);
+	size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
+	size_t width = CVPixelBufferGetWidth(imageBuffer);
+	size_t height = CVPixelBufferGetHeight(imageBuffer);
+
+	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+	CGContextRef context = CGBitmapContextCreate(baseAddress,
+												 width, height,
+												 8, bytesPerRow,
+												 colorSpace,
+												 kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst
+												 );
+	CGImageRef image = NULL;
+	if(context){
+		image = CGBitmapContextCreateImage(context);
+	}
+	CGContextRelease(context);
+	CGColorSpaceRelease(colorSpace);
+	return image;
+}
 
 - (void)windowDidLoad {
     [super windowDidLoad];
@@ -47,15 +77,17 @@
 	[_player play];
 
 	[_recorder setupVideo:^(VideoClip *clip) {
-		NSData *data = clip.data;
+		NSData *data = clip.stream;
 		NSLog(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, key_frame: %@",
 			  clip.frameCount, clip.startTime, clip.endTime, clip.duration, (int)data.length,
 			  clip.hasKeyFrame?@"yes":@"no");
 		if(_num ++ < 3){
 //			return;
 		}
+
+		VideoClip *c = [[VideoClip alloc] init];
+		[c parseStream:data];
 		
-		VideoClip *c = [VideoClip clipFromData:data];
 		[_player addClip:c];
 	}];
 

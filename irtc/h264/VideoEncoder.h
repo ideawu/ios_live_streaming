@@ -11,18 +11,18 @@
 @interface VideoEncoder : NSObject
 
 /**
- SPS with AVCC header
+ SPS without header
  */
 @property (readonly) NSData *sps;
 /**
- PPS with AVCC header
+ PPS without header
  */
 @property (readonly) NSData *pps;
 
 /**
- AVCC 格式, 只有一个 NALU
+ AVCC 格式的一个或者多个 NALU
  */
-- (void)start:(void (^)(NSData *nalu, double pts, double duration))callback;
+- (void)start:(void (^)(NSData *nalus, double pts, double duration))callback;
 - (void)shutdown;
 
 - (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer;

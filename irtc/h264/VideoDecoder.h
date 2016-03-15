@@ -18,7 +18,7 @@
 - (BOOL)isReadyForFrame;
 
 /**
- set SPS PPS with start_code/AVCC header
+ set SPS PPS without header
  */
 - (void)setSps:(NSData *)sps pps:(NSData *)pps;
 
@@ -27,17 +27,17 @@
 - (void)shutdown;
 
 /**
- MUST in 4 bytes length AVCC format, or 4 bytes start_code Annex-B
+ Must be 4 bytes length AVCC nalus
  */
-- (void)decode:(NSData *)nalu;
+- (void)decode:(NSData *)nalus;
 /**
- MUST in 4 bytes length AVCC format, or 4 bytes start_code Annex-B
+ Must be 4 bytes length AVCC nalus
  */
-- (void)decode:(NSData *)nalu pts:(double)pts;
+- (void)decode:(NSData *)nalus pts:(double)pts;
 /**
- MUST in 4 bytes length AVCC format, or 4 bytes start_code Annex-B
+ Must be 4 bytes length AVCC nalus
  */
-- (void)decode:(NSData *)nalu pts:(double)pts duration:(double)duration;
+- (void)decode:(NSData *)nalus pts:(double)pts duration:(double)duration;
 
 
 /*
@@ -60,6 +60,9 @@
 	IDR = SPS + PPS + SEI + I frame + frames
  SEI: Supplemental Enhancement Information
  RBSP: Raw Byte Sequence Payload
+ 
+ MB: MacroBlock
+ frame = slices+
 
  NAL Unit 格式: 帧分隔符(4/3) + type(1) + ...
 	type: null(1 bit) + 参考级别(2 bits) + type(5 bits)
@@ -67,6 +70,7 @@
  0x.8 - PPS
  0x.5 - I Frame
  0x.6 - SEI
+ 0x.9 - Separator
 
  Sequence Parameter Set (SPS). This non-VCL NALU contains information required to configure the decoder such as profile, level, resolution, frame rate.
  Picture Parameter Set (PPS). Similar to the SPS, this non-VCL contains information on entropy coding mode, slice groups, motion prediction and deblocking filters.

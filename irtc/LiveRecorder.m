@@ -147,13 +147,13 @@
 //		double _bitrate = 400 * 1024;
 	
 		_videoEncoder = [[VideoEncoder alloc] init];
-		[_videoEncoder start:^(NSData *nalu, double pts, double duration) {
+		[_videoEncoder start:^(NSData *frame, double pts, double duration) {
 			//log_debug(@"encoded, pts: %f, duration: %f, %d bytes", pts, duration, (int)nalu.length);
 //			if(!_sps && _videoEncoder.sps){
 //				log_debug(@"init decoder");
 //				[me onVideoSps:_videoEncoder.sps pps:_videoEncoder.pps];
 //			}
-			[me onVideoFrames:nalu pts:pts];
+			[me onVideoFrame:frame pts:pts];
 		}];
 	}
 	
@@ -197,7 +197,7 @@
 //	NSLog(@"%@", desc);
 //}
 
-- (void)onVideoFrames:(NSData *)nalu pts:(double)pts{
+- (void)onVideoFrame:(NSData *)nalu pts:(double)pts{
 //	NSLog(@"pts: %.3f", pts);
 	if(!_videoClip){
 		_videoClip = [[VideoClip alloc] init];
@@ -211,7 +211,7 @@
 	
 	[_videoClip appendFrame:nalu pts:pts];
 
-	if(1 || _videoClip.duration >= _clipDuration){
+	if(_videoClip.duration >= _clipDuration){
 		if(_videoCallback){
 			_videoCallback(_videoClip);
 		}
