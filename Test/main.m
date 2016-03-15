@@ -9,14 +9,30 @@
 #import <Cocoa/Cocoa.h>
 #import "TestAudio.h"
 #import "TestVideo.h"
+#import "TestRecorder.h"
+
+#define QUIT() do{ \
+		NSLog(@"sleep"); \
+		sleep(15); \
+		test = nil; \
+		NSLog(@"quit"); \
+	}while(0)
 
 int main(int argc, const char * argv[]) {
-#if 0
-	TestVideo *test = [[TestVideo alloc] init];
-	NSLog(@"end");
-	sleep(15);
-	test = nil;
-#else
-	return NSApplicationMain(argc, argv);
-#endif
+	int flag = 0;
+
+	if(flag == 0){
+		return NSApplicationMain(argc, argv);
+	}
+
+	int count = 0;
+	if(flag == ++count){
+		TestRecorder *test = [[TestRecorder alloc] init];
+		QUIT();
+	}
+	if(flag == ++count){
+		TestVideo *test = [[TestVideo alloc] init];
+		QUIT();
+	}
+	
 }

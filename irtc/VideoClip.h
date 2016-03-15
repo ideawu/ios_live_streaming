@@ -28,23 +28,21 @@
  */
 @property NSData *pps;
 
-- (void)reset;
-
 /**
- AVCC/Annex-B 格式, 一个或者多个 NALU
+ AVCC 格式, 一个或者多个 NALU
  */
-- (void)appendFrame:(NSData *)nalus pts:(double)pts;
+- (void)appendFrame:(NSData *)frame pts:(double)pts;
 
 /**
- Annex-B 格式
+ AVCC 格式
  作为 Reader 的时候使用
  */
 - (NSData *)nextFrame:(double *)pts;
 
 /**
- Annex-B 格式的流
+ 生成 Annex-B 格式的流
  */
-- (NSData *)stream;
-- (void)parseStream:(NSData *)stream;
+- (NSData *)data;
+- (void)parseData:(NSData *)data;
 
 @end

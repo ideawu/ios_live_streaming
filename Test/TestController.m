@@ -76,18 +76,14 @@
 	_player.layer = _videoLayer;
 	[_player play];
 
-	[_recorder setupVideo:^(VideoClip *clip) {
-		NSData *data = clip.stream;
+	[_recorder setupVideo:^(VideoClip *clip){
+		NSData *data = clip.data;
 		NSLog(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, key_frame: %@",
 			  clip.frameCount, clip.startTime, clip.endTime, clip.duration, (int)data.length,
 			  clip.hasKeyFrame?@"yes":@"no");
-		if(_num ++ < 3){
-//			return;
-		}
 
 		VideoClip *c = [[VideoClip alloc] init];
-		[c parseStream:data];
-		
+		[c parseData:data];
 		[_player addClip:c];
 	}];
 

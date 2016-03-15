@@ -75,7 +75,7 @@
 	}
 
 	VTDecompressionOutputCallbackRecord callBackRecord;
-	callBackRecord.decompressionOutputCallback = decompressCallback;
+	callBackRecord.decompressionOutputCallback = onCodecCallback;
 	callBackRecord.decompressionOutputRefCon = (__bridge void *)self;
 
 	// you can set some desired attributes for the destination pixel buffer.  I didn't use this but you may
@@ -102,13 +102,13 @@
 }
 
 // VTDecompressionOutputCallback
-static void decompressCallback(void *decompressionOutputRefCon,
-							   void *sourceFrameRefCon,
-							   OSStatus status,
-							   VTDecodeInfoFlags infoFlags,
-							   CVImageBufferRef imageBuffer,
-							   CMTime pts,
-							   CMTime duration){
+static void onCodecCallback(void *decompressionOutputRefCon,
+							void *sourceFrameRefCon,
+							OSStatus status,
+							VTDecodeInfoFlags infoFlags,
+							CVImageBufferRef imageBuffer,
+							CMTime pts,
+							CMTime duration){
 	if(status != noErr){
 		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
 		log_debug(@"Decompressed error: %@", error);
@@ -124,17 +124,17 @@ static void decompressCallback(void *decompressionOutputRefCon,
 	}
 }
 
-- (void)decode:(NSData *)nalu{
-	return [self decode:nalu pts:0 duration:0];
+- (void)decode:(NSData *)frame{
+	return [self decode:frame pts:0 duration:0];
 }
 
-- (void)decode:(NSData *)nalu pts:(double)pts{
-	return [self decode:nalu pts:pts duration:0];
+- (void)decode:(NSData *)frame pts:(double)pts{
+	return [self decode:frame pts:pts duration:0];
 }
 
-- (void)decode:(NSData *)nalu pts:(double)pts duration:(double)duration{
+- (void)decode:(NSData *)frame pts:(double)pts duration:(double)duration{
 	// BOOL needNewSession = (VTDecompressionSessionCanAcceptFormatDescription(session, formatDesc2) == false);
-	CMSampleBufferRef sampleBuffer = [self createSampleBufferWithFrame:nalu pts:pts duration:duration];
+	CMSampleBufferRef sampleBuffer = [self createSampleBufferFromFrame:frame pts:pts duration:duration];
 	if(sampleBuffer){
 		// 不能异步, 否则会乱序
 		//VTDecodeFrameFlags flags = kVTDecodeFrame_EnableAsynchronousDecompression;
@@ -147,7 +147,7 @@ static void decompressCallback(void *decompressionOutputRefCon,
 	}
 }
 
-- (CMSampleBufferRef)createSampleBufferWithFrame:(NSData *)frame pts:(double)pts duration:(double)duration{
+- (CMSampleBufferRef)createSampleBufferFromFrame:(NSData *)frame pts:(double)pts duration:(double)duration{
 	CMSampleBufferRef sampleBuffer = NULL;
 	CMBlockBufferRef blockBuffer = NULL;
 	size_t length = frame.length;

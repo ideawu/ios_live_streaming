@@ -10,7 +10,7 @@
 #import <VideoToolbox/VideoToolbox.h>
 
 @interface VideoEncoder(){
-	void (^_callback)(NSData *nalus, double pts, double duration);
+	void (^_callback)(NSData *frame, double pts, double duration);
 }
 @property (nonatomic, assign) VTCompressionSessionRef session;
 @property (nonatomic, assign) CMVideoFormatDescriptionRef formatDesc;
@@ -40,7 +40,7 @@
 	}
 }
 
-- (void)start:(void (^)(NSData *nalus, double pts, double duration))callback{
+- (void)start:(void (^)(NSData *frame, double pts, double duration))callback{
 	_callback = callback;
 }
 
@@ -50,12 +50,12 @@
 	}
 
 #if !TARGET_OS_MAC
-	NSDictionary *params = nil;
-	NSDictionary *pixelBufferAttrs = nil;
-#else
 	NSDictionary *params = @{
 //							 (id)kVTCompressionPropertyKey_RealTime: @YES,
 							 };
+	NSDictionary *pixelBufferAttrs = nil;
+#else
+	NSDictionary *params = nil;
 	NSDictionary *pixelBufferAttrs = nil;
 #endif
 /*
@@ -112,14 +112,6 @@ static void compressCallback(
 
 	VideoEncoder *me = (__bridge VideoEncoder *)outputCallbackRefCon;
 	[me onCodecCallback:sampleBuffer];
-}
-
-- (NSData *)buildAVCC:(const UInt8 *)data length:(int)len{
-	NSMutableData *ret = [[NSMutableData alloc] initWithCapacity:4 + len];
-	UInt32 bigendian_len = htonl(len);
-	[ret appendBytes:&bigendian_len length:4];
-	[ret appendBytes:data length:len];
-	return ret;
 }
 
 - (void)onCodecCallback:(CMSampleBufferRef)sampleBuffer{

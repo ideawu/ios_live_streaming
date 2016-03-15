@@ -29,15 +29,15 @@
 /**
  Must be 4 bytes length AVCC nalus
  */
-- (void)decode:(NSData *)nalus;
+- (void)decode:(NSData *)frame;
 /**
  Must be 4 bytes length AVCC nalus
  */
-- (void)decode:(NSData *)nalus pts:(double)pts;
+- (void)decode:(NSData *)frame pts:(double)pts;
 /**
  Must be 4 bytes length AVCC nalus
  */
-- (void)decode:(NSData *)nalus pts:(double)pts duration:(double)duration;
+- (void)decode:(NSData *)frame pts:(double)pts duration:(double)duration;
 
 
 /*

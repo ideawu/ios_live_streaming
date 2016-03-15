@@ -22,7 +22,7 @@
 /**
  AVCC 格式的一个或者多个 NALU
  */
-- (void)start:(void (^)(NSData *nalus, double pts, double duration))callback;
+- (void)start:(void (^)(NSData *frame, double pts, double duration))callback;
 - (void)shutdown;
 
 - (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer;

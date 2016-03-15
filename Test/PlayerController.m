@@ -42,7 +42,7 @@
 	_stream = [[LiveStream alloc] init];
 	[_stream sub:url callback:^(NSData *data) {
 		VideoClip *clip = [[VideoClip alloc] init];
-		[clip parseStream:data];
+		[clip parseData:data];
 		NSLog(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, key_frame: %@",
 			  clip.frameCount, clip.startTime, clip.endTime, clip.duration, (int)data.length,
 			  clip.hasKeyFrame?@"yes":@"no");
