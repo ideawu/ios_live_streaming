@@ -112,7 +112,7 @@
 	_videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
 	[_videoDataOutput setSampleBufferDelegate:self queue:_captureQueue];
 	NSDictionary* settings = @{
-							   (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
+//							   (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
 							   };
 	_videoDataOutput.videoSettings = settings;
 	
