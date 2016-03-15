@@ -16,6 +16,7 @@
 }
 @property NSURL *url;
 @property double fps;
+@property int index;
 @end
 
 @implementation VideoReader
@@ -51,27 +52,30 @@
 	}
 	if([_assetReader startReading]){
 		_fps = _video_track.nominalFrameRate;
+		// drop first frame(probably black)
+		[self nextSampleBuffer];
 	}
+	_index = 0;
 }
 
 - (CMSampleBufferRef)nextSampleBuffer{
 	CMSampleBufferRef sampleBuffer = [_videoOutput copyNextSampleBuffer];
 	if(sampleBuffer){
 		CMSampleTimingInfo time;
-		CMSampleBufferGetSampleTimingInfo(sampleBuffer, 0, &time);
-		if(CMTIME_IS_INVALID(time.duration)){
-			time.duration = CMTimeMakeWithSeconds(1.0/_fps, time.presentationTimeStamp.timescale);
-			CMSampleBufferRef newSampleBuffer;
-			CMSampleBufferCreateCopyWithNewTiming(kCFAllocatorDefault,
-												  sampleBuffer,
-												  1,
-												  &time,
-												  &newSampleBuffer);
-			CFRelease(sampleBuffer);
-			sampleBuffer = newSampleBuffer;
-		}
-	
+		double frameDuration = 1.0/_fps;
+		time.presentationTimeStamp = CMTimeMakeWithSeconds(_index * frameDuration, 6000);
+		time.duration = CMTimeMakeWithSeconds(frameDuration, 6000);
+
+		CMSampleBufferRef newSampleBuffer;
+		CMSampleBufferCreateCopyWithNewTiming(kCFAllocatorDefault,
+											  sampleBuffer,
+											  1,
+											  &time,
+											  &newSampleBuffer);
+		CFRelease(sampleBuffer);
+		sampleBuffer = newSampleBuffer;
 	}
+	_index ++;
 	return sampleBuffer;
 }
 

@@ -63,7 +63,7 @@
 		[_encoder encodeSampleBuffer:sampleBuffer];
 
 		CFRelease(sampleBuffer);
-		usleep(100 * 1000);
+		usleep(30 * 1000);
 	}
 }
 

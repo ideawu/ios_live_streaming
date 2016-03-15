@@ -10,6 +10,7 @@
 #import "LiveRecorder.h"
 #import "AudioEncoder.h"
 #import "VideoEncoder.h"
+#import "VideoReader.h"
 
 @interface LiveRecorder ()<AVCaptureAudioDataOutputSampleBufferDelegate, AVCaptureVideoDataOutputSampleBufferDelegate>{
 	AVCaptureDeviceInput *_audioInput;
@@ -148,16 +149,33 @@
 	
 		_videoEncoder = [[VideoEncoder alloc] init];
 		[_videoEncoder start:^(NSData *frame, double pts, double duration) {
-			//log_debug(@"encoded, pts: %f, duration: %f, %d bytes", pts, duration, (int)nalu.length);
-//			if(!_sps && _videoEncoder.sps){
-//				log_debug(@"init decoder");
-//				[me onVideoSps:_videoEncoder.sps pps:_videoEncoder.pps];
-//			}
+//			log_debug(@"encoded, pts: %f, duration: %f, %d bytes", pts, duration, (int)frame.length);
 			[me onVideoFrame:frame pts:pts];
 		}];
 	}
 	
 	[_session startRunning];
+	// TEST
+//	[self performSelectorInBackground:@selector(fileCapture) withObject:nil];
+}
+
+- (void)fileCapture{
+	while(1){
+		NSString *file = [NSHomeDirectory() stringByAppendingFormat:@"/Downloads/m1.mp4"];
+		VideoReader *reader = [[VideoReader alloc] initWithFile:file];
+		CMSampleBufferRef sampleBuffer;
+		while(1){
+			sampleBuffer = [reader nextSampleBuffer];
+			if(!sampleBuffer){
+				break;
+			}
+			
+			[_videoEncoder encodeSampleBuffer:sampleBuffer];
+			
+			CFRelease(sampleBuffer);
+			usleep(20 * 1000);
+		}
+	}
 }
 
 - (void)stop{
