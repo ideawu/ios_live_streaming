@@ -21,11 +21,12 @@
 
 int main(int argc, const char * argv[]) {
 	int count = 0;
-	int flag = 1;
+	int flag = 3;
 
 	if(flag == count++){
 		return NSApplicationMain(argc, argv);
 	}
+	
 	if(flag == count++){
 		TestVideo *test = [[TestVideo alloc] init];
 		QUIT();
@@ -40,7 +41,7 @@ int main(int argc, const char * argv[]) {
 		movie.filename = file;
 		//movie.width = 360;
 		[movie start];
-		sleep(10);
+		sleep(5);
 		[movie stop];
 		sleep(2);
 		NSLog(@"quit");
