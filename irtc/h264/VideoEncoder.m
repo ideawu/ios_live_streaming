@@ -193,14 +193,19 @@ static void compressCallback(
 	if(!_session){
 		[self createSessionFromSampleBuffer:sampleBuffer];
 	}
-
+	
 	CMTime pts = CMSampleBufferGetOutputPresentationTimeStamp(sampleBuffer);
 	CMTime duration = CMSampleBufferGetOutputDuration(sampleBuffer);
 //	double dts = CMTimeGetSeconds(CMSampleBufferGetDecodeTimeStamp(sampleBuffer));
 //	log_debug(@"encoding pts: %f, duration: %f, dts: %f", CMTimeGetSeconds(pts), CMTimeGetSeconds(duration), dts);
 
 	CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-
+//	log_debug(@"width: %d, height: %d, %d bytes",
+//			  (int)CVPixelBufferGetWidth(imageBuffer),
+//			  (int)CVPixelBufferGetHeight(imageBuffer),
+//			  (int)CVPixelBufferGetDataSize(imageBuffer)
+//			  );
+	
 	NSDictionary *properties = nil;
 //	BOOL forceKeyFrame = NO;
 //	if(forceKeyFrame){

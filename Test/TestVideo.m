@@ -51,19 +51,19 @@
 		[_decoder decode:nalu pts:pts duration:duration];
 	}];
 
-	NSString *file = [NSHomeDirectory() stringByAppendingFormat:@"/Downloads/m1.mp4"];
-	reader = [[VideoReader alloc] initWithFile:file];
-	CMSampleBufferRef sampleBuffer;
 	while(1){
-		sampleBuffer = [reader nextSampleBuffer];
-		if(!sampleBuffer){
-			break;
+		NSString *file = [NSHomeDirectory() stringByAppendingFormat:@"/Downloads/m1.mp4"];
+		reader = [[VideoReader alloc] initWithFile:file];
+		CMSampleBufferRef sampleBuffer;
+		while(1){
+			sampleBuffer = [reader nextSampleBuffer];
+			if(!sampleBuffer){
+				break;
+			}
+			[_encoder encodeSampleBuffer:sampleBuffer];
+			CFRelease(sampleBuffer);
+			usleep(30 * 1000);
 		}
-
-		[_encoder encodeSampleBuffer:sampleBuffer];
-
-		CFRelease(sampleBuffer);
-		usleep(30 * 1000);
 	}
 }
 

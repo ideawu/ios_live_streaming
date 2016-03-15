@@ -19,19 +19,18 @@
 	}while(0)
 
 int main(int argc, const char * argv[]) {
-	int flag = 0;
+	int count = 0;
+	int flag = 1;
 
-	if(flag == 0){
+	if(flag == count++){
 		return NSApplicationMain(argc, argv);
 	}
-
-	int count = 0;
-	if(flag == ++count){
-		TestRecorder *test = [[TestRecorder alloc] init];
+	if(flag == count++){
+		TestVideo *test = [[TestVideo alloc] init];
 		QUIT();
 	}
-	if(flag == ++count){
-		TestVideo *test = [[TestVideo alloc] init];
+	if(flag == count++){
+		TestRecorder *test = [[TestRecorder alloc] init];
 		QUIT();
 	}
 	
