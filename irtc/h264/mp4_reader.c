@@ -282,7 +282,6 @@ static void parse_params(char *buf, int size, void **sps, int *sps_size, void **
 	}
 }
 
-
 // TESTING
 #if 0
 
@@ -297,37 +296,38 @@ int main(int argc, char **argv){
 
 void read_mp4(const char *filename){
 	mp4_reader *mp4 = mp4_file_open(filename);
-	if(mp4){
-		uint32_t type;
-		long size;
-		while(mp4_reader_next_atom(mp4)){
+	if(!mp4){
+		return;
+	}
+	uint32_t type;
+	long size;
+	while(mp4_reader_next_atom(mp4)){
+		type = mp4->atom->type;
+		size = mp4->atom->size;
+		if(type == 'moov'){
+			mp4_reader_enter_sub_atom(mp4);
+			mp4_reader_next_atom(mp4);
 			type = mp4->atom->type;
 			size = mp4->atom->size;
-			if(type == 'moov'){
-				mp4_reader_enter_sub_atom(mp4);
+			if(type == 'mvhd'){
 				mp4_reader_next_atom(mp4);
 				type = mp4->atom->type;
 				size = mp4->atom->size;
-				if(type == 'mvhd'){
+				if(type == 'trak'){
+					mp4_reader_enter_sub_atom(mp4);
 					mp4_reader_next_atom(mp4);
-					type = mp4->atom->type;
-					size = mp4->atom->size;
-					if(type == 'trak'){
-						mp4_reader_enter_sub_atom(mp4);
-						mp4_reader_next_atom(mp4);
-						mp4_reader_leave_sub_atom(mp4);
-					}
+					mp4_reader_leave_sub_atom(mp4);
 				}
-				mp4_reader_leave_sub_atom(mp4);
 			}
-			if(type == 'mdat'){
-				while(mp4_reader_next_nalu(mp4)){
-					//
-				}
+			mp4_reader_leave_sub_atom(mp4);
+		}
+		if(type == 'mdat'){
+			while(mp4_reader_next_nalu(mp4)){
+				//
 			}
 		}
-		mp4_reader_free(mp4);
 	}
+	mp4_reader_free(mp4);
 	printf("\n");
 }
 

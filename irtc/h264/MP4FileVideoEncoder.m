@@ -7,13 +7,14 @@
 //
 
 #import "Mp4FileVideoEncoder.h"
-#import "Mp4File.h"
+#import "MP4File.h"
 #import "mp4_reader.h"
 
 @interface MP4FileVideoEncoder(){
-	Mp4File *_headerWriter;
-	Mp4File *_writer;
+	MP4File *_headerWriter;
+	MP4File *_writer;
 	int _recordSeq;
+	mp4_reader *_mp4;
 }
 @end
 
@@ -24,7 +25,14 @@
 	self = [super init];
 	_width = 480;
 	_height = 640;
+	_mp4 = NULL;
 	return self;
+}
+
+- (void)dealloc{
+	if(_mp4){
+		mp4_reader_free(_mp4);
+	}
 }
 
 - (NSString *)nextFilename{
@@ -47,7 +55,7 @@
 
 	if(!_headerWriter){
 		NSString* path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"params.mp4"];
-		_headerWriter = [Mp4File videoForPath:path Height:_height andWidth:_width bitrate:0];
+		_headerWriter = [MP4File videoForPath:path Height:_height andWidth:_width bitrate:0];
 		if([_headerWriter encodeFrame:sampleBuffer]){
 			[_headerWriter finishWithCompletionHandler:^{
 				[me parseHeaderFile];
@@ -57,7 +65,7 @@
 	
 	if(!_writer){
 		NSString *path = [self nextFilename];
-		_writer = [Mp4File videoForPath:path Height:_height andWidth:_width bitrate:0];
+		_writer = [MP4File videoForPath:path Height:_height andWidth:_width bitrate:0];
 	}
 	[_writer encodeFrame:sampleBuffer];
 	
@@ -90,7 +98,25 @@
 }
 
 - (void)parseNALU{
+	log_debug(@"parse");
+	const char *filename = _writer.path.UTF8String;
+	if(!_mp4){
+		_mp4 = mp4_file_open(filename);
+		if(!_mp4){
+			log_error(@"failed to open %s", filename);
+			return;
+		}
+		while(mp4_reader_next_atom(_mp4)){
+			if(_mp4->atom->type == 'mdat'){
+				log_debug(@"found mdat");
+				break;
+			}
+		}
+	}
 	
+	while(mp4_reader_next_nalu(_mp4)){
+		//
+	}
 }
 
 @end
