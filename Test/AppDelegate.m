@@ -10,28 +10,39 @@
 #import "PlayerController.h"
 #import "RecorderController.h"
 #import "TestController.h"
+#import "TestFileVideoEncoder.h"
 
 @interface AppDelegate (){
-	PlayerController *_player;
-	RecorderController *_recorder;
-	TestController *_test;
+	NSWindowController *_test;
 }
 
 @property (weak) IBOutlet NSWindow *window;
+@property (nonatomic) TestFileVideoEncoder *fileVideoEncoder;
 @end
 
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 	NSLog(@"NSTemporaryDirectory: %@", NSTemporaryDirectory());
-	// Insert code here to initialize your application
-//	_player = [[PlayerController alloc] initWithWindowNibName:@"PlayerController"];
-//	[_player showWindow:self];
-
-//	_recorder = [[RecorderController alloc] initWithWindowNibName:@"RecorderController"];
-//	[_recorder showWindow:self];
-
-	_test = [[TestController alloc] initWithWindowNibName:@"TestController"];
+	
+	int count = 0;
+	int flag = 3;
+	
+	if(flag == count++){
+//		_test = [[PlayerController alloc] initWithWindowNibName:@"PlayerController"];
+//		[_test showWindow:self];
+	}
+	if(flag == count++){
+//		_test = [[RecorderController alloc] initWithWindowNibName:@"RecorderController"];
+//		[_test showWindow:self];
+	}
+	if(flag == count++){
+		_test = [[TestController alloc] initWithWindowNibName:@"TestController"];
+	}
+	if(flag == count++){
+		_test = [[TestFileVideoEncoder alloc] initWithWindowNibName:@"TestFileVideoEncoder"];
+	}
+	
 	[_test showWindow:self];
 }
 

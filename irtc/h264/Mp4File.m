@@ -6,14 +6,12 @@
 //  Copyright (c) 2013 GDCL http://www.gdcl.co.uk/license.htm
 //
 
-#import "VideoFile.h"
+#import "Mp4File.h"
 
-@implementation VideoFile
+@implementation Mp4File
 
-@synthesize path = _path;
-
-+ (VideoFile*)videoForPath:(NSString*)path Height:(int)height andWidth:(int)width bitrate:(int)bitrate{
-    VideoFile* enc = [VideoFile alloc];
++ (Mp4File*)videoForPath:(NSString*)path Height:(int)height andWidth:(int)width bitrate:(int)bitrate{
+    Mp4File* enc = [Mp4File alloc];
 	enc.bitrate = bitrate;
     [enc initPath:path Height:height andWidth:width];
     return enc;
@@ -29,7 +27,9 @@
 	NSLog(@"encoder %@", url.absoluteString);
     _writer = [AVAssetWriter assetWriterWithURL:url fileType:AVFileTypeMPEG4 error:nil];
 	NSMutableDictionary *cs = [[NSMutableDictionary alloc] init];
-	[cs setObject:@(_bitrate) forKey:AVVideoAverageBitRateKey];
+	if(_bitrate > 0){
+		[cs setObject:@(_bitrate) forKey:AVVideoAverageBitRateKey];
+	}
 #if DEBUG
 	[cs setObject:@(20) forKey:AVVideoMaxKeyFrameIntervalKey];
 #else
@@ -39,7 +39,7 @@
 	[cs setObject:@(NO) forKey:AVVideoAllowFrameReorderingKey];
 #else
 #ifdef NSFoundationVersionNumber10_10
-	if(NSFoundationVersionNumber > NSFoundationVersionNumber10_10){
+	if(NSFoundationVersionNumber >= NSFoundationVersionNumber10_10){
 		[cs setObject:@(NO) forKey:AVVideoAllowFrameReorderingKey];
 	}
 #endif

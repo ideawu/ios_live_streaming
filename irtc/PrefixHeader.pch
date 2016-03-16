@@ -11,10 +11,14 @@
 
 #ifdef DEBUG
 #	define log_debug(fmt, args...)	\
-NSLog((@"%@(%d): " fmt), [@(__FILE__) lastPathComponent],  __LINE__, ##args)
+		NSLog((@"%@(%d): " fmt), [@(__FILE__) lastPathComponent],  __LINE__, ##args)
 #else
 #	define log_trace(...)
 #endif
+
+#define log_error(fmt, args...)	\
+	NSLog((@"%@(%d): " fmt), [@(__FILE__) lastPathComponent],  __LINE__, ##args)
+
 
 // Include any system framework and library headers here that should be included in all compilation units.
 // You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.

@@ -6,13 +6,9 @@
 //  Copyright (c) 2013 GDCL http://www.gdcl.co.uk/license.htm
 //
 
-#import <Foundation/Foundation.h>
-#import "AVFoundation/AVAssetWriter.h"
-#import "AVFoundation/AVAssetWriterInput.h"
-#import "AVFoundation/AVMediaFormat.h"
-#import "AVFoundation/AVVideoSettings.h"
+#import <AVFoundation/AVFoundation.h>
 
-@interface VideoFile : NSObject
+@interface Mp4File : NSObject
 {
     AVAssetWriter* _writer;
     AVAssetWriterInput* _writerInput;
@@ -22,7 +18,7 @@
 @property NSString* path;
 @property int bitrate;
 
-+ (VideoFile*) videoForPath:(NSString*)path Height:(int)height andWidth:(int)width bitrate:(int)bitrate;
++ (Mp4File*) videoForPath:(NSString*)path Height:(int)height andWidth:(int)width bitrate:(int)bitrate;
 
 - (void) initPath:(NSString*)path Height:(int) height andWidth:(int) width;
 - (void) finishWithCompletionHandler:(void (^)(void))handler;
