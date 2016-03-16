@@ -163,10 +163,10 @@ static int my_mp4_input_cb(mp4_reader *mp4, void *buf, int size){
 	[_reader seekTo:_mdat_pos];
 	[_reader read:&length size:4];
 	[_reader seekTo:pos];
-	log_debug(@"offset: %d, total: %d, available: %d", _reader.offset, _reader.total, _reader.available);
+	//log_debug(@"offset: %d, total: %d, available: %d", _reader.offset, _reader.total, _reader.available);
 	length = ntohl(length);
-	_mp4->atom->size = length - mdat_read;
-	log_debug(@"real length: %d, read: %d, left: %d", (int)length, (int)mdat_read, (int)_mp4->atom->size);
+	_mp4->atom->size = length - mdat_read + _mp4->nalu->length; // remember to add current nalu's length
+	//log_debug(@"real length: %d, read: %d, left: %d", (int)length, (int)mdat_read, (int)_mp4->atom->size);
 	
 	[self onFileUpdate];
 }
@@ -221,11 +221,11 @@ static int my_mp4_input_cb(mp4_reader *mp4, void *buf, int size){
 			
 			NSData *nalu = [NSData dataWithBytesNoCopy:buf length:length freeWhenDone:YES];
 			//log_debug(@"found nalu, length: %d", (int)nalu.length);
-			static int n = 0;
-			static int bytes = 0;
-			n++;
-			bytes += nalu.length;
-			log_debug(@"%d nalus, %d bytes", n, bytes);
+//			static int n = 0;
+//			static int bytes = 0;
+//			n++;
+//			bytes += nalu.length;
+//			log_debug(@"%d nalus, %d bytes", n, bytes);
 		}
 	}
 }
