@@ -7,9 +7,9 @@
 //
 
 #import "Mp4FileVideoEncoder.h"
-#import "MP4File.h"
+#import "MP4FileWriter.h"
 #import "mp4_reader.h"
-#import "FileStreamReader.h"
+#import "FileReader.h"
 
 /**
  before finishWritingWithCompletionHandler, the .mp4 has a
@@ -27,11 +27,11 @@ typedef enum{
 }ReadState;
 
 @interface MP4FileVideoEncoder(){
-	MP4File *_headerWriter;
-	MP4File *_writer;
+	MP4FileWriter *_headerWriter;
+	MP4FileWriter *_writer;
 	int _recordSeq;
 	mp4_reader *_mp4;
-	FileStreamReader *_reader;
+	FileReader *_reader;
 	ReadState _state;
 	int64_t _mdat_pos;
 }
@@ -83,7 +83,7 @@ typedef enum{
 
 	if(!_headerWriter){
 		NSString* path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"params.mp4"];
-		_headerWriter = [MP4File videoForPath:path Height:_height andWidth:_width bitrate:0];
+		_headerWriter = [MP4FileWriter videoForPath:path Height:_height andWidth:_width bitrate:0];
 		if([_headerWriter encodeFrame:sampleBuffer]){
 			[_headerWriter finishWithCompletionHandler:^{
 				[me parseHeaderFile];
@@ -93,7 +93,7 @@ typedef enum{
 	
 	if(!_writer){
 		NSString *path = [self nextFilename];
-		_writer = [MP4File videoForPath:path Height:_height andWidth:_width bitrate:0];
+		_writer = [MP4FileWriter videoForPath:path Height:_height andWidth:_width bitrate:0];
 	}
 	[_writer encodeFrame:sampleBuffer];
 	
@@ -137,22 +137,25 @@ typedef enum{
 	_mp4 = mp4_reader_init();
 	_mp4->user_data = (__bridge void *)(self);
 	_mp4->input_cb = my_mp4_input_cb;
-	_reader = [FileStreamReader readerForFile:_writer.path];
+	_reader = [FileReader readerWithFile:_writer.path];
 	log_debug(@"create mp4 reader for file: %@", _writer.path.lastPathComponent);
 }
 
 static int my_mp4_input_cb(mp4_reader *mp4, void *buf, int size){
 	MP4FileVideoEncoder *me = (__bridge MP4FileVideoEncoder *)mp4->user_data;
-	[me readFileData:buf size:size];
-	return size;
+	return [me readFileData:buf size:size];
 }
 
-- (void)readFileData:(void *)buf size:(int)size{
+- (int)readFileData:(void *)buf size:(int)size{
+	if(_reader.available < size){
+		return 0;
+	}
 	if(buf){
 		[_reader read:buf size:size];
 	}else{
 		[_reader skip:size];
 	}
+	return size;
 }
 
 - (void)finishParse{
@@ -188,7 +191,7 @@ static int my_mp4_input_cb(mp4_reader *mp4, void *buf, int size){
 					_state = ReadStateAtomData;
 				}
 			}else{
-				log_error(@"file end?");
+				log_debug(@"file end.");
 				return;
 			}
 		}else if(_state == ReadStateAtomData){
@@ -196,7 +199,6 @@ static int my_mp4_input_cb(mp4_reader *mp4, void *buf, int size){
 				return;
 			}
 			_state = ReadStateAtomHeader;
-			mp4_reader_skip_atom_data(_mp4);
 		}else if(_state == ReadStateNALUHeader){
 			if(_reader.available < 4){
 				return;

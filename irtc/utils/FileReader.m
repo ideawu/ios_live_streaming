@@ -6,23 +6,23 @@
 //  Copyright © 2016 ideawu. All rights reserved.
 //
 
-#import "FileStreamReader.h"
+#import "FileReader.h"
 #import <sys/stat.h>
 
-@interface FileStreamReader(){
+@interface FileReader(){
 }
 @property (nonatomic) NSString *file;
 @property (nonatomic) FILE *fp;
 @end
 
-@implementation FileStreamReader
+@implementation FileReader
 
-+ (FileStreamReader *)readerForFile:(NSString *)file{
++ (FileReader *)readerWithFile:(NSString *)file{
 	FILE *fp = fopen(file.UTF8String, "rb");
 	if(!fp){
 		return nil;
 	}
-	FileStreamReader *ret = [[FileStreamReader alloc] init];
+	FileReader *ret = [[FileReader alloc] init];
 	ret.fp = fp;
 	ret.file = file;
 	[ret refresh];
@@ -55,10 +55,14 @@
 	fseek(_fp, size, SEEK_CUR);
 }
 
-- (void)read:(void *)buf size:(long)size{
-	_offset += size;
-	_available -= size;
-	fread(buf, 1, size, _fp);
+- (int)read:(void *)buf size:(long)size{
+	int len = (int)fread(buf, 1, size, _fp);
+	if(len <= 0){
+		return len;
+	}
+	_offset += len;
+	_available -= len;
+	return len;
 }
 
 @end

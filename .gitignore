@@ -1,4 +1,5 @@
 a.json
+*.out
 *.mp4
 .DS_Store
 *.swp

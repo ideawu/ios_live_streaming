@@ -10,17 +10,31 @@
 #define log_debug(fmt, args...)
 #define log_atom(a)
 #else
+
+inline
+static const char* basename(const char *path){
+	const char *p = path + strlen(path) - 1;
+	while(p > path && *p != '/'){
+		p--;
+	}
+	if(*p == '/'){
+		p += 1;
+	}
+	return p;
+}
+
 #define log_debug(fmt, args...)	do{\
-	printf("%s(%3d): " fmt "\n", __FILE__, __LINE__, ##args); \
+	printf("%s(%3d): " fmt "\n", basename(__FILE__), __LINE__, ##args); \
 }while(0);
 
-#define log_atom(a) {\
+#define log_atom(a) do{\
 	log_debug("%*s%c%c%c%c  len: %6d  size: %d", \
 		(mp4->depth - 1) * 4, "", \
 		(char)(((a)->type>>24)&255), (char)(((a)->type>>16)&255), \
 		(char)(((a)->type>>8)&255), (char)(((a)->type)&255), \
 		(int)(a)->length, (int)(a)->size); \
 }while(0);
+
 #endif
 
 #define MAX_ATOM_DEPTH 32

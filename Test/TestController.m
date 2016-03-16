@@ -102,7 +102,7 @@
 		CFRetain(pixelBuffer);
 		dispatch_async(dispatch_get_main_queue(), ^{
 			CGImageRef image = [self pixelBufferToImageRef:pixelBuffer];
-			_videoLayer.contents = (__bridge id _Nullable)(image);
+			_videoLayer.contents = (__bridge id)(image);
 			CFRelease(image);
 		});
 	}];

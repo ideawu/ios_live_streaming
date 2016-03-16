@@ -6,12 +6,12 @@
 //  Copyright (c) 2013 GDCL http://www.gdcl.co.uk/license.htm
 //
 
-#import "MP4File.h"
+#import "MP4FileWriter.h"
 
-@implementation MP4File
+@implementation MP4FileWriter
 
-+ (MP4File*)videoForPath:(NSString*)path Height:(int)height andWidth:(int)width bitrate:(int)bitrate{
-    MP4File* enc = [MP4File alloc];
++ (MP4FileWriter*)videoForPath:(NSString*)path Height:(int)height andWidth:(int)width bitrate:(int)bitrate{
+    MP4FileWriter* enc = [MP4FileWriter alloc];
 	enc.bitrate = bitrate;
     [enc initPath:path Height:height andWidth:width];
     return enc;

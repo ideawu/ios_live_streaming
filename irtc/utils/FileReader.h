@@ -8,17 +8,17 @@
 
 #import <Foundation/Foundation.h>
 
-@interface FileStreamReader : NSObject
+@interface FileReader : NSObject
 
 @property (readonly) int64_t total;
 @property (readonly) int64_t offset;
 @property (readonly) int64_t available;
 
-+ (FileStreamReader *)readerForFile:(NSString *)file;
++ (FileReader *)readerWithFile:(NSString *)file;
 
 - (void)refresh;
 - (void)seekTo:(long)offset;
 - (void)skip:(long)size;
-- (void)read:(void *)buf size:(long)size;
+- (int)read:(void *)buf size:(long)size;
 
 @end
