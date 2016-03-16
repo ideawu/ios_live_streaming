@@ -17,6 +17,7 @@
 + (FileStreamReader *)readerForFile:(NSString *)file;
 
 - (void)refresh;
+- (void)seekTo:(long)offset;
 - (void)skip:(long)size;
 - (void)read:(void *)buf size:(long)size;
 

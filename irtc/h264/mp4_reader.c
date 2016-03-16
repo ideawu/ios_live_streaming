@@ -151,6 +151,9 @@ int mp4_reader_next_nalu(mp4_reader *mp4){
 	if(atom->size != INFINIT_SIZE){
 		atom->size -= mp4->nalu->length;
 		if(atom->size <= 0){
+			if(atom->size < 0){
+				log_debug("it shouldn't be %d(<0)!", (int)atom->size);
+			}
 			return 0;
 		}
 	}
@@ -323,9 +326,9 @@ void read_mp4(const char *filename){
 	if(!mp4){
 		return;
 	}
-	uint32_t type;
-	long size;
 	while(mp4_reader_next_atom(mp4)){
+		uint32_t type;
+		long size;
 		type = mp4->atom->type;
 		size = mp4->atom->size;
 		if(type == 'moov'){

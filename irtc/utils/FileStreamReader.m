@@ -44,6 +44,11 @@
 	_available = _total - _offset;
 }
 
+- (void)seekTo:(long)pos{
+	long step = pos - _offset;
+	[self skip:step];
+}
+
 - (void)skip:(long)size{
 	_offset += size;
 	_available -= size;

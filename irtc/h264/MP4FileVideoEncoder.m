@@ -33,6 +33,7 @@ typedef enum{
 	mp4_reader *_mp4;
 	FileStreamReader *_reader;
 	ReadState _state;
+	int64_t _mdat_pos;
 }
 @end
 
@@ -155,22 +156,17 @@ static int my_mp4_input_cb(mp4_reader *mp4, void *buf, int size){
 }
 
 - (void)finishParse{
-	// read the new length of 'mdat'
-	mp4_reader *mp4 = mp4_file_open(_writer.path.UTF8String);
-	if(!mp4){
-		log_error(@"failed to open %@ after finish writting.", _writer.path.lastPathComponent);
-		return;
-	}
-	
-	uint32_t type;
-	long size;
-	while(mp4_reader_next_atom(mp4)){
-		type = mp4->atom->type;
-		size = mp4->atom->size;
-		if(type == 'mdat'){
-		}
-	}
-	mp4_reader_free(mp4);
+	long pos = _reader.offset;
+	long mdat_read = pos - _mdat_pos;
+	uint32_t length;
+
+	[_reader seekTo:_mdat_pos];
+	[_reader read:&length size:4];
+	[_reader seekTo:pos];
+	log_debug(@"offset: %d, total: %d, available: %d", _reader.offset, _reader.total, _reader.available);
+	length = ntohl(length);
+	_mp4->atom->size = length - mdat_read;
+	log_debug(@"real length: %d, read: %d, left: %d", (int)length, (int)mdat_read, (int)_mp4->atom->size);
 	
 	[self onFileUpdate];
 }
@@ -185,9 +181,8 @@ static int my_mp4_input_cb(mp4_reader *mp4, void *buf, int size){
 				if(_mp4->atom->type == 'mdat'){
 					log_debug(@"found mdat");
 					_state = ReadStateNALUHeader;
-					if(_mp4->atom->size == 0){
-						exit(0);
-					}
+					// we will re-read mdat length after finish writting
+					_mdat_pos = _reader.offset - 8;
 				}else{
 					// skip this atom
 					_state = ReadStateAtomData;
@@ -225,10 +220,12 @@ static int my_mp4_input_cb(mp4_reader *mp4, void *buf, int size){
 			mp4_reader_read_nalu_data(_mp4, buf+4, length-4);
 			
 			NSData *nalu = [NSData dataWithBytesNoCopy:buf length:length freeWhenDone:YES];
-			log_debug(@"found nalu, length: %d", (int)nalu.length);
+			//log_debug(@"found nalu, length: %d", (int)nalu.length);
 			static int n = 0;
+			static int bytes = 0;
 			n++;
-			log_debug(@"%d nalus", n);
+			bytes += nalu.length;
+			log_debug(@"%d nalus, %d bytes", n, bytes);
 		}
 	}
 }
