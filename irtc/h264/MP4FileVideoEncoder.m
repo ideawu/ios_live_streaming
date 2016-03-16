@@ -9,12 +9,30 @@
 #import "Mp4FileVideoEncoder.h"
 #import "MP4File.h"
 #import "mp4_reader.h"
+#import "FileStreamReader.h"
+
+/**
+ before finishWritingWithCompletionHandler, the .mp4 has a
+ 'mdat' with length header of zero(0x00000000).
+ 
+ when finishWritingWithCompletionHandler, the .mp4 file will
+ replace that zero with the exact number
+ */
+
+typedef enum{
+	ReadStateAtomHeader,
+	ReadStateAtomData,
+	ReadStateNALUHeader,
+	ReadStateNALUData,
+}ReadState;
 
 @interface MP4FileVideoEncoder(){
 	MP4File *_headerWriter;
 	MP4File *_writer;
 	int _recordSeq;
 	mp4_reader *_mp4;
+	FileStreamReader *_reader;
+	ReadState _state;
 }
 @end
 
@@ -26,6 +44,7 @@
 	_width = 480;
 	_height = 640;
 	_mp4 = NULL;
+	_state = ReadStateAtomHeader;
 	return self;
 }
 
@@ -34,6 +53,14 @@
 		mp4_reader_free(_mp4);
 	}
 }
+
+- (void)shutdown{
+	[_writer finishWithCompletionHandler:^{
+		log_debug(@"finish completion");
+		[self finishParse];
+	}];
+}
+
 
 - (NSString *)nextFilename{
 	NSString *name = [NSString stringWithFormat:@"m%03d.mp4", _recordSeq];
@@ -46,12 +73,12 @@
 - (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer{
 	__weak typeof(self) me = self;
 
-	CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-	log_debug(@"width: %d, height: %d, %d bytes",
-			  (int)CVPixelBufferGetWidth(imageBuffer),
-			  (int)CVPixelBufferGetHeight(imageBuffer),
-			  (int)CVPixelBufferGetDataSize(imageBuffer)
-			  );
+//	CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+//	log_debug(@"width: %d, height: %d, %d bytes",
+//			  (int)CVPixelBufferGetWidth(imageBuffer),
+//			  (int)CVPixelBufferGetHeight(imageBuffer),
+//			  (int)CVPixelBufferGetDataSize(imageBuffer)
+//			  );
 
 	if(!_headerWriter){
 		NSString* path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"params.mp4"];
@@ -71,7 +98,7 @@
 	
 	@synchronized(self){
 		if(_sps){
-			[self parseNALU];
+			[self onFileUpdate];
 		}
 	}
 }
@@ -97,25 +124,112 @@
 	NSLog(@"sps: %@, pps: %@", _sps, _pps);
 }
 
-- (void)parseNALU{
-	log_debug(@"parse");
-	const char *filename = _writer.path.UTF8String;
+- (void)onFileUpdate{
 	if(!_mp4){
-		_mp4 = mp4_file_open(filename);
-		if(!_mp4){
-			log_error(@"failed to open %s", filename);
-			return;
-		}
-		while(mp4_reader_next_atom(_mp4)){
-			if(_mp4->atom->type == 'mdat'){
-				log_debug(@"found mdat");
-				break;
-			}
-		}
+		[self createReader];
+	}
+	[_reader refresh];
+	[self parse];
+}
+
+- (void)createReader{
+	_mp4 = mp4_reader_init();
+	_mp4->user_data = (__bridge void *)(self);
+	_mp4->input_cb = my_mp4_input_cb;
+	_reader = [FileStreamReader readerForFile:_writer.path];
+	log_debug(@"create mp4 reader for file: %@", _writer.path.lastPathComponent);
+}
+
+static int my_mp4_input_cb(mp4_reader *mp4, void *buf, int size){
+	MP4FileVideoEncoder *me = (__bridge MP4FileVideoEncoder *)mp4->user_data;
+	[me readFileData:buf size:size];
+	return size;
+}
+
+- (void)readFileData:(void *)buf size:(int)size{
+	if(buf){
+		[_reader read:buf size:size];
+	}else{
+		[_reader skip:size];
+	}
+}
+
+- (void)finishParse{
+	// read the new length of 'mdat'
+	mp4_reader *mp4 = mp4_file_open(_writer.path.UTF8String);
+	if(!mp4){
+		log_error(@"failed to open %@ after finish writting.", _writer.path.lastPathComponent);
+		return;
 	}
 	
-	while(mp4_reader_next_nalu(_mp4)){
-		//
+	uint32_t type;
+	long size;
+	while(mp4_reader_next_atom(mp4)){
+		type = mp4->atom->type;
+		size = mp4->atom->size;
+		if(type == 'mdat'){
+		}
+	}
+	mp4_reader_free(mp4);
+	
+	[self onFileUpdate];
+}
+
+- (void)parse{
+	while(1){
+		if(_state == ReadStateAtomHeader){
+			if(_reader.available < 8){
+				return;
+			}
+			if(mp4_reader_next_atom(_mp4)){
+				if(_mp4->atom->type == 'mdat'){
+					log_debug(@"found mdat");
+					_state = ReadStateNALUHeader;
+					if(_mp4->atom->size == 0){
+						exit(0);
+					}
+				}else{
+					// skip this atom
+					_state = ReadStateAtomData;
+				}
+			}else{
+				log_error(@"file end?");
+				return;
+			}
+		}else if(_state == ReadStateAtomData){
+			if(_reader.available < _mp4->atom->size){
+				return;
+			}
+			_state = ReadStateAtomHeader;
+			mp4_reader_skip_atom_data(_mp4);
+		}else if(_state == ReadStateNALUHeader){
+			if(_reader.available < 4){
+				return;
+			}
+			if(mp4_reader_next_nalu(_mp4)){
+				_state = ReadStateNALUData;
+			}else{
+				log_debug(@"read mdat end");
+				_state = ReadStateAtomHeader;
+			}
+		}else if(_state == ReadStateNALUData){
+			if(_reader.available < _mp4->nalu->size){
+				return;
+			}
+			_state = ReadStateNALUHeader;
+
+			int length = (int)_mp4->nalu->length;
+			uint32_t hdr = htonl((uint32_t)_mp4->nalu->size);
+			void *buf = malloc(length);
+			memcpy(buf, &hdr, 4);
+			mp4_reader_read_nalu_data(_mp4, buf+4, length-4);
+			
+			NSData *nalu = [NSData dataWithBytesNoCopy:buf length:length freeWhenDone:YES];
+			log_debug(@"found nalu, length: %d", (int)nalu.length);
+			static int n = 0;
+			n++;
+			log_debug(@"%d nalus", n);
+		}
 	}
 }
 

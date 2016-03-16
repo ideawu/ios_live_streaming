@@ -24,7 +24,7 @@ struct mp4_reader_t{
 	int depth;
 	mp4_atom *subs;
 	mp4_atom *atom;
-	mp4_atom nalu;
+	mp4_atom *nalu;
 };
 
 mp4_reader* mp4_file_open(const char *filename);
@@ -36,10 +36,21 @@ int mp4_file_parse_params(const char *filename, void **sps, int *sps_size, void 
 
 mp4_reader* mp4_reader_init();
 void mp4_reader_free(mp4_reader *mp4);
+/**
+ 0: no atom
+ 1: atom available
+ */
 int mp4_reader_next_atom(mp4_reader *mp4);
+int mp4_reader_skip_atom_data(mp4_reader *mp4);
 int mp4_reader_read_atom_data(mp4_reader *mp4, void *buf, int size);
+/**
+ 0: no nalu
+ 1: nalu available
+ */
 int mp4_reader_next_nalu(mp4_reader *mp4);
+int mp4_reader_skip_nalu_data(mp4_reader *mp4);
 int mp4_reader_read_nalu_data(mp4_reader *mp4, void *buf, int size);
+
 int mp4_reader_enter_sub_atom(mp4_reader *mp4);
 int mp4_reader_leave_sub_atom(mp4_reader *mp4);
 

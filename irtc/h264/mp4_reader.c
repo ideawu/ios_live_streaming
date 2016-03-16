@@ -41,6 +41,8 @@ mp4_reader* mp4_reader_init(){
 	memset(ret, 0, sizeof(mp4_reader));
 	ret->subs = (mp4_atom *)malloc(sizeof(mp4_atom) * MAX_ATOM_DEPTH);
 	memset(ret->subs, 0, sizeof(mp4_atom) * MAX_ATOM_DEPTH);
+	ret->nalu = (mp4_atom *)malloc(sizeof(mp4_atom));
+	memset(ret->nalu, 0, sizeof(mp4_atom));
 	
 	ret->depth = 1;
 	ret->subs[0].size = INFINIT_SIZE;  // subs[0] is file
@@ -56,6 +58,7 @@ void mp4_reader_free(mp4_reader *mp4){
 		FILE *fp = (FILE *)mp4->user_data;
 		fclose(fp);
 	}
+	free(mp4->nalu);
 	free(mp4->subs);
 	free(mp4);
 }
@@ -106,10 +109,23 @@ int mp4_reader_next_atom(mp4_reader *mp4){
 	
 	atom->length = length;
 	atom->type = type;
-	atom->size = length - 8;
+	/**
+	 if length == 0, this is the last box in file
+	 if length == 1,
+	 */
+	// special atom length
+	if(atom->length == 0){
+		atom->size = INFINIT_SIZE;
+	}else{
+		atom->size = length - 8;
+	}
 	log_atom(atom);
 
 	return 1;
+}
+
+int mp4_reader_skip_atom_data(mp4_reader *mp4){
+	return mp4_reader_read_atom_data(mp4, NULL, (int)mp4->atom->size);
 }
 
 int mp4_reader_read_atom_data(mp4_reader *mp4, void *buf, int size){
@@ -129,12 +145,14 @@ int mp4_reader_read_atom_data(mp4_reader *mp4, void *buf, int size){
 
 int mp4_reader_next_nalu(mp4_reader *mp4){
 	mp4_atom *atom = mp4->atom;
-	if(mp4->nalu.size > 0){
-		mp4->input_cb(mp4, NULL, (int)mp4->nalu.size);
+	if(mp4->nalu->size > 0){
+		mp4->input_cb(mp4, NULL, (int)mp4->nalu->size);
 	}
-	atom->size -= mp4->nalu.length;
-	if(atom->size <= 0){
-		return 0;
+	if(atom->size != INFINIT_SIZE){
+		atom->size -= mp4->nalu->length;
+		if(atom->size <= 0){
+			return 0;
+		}
 	}
 	
 	int len;
@@ -144,18 +162,24 @@ int mp4_reader_next_nalu(mp4_reader *mp4){
 		return 0;
 	}
 	length = __builtin_bswap32(length);
+	//log_debug("%02x %02x %02x %02x", (length>>24)&0xff, (length>>16)&0xff, (length>>8)&0xff, (length>>0)&0xff)
 
 	// 根据mp4定义, length 不包括自身的长度在内, 但我们设计的结构休 length 字段是包括的
-	mp4->nalu.length = length + 4;
-	mp4->nalu.size = length;
+	mp4->nalu->length = length + 4;
+	mp4->nalu->size = length;
 	log_debug("%*snalu len: %6u  size: %5d  atom: %ld",
-		(mp4->depth)*4, "", mp4->nalu.length, (int)mp4->nalu.size, mp4->atom->size);
+		(mp4->depth)*4, "", mp4->nalu->length, (int)mp4->nalu->size, mp4->atom->size);
+
 	return 1;
+}
+
+int mp4_reader_skip_nalu_data(mp4_reader *mp4){
+	return mp4_reader_read_nalu_data(mp4, NULL, (int)mp4->nalu->size);
 }
 
 // return bytes read
 int mp4_reader_read_nalu_data(mp4_reader *mp4, void *buf, int size){
-	size = (size <= mp4->nalu.size)? size : (int)mp4->nalu.size;
+	size = (size <= mp4->nalu->size)? size : (int)mp4->nalu->size;
 	if(size <= 0){
 		return 0;
 	}
@@ -164,7 +188,7 @@ int mp4_reader_read_nalu_data(mp4_reader *mp4, void *buf, int size){
 	if(len <= 0){
 		return 0;
 	}
-	mp4->nalu.size -= size;
+	mp4->nalu->size -= size;
 	return size;
 }
 
@@ -329,48 +353,6 @@ void read_mp4(const char *filename){
 	}
 	mp4_reader_free(mp4);
 	printf("\n");
-}
-
-void parse_sps_pps(){
-	/*
-	while ( p < (&data[0] + len))
-	{
-		if(*((int*)p) == __builtin_bswap32('avcC'))
-		{
-			p += 4 ; // skip 'avcC'
-			p += 4 ; // skip avcC header
-			p += 2; // skip skip length and sps count
-			uint16_t sps_size = *((uint16_t*)p);
-			sps_size = __builtin_bswap16(sps_size);
-			p += 2 ; // move pointer as we have just read sps size
-			*(int*)(p-4) = sps_size;
-
-			//m_sps.resize(sps_size+4);
-			//m_sps.put(p-4, sps_size+4);
-			std::string s((char *)p, sps_size);
-			printf("sps(%d): ", (int)sps_size);
-			for(int i=0; i<s.size(); i++){
-				printf(" %02x", (uint8_t)s[i]);
-			}
-			printf("\n");
-
-			p += sps_size;
-			p ++ ; // skip pps count
-			uint16_t pps_size = *((uint16_t*)p);
-			p+= 2;
-			pps_size = __builtin_bswap16(pps_size);
-			*(int*)(p-4) = pps_size;
-
-			//m_pps.resize(pps_size+4);
-			//m_pps.put(p-4, pps_size+4);
-
-			printf("found\n");
-
-			break;
-		}
-		++p;
-	}
-	*/
 }
 
 #endif

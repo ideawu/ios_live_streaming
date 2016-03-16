@@ -84,8 +84,6 @@
 		31C168A21C97EA49001AFC70 /* LiveCapture.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168A11C97EA49001AFC70 /* LiveCapture.m */; };
 		31C168A31C97ECCD001AFC70 /* LiveCapture.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168A11C97EA49001AFC70 /* LiveCapture.m */; };
 		31C168A41C97F6AC001AFC70 /* MovieCaptureFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C1689E1C97E966001AFC70 /* MovieCaptureFile.m */; };
-		31C168A71C9811CC001AFC70 /* H264Reader.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168A61C9811CC001AFC70 /* H264Reader.m */; };
-		31C168A81C9811FC001AFC70 /* H264Reader.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168A61C9811CC001AFC70 /* H264Reader.m */; };
 		31C168AB1C9917DC001AFC70 /* mp4_reader.c in Sources */ = {isa = PBXBuildFile; fileRef = 31C168A91C9917DC001AFC70 /* mp4_reader.c */; };
 		31C168AE1C991875001AFC70 /* MP4FileVideoEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168AD1C991875001AFC70 /* MP4FileVideoEncoder.m */; };
 		31C168B11C9919C7001AFC70 /* MP4File.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168B01C9919C7001AFC70 /* MP4File.m */; };
@@ -94,6 +92,8 @@
 		31C168B41C991AD5001AFC70 /* mp4_reader.c in Sources */ = {isa = PBXBuildFile; fileRef = 31C168A91C9917DC001AFC70 /* mp4_reader.c */; };
 		31C168B81C9931EE001AFC70 /* TestFileVideoEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168B61C9931EE001AFC70 /* TestFileVideoEncoder.m */; };
 		31C168B91C9931EE001AFC70 /* TestFileVideoEncoder.xib in Resources */ = {isa = PBXBuildFile; fileRef = 31C168B71C9931EE001AFC70 /* TestFileVideoEncoder.xib */; };
+		31C168BC1C995791001AFC70 /* FileStreamReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168BB1C995791001AFC70 /* FileStreamReader.m */; };
+		31C168BD1C99654D001AFC70 /* FileStreamReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168BB1C995791001AFC70 /* FileStreamReader.m */; };
 		31E5BDE31C8EE6F5007E0503 /* AAPLEAGLLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 31E5BDE21C8EE6F5007E0503 /* AAPLEAGLLayer.m */; };
 		31E5BDE81C8FC6DE007E0503 /* VideoClip.m in Sources */ = {isa = PBXBuildFile; fileRef = 31E5BDE71C8FC6DE007E0503 /* VideoClip.m */; };
 		31E5BDE91C8FC6F7007E0503 /* VideoClip.m in Sources */ = {isa = PBXBuildFile; fileRef = 31E5BDE71C8FC6DE007E0503 /* VideoClip.m */; };
@@ -220,8 +220,6 @@
 		31C1689E1C97E966001AFC70 /* MovieCaptureFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MovieCaptureFile.m; sourceTree = "<group>"; };
 		31C168A01C97EA49001AFC70 /* LiveCapture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveCapture.h; sourceTree = "<group>"; };
 		31C168A11C97EA49001AFC70 /* LiveCapture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveCapture.m; sourceTree = "<group>"; };
-		31C168A51C9811CC001AFC70 /* H264Reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = H264Reader.h; sourceTree = "<group>"; };
-		31C168A61C9811CC001AFC70 /* H264Reader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = H264Reader.m; sourceTree = "<group>"; };
 		31C168A91C9917DC001AFC70 /* mp4_reader.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mp4_reader.c; sourceTree = "<group>"; };
 		31C168AA1C9917DC001AFC70 /* mp4_reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mp4_reader.h; sourceTree = "<group>"; };
 		31C168AC1C991875001AFC70 /* MP4FileVideoEncoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP4FileVideoEncoder.h; sourceTree = "<group>"; };
@@ -231,6 +229,8 @@
 		31C168B51C9931EE001AFC70 /* TestFileVideoEncoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestFileVideoEncoder.h; sourceTree = "<group>"; };
 		31C168B61C9931EE001AFC70 /* TestFileVideoEncoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestFileVideoEncoder.m; sourceTree = "<group>"; };
 		31C168B71C9931EE001AFC70 /* TestFileVideoEncoder.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TestFileVideoEncoder.xib; sourceTree = "<group>"; };
+		31C168BA1C995791001AFC70 /* FileStreamReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileStreamReader.h; sourceTree = "<group>"; };
+		31C168BB1C995791001AFC70 /* FileStreamReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileStreamReader.m; sourceTree = "<group>"; };
 		31E5BDE11C8EE6F5007E0503 /* AAPLEAGLLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLEAGLLayer.h; sourceTree = "<group>"; };
 		31E5BDE21C8EE6F5007E0503 /* AAPLEAGLLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAPLEAGLLayer.m; sourceTree = "<group>"; };
 		31E5BDE41C8EF884007E0503 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
@@ -488,8 +488,8 @@
 				0889D5811C956826009A822B /* VideoReader.m */,
 				31C1689D1C97E966001AFC70 /* MovieCaptureFile.h */,
 				31C1689E1C97E966001AFC70 /* MovieCaptureFile.m */,
-				31C168A51C9811CC001AFC70 /* H264Reader.h */,
-				31C168A61C9811CC001AFC70 /* H264Reader.m */,
+				31C168BA1C995791001AFC70 /* FileStreamReader.h */,
+				31C168BB1C995791001AFC70 /* FileStreamReader.m */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -690,6 +690,7 @@
 				3187773E1C8D60EB00FC417F /* VideoPlayerState.m in Sources */,
 				081420631C8C652600A2B03E /* VideoPlayer.m in Sources */,
 				0889D5891C956CC6009A822B /* TestVideo.m in Sources */,
+				31C168BD1C99654D001AFC70 /* FileStreamReader.m in Sources */,
 				0814205E1C8B2F9500A2B03E /* TestController.m in Sources */,
 				31C168A31C97ECCD001AFC70 /* LiveCapture.m in Sources */,
 				31C168821C9161AF001AFC70 /* AudioReader.m in Sources */,
@@ -706,7 +707,6 @@
 				081420871C93422900A2B03E /* AudioBufferQueue.m in Sources */,
 				0889D5831C956959009A822B /* VideoReader.m in Sources */,
 				318776931C85AAF600FC417F /* Http.m in Sources */,
-				31C168A81C9811FC001AFC70 /* H264Reader.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -736,6 +736,7 @@
 			files = (
 				31C168AB1C9917DC001AFC70 /* mp4_reader.c in Sources */,
 				3187774A1C8DA78800FC417F /* VideoDecoder.m in Sources */,
+				31C168BC1C995791001AFC70 /* FileStreamReader.m in Sources */,
 				31C1689F1C97E966001AFC70 /* MovieCaptureFile.m in Sources */,
 				31C1688C1C91976B001AFC70 /* AudioDecoder.m in Sources */,
 				081420861C93390000A2B03E /* AudioBufferQueue.m in Sources */,
@@ -757,7 +758,6 @@
 				0889D5901C957194009A822B /* VideoEncoder.m in Sources */,
 				31C168B11C9919C7001AFC70 /* MP4File.m in Sources */,
 				31E5BDED1C8FD184007E0503 /* AudioEncoder.m in Sources */,
-				31C168A71C9811CC001AFC70 /* H264Reader.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

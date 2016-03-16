@@ -22,6 +22,8 @@
  */
 @property (nonatomic, readonly) NSData *pps;
 
+- (void)shutdown;
+
 - (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 
 @end
