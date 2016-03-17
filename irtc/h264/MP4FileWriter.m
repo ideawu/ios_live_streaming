@@ -8,6 +8,12 @@
 
 #import "MP4FileWriter.h"
 
+@interface MP4FileWriter(){
+	BOOL _sessionStarted;
+}
+@end
+
+
 @implementation MP4FileWriter
 
 + (MP4FileWriter*)videoForPath:(NSString*)path Height:(int)height andWidth:(int)width bitrate:(int)bitrate{
@@ -17,14 +23,13 @@
     return enc;
 }
 
-
 - (void)initPath:(NSString*)path Height:(int) height andWidth:(int) width{
     self.path = path;
+	log_debug(@"encoder %@", path);
 
     [[NSFileManager defaultManager] removeItemAtPath:self.path error:nil];
     NSURL* url = [NSURL fileURLWithPath:self.path];
 	
-	NSLog(@"encoder %@", url.absoluteString);
     _writer = [AVAssetWriter assetWriterWithURL:url fileType:AVFileTypeMPEG4 error:nil];
 	NSMutableDictionary *cs = [[NSMutableDictionary alloc] init];
 	if(_bitrate > 0){
@@ -55,21 +60,24 @@
     _writerInput = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:settings];
     _writerInput.expectsMediaDataInRealTime = YES;
     [_writer addInput:_writerInput];
+	
+	_sessionStarted = NO;
+	[_writer startWriting];
 }
 
-- (void) finishWithCompletionHandler:(void (^)(void))handler{
+- (void)finishWithCompletionHandler:(void (^)(void))handler{
     [_writer finishWritingWithCompletionHandler: handler];
 }
 
 - (BOOL)encodeSampleBuffer:(CMSampleBufferRef) sampleBuffer{
     if (CMSampleBufferDataIsReady(sampleBuffer)){
-        if (_writer.status == AVAssetWriterStatusUnknown){
+		if(!_sessionStarted){
+			_sessionStarted = YES;
             CMTime startTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-            [_writer startWriting];
             [_writer startSessionAtSourceTime:startTime];
         }
         if (_writer.status == AVAssetWriterStatusFailed){
-            NSLog(@"writer error %@", _writer.error.localizedDescription);
+            log_debug(@"writer error %@", _writer.error.localizedDescription);
             return NO;
         }
         if (_writerInput.readyForMoreMediaData == YES){

@@ -7,7 +7,6 @@
 //
 
 #import "MP4FileReader.h"
-#import "FileReader.h"
 #import "mp4_reader.h"
 
 typedef enum{
@@ -24,7 +23,7 @@ typedef enum{
 	ReadState _state;
 	int64_t _mdat_pos;
 }
-@property FileReader *file;
+@property (nonatomic) FileReader *file;
 @end
 
 @implementation MP4FileReader

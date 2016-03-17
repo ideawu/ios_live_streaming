@@ -11,6 +11,8 @@
 #import "MP4FileReader.h"
 #import "mp4_reader.h"
 
+#define MAX_FILE_SWAP_SIZE (5 * 1024 * 1024)
+
 @interface MP4FileVideoEncoder(){
 	MP4FileWriter *_headerWriter;
 	MP4FileWriter *_writer;
@@ -19,7 +21,10 @@
 	void (^_callback)(NSData *frame, double pts, double duration);
 
 	int _recordSeq;
+	BOOL _swapping;
 	NSMutableArray *_times;
+	
+	dispatch_queue_t _readQueue;
 }
 @end
 
@@ -31,6 +36,8 @@
 	_width = 480;
 	_height = 640;
 	_times = [[NSMutableArray alloc] init];
+	_swapping = NO;
+	_readQueue = dispatch_queue_create("MP4FileVideoEncoder", DISPATCH_QUEUE_SERIAL);
 	return self;
 }
 
@@ -39,10 +46,12 @@
 }
 
 - (void)shutdown{
-	[_writer finishWithCompletionHandler:^{
-		log_debug(@"finish completion");
-		[self finishParse];
-	}];
+	@synchronized(self){
+		[_writer finishWithCompletionHandler:^{
+			log_debug(@"finish completion");
+			[self finishParse];
+		}];
+	}
 }
 
 - (NSString *)nextFilename{
@@ -71,47 +80,79 @@
 //			  (int)CVPixelBufferGetDataSize(imageBuffer)
 //			  );
 
-	if(!_headerWriter && !_sps){
-		NSString* path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"params.mp4"];
-		_headerWriter = [MP4FileWriter videoForPath:path Height:_height andWidth:_width bitrate:0];
-		if([_headerWriter encodeSampleBuffer:sampleBuffer]){
-			[_headerWriter finishWithCompletionHandler:^{
-				[me parseHeaderFile];
-			}];
+	@synchronized(self){
+		if(!_sps && !_headerWriter){
+			NSString* path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"params.mp4"];
+			_headerWriter = [MP4FileWriter videoForPath:path Height:_height andWidth:_width bitrate:0];
+			if([_headerWriter encodeSampleBuffer:sampleBuffer]){
+				[_headerWriter finishWithCompletionHandler:^{
+					[me parseHeaderFile];
+				}];
+			}
 		}
-	}
+
+		if(!_writer){
+			NSString *path = [self nextFilename];
+			_writer = [MP4FileWriter videoForPath:path Height:_height andWidth:_width bitrate:0];
+		}
+		// 实验得知, AVFoundation 要写至少3个frame之后, 才flush到硬盘,
+		// 之后每写一个frame就flush一次.
+		[_writer encodeSampleBuffer:sampleBuffer];
+		
+		if(!_swapping){
+			if(_sps){
+				// TODO: 在单独线程读文件?
+				dispatch_async(_readQueue, ^{
+					[self onFileUpdate];
+				});
+			}
 	
-	if(!_writer){
-		NSString *path = [self nextFilename];
-		_writer = [MP4FileWriter videoForPath:path Height:_height andWidth:_width bitrate:0];
-	}
-	[_writer encodeSampleBuffer:sampleBuffer];
-	
-	if(_sps){
-		[self onFileUpdate];
+			if(_reader.file.total > MAX_FILE_SWAP_SIZE){
+				log_debug(@"swapping...");
+				_swapping = YES;
+				
+				MP4FileWriter *old = _writer;
+				[old finishWithCompletionHandler:^{
+					dispatch_async(_readQueue, ^{
+						[me swapDone];
+						// 注意! 如果不在这里引用 old, 那么在 finishWithCompletionHandler() 执行完毕后和 callback 之前,
+						// old 会被自动释放!
+						id just_for_retain = old;
+						just_for_retain = nil;
+					});
+				}];
+				_writer = nil;
+			}
+		}
 	}
 }
 
-- (void)parseHeaderFile{
-	void *sps, *pps;
-	int sps_size, pps_size;
+- (void)swapDone{
+	@synchronized(self){
+		log_debug(@"finishing swapping..");
+		[self finishParse];
+		log_debug(@"swapping done.");
+		_swapping = NO;
+		_reader = NULL;
+		
+		if(_writer){
+			[self onFileUpdate];
+		}
+	}
+}
 
-	const char *filename = _headerWriter.path.UTF8String;
-	mp4_file_parse_params(filename, &sps, &sps_size, &pps, &pps_size);
-	
-	if(sps){
-		_sps = [NSData dataWithBytesNoCopy:sps length:sps_size freeWhenDone:YES];
+- (void)finishParse{
+	@synchronized(self){
+		/**
+		 before finishWritingWithCompletionHandler, the .mp4 has a
+		 'mdat' with length header of zero(0x00000000).
+		 
+		 when finishWritingWithCompletionHandler, the .mp4 file will
+		 replace that zero with the exact number
+		 */
+		[_reader reloadMDATLength];
+		[self onFileUpdate];
 	}
-	if(pps){
-		_pps = [NSData dataWithBytesNoCopy:pps length:pps_size freeWhenDone:YES];
-	}
-
-	if(!_sps || !_pps){
-		log_error(@"failed to parse sps and pps!");
-		return;
-	}
-	//NSLog(@"sps: %@, pps: %@", _sps, _pps);
-	_headerWriter = nil;
 }
 
 - (void)onFileUpdate{
@@ -119,6 +160,7 @@
 		_reader = [MP4FileReader readerAtPath:_writer.path];
 	}
 	[_reader refresh];
+
 	while(1){
 		NSData *nalu = [_reader nextNALU];
 		if(!nalu){
@@ -152,17 +194,26 @@
 	}
 }
 
-- (void)finishParse{
-	/**
-	 before finishWritingWithCompletionHandler, the .mp4 has a
-	 'mdat' with length header of zero(0x00000000).
-	 
-	 when finishWritingWithCompletionHandler, the .mp4 file will
-	 replace that zero with the exact number
-	 */
-	[_reader reloadMDATLength];
+- (void)parseHeaderFile{
+	void *sps, *pps;
+	int sps_size, pps_size;
 	
-	[self onFileUpdate];
+	const char *filename = _headerWriter.path.UTF8String;
+	mp4_file_parse_params(filename, &sps, &sps_size, &pps, &pps_size);
+	
+	if(sps){
+		_sps = [NSData dataWithBytesNoCopy:sps length:sps_size freeWhenDone:YES];
+	}
+	if(pps){
+		_pps = [NSData dataWithBytesNoCopy:pps length:pps_size freeWhenDone:YES];
+	}
+	
+	if(!_sps || !_pps){
+		log_error(@"failed to parse sps and pps!");
+		return;
+	}
+	//NSLog(@"sps: %@, pps: %@", _sps, _pps);
+	_headerWriter = nil;
 }
 
 @end

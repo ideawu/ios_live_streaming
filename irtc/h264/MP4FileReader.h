@@ -7,8 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "FileReader.h"
 
 @interface MP4FileReader : NSObject
+
+@property (readonly) FileReader *file;
 
 + (MP4FileReader *)readerAtPath:(NSString *)path;
 

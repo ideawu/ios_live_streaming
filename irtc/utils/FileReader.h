@@ -10,6 +10,9 @@
 
 @interface FileReader : NSObject
 
+/**
+ total bytes of this file
+ */
 @property (readonly) int64_t total;
 @property (readonly) int64_t offset;
 @property (readonly) int64_t available;

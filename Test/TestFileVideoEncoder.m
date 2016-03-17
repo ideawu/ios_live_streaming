@@ -26,21 +26,40 @@
 	
 	_videoEncoder = [[MP4FileVideoEncoder alloc] init];
 
-	NSString *file = [NSHomeDirectory() stringByAppendingFormat:@"/Downloads/m1.mp4"];
-	VideoReader *reader = [[VideoReader alloc] initWithFile:file];
-	CMSampleBufferRef sampleBuffer;
-	int n = 0;
-	while(1){
-		sampleBuffer = [reader nextSampleBuffer];
-		if(!sampleBuffer){
-			break;
+	int count = 0;
+	for(int i=0; i<10; i++){
+		NSString *file = [NSHomeDirectory() stringByAppendingFormat:@"/Downloads/m1.mp4"];
+		VideoReader *reader = [[VideoReader alloc] initWithFile:file];
+		CMSampleBufferRef sampleBuffer;
+		int n = 0;
+		while(1){
+			sampleBuffer = [reader nextSampleBuffer];
+			if(!sampleBuffer){
+				break;
+			}
+			
+			CMSampleTimingInfo time;
+			double frameDuration = 1.0/30;
+			time.presentationTimeStamp = CMTimeMakeWithSeconds(count * frameDuration, 6000);
+			time.duration = CMTimeMakeWithSeconds(frameDuration, 6000);
+			
+			CMSampleBufferRef newSampleBuffer;
+			CMSampleBufferCreateCopyWithNewTiming(kCFAllocatorDefault,
+												  sampleBuffer,
+												  1,
+												  &time,
+												  &newSampleBuffer);
+			CFRelease(sampleBuffer);
+			sampleBuffer = newSampleBuffer;
+			
+			n ++;
+			count ++;
+			[me onVideoCapturedSampleBuffer:sampleBuffer];
+			CFRelease(sampleBuffer);
+			usleep(100 * 1000);
 		}
-		n ++;
-		[me onVideoCapturedSampleBuffer:sampleBuffer];
-		CFRelease(sampleBuffer);
-		usleep(50 * 1000);
+		log_debug(@"write %d frames", n);
 	}
-	log_debug(@"write %d frames", n);
 	
 	[_videoEncoder shutdown];
 
