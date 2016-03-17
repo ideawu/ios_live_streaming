@@ -11,7 +11,8 @@
 #import "MP4FileReader.h"
 #import "mp4_reader.h"
 
-#define MAX_FILE_SWAP_SIZE (1 * 1024 * 1024)
+#define MAX_FILE_COUNT     3
+#define MAX_SWAP_FILE_SIZE (20 * 1024 * 1024)
 
 @interface MP4FileVideoEncoder(){
 	MP4FileWriter *_headerWriter;
@@ -56,8 +57,8 @@
 
 - (NSString *)nextFilename{
 	NSString *name = [NSString stringWithFormat:@"m%03d.mp4", _recordSeq];
-	if(++_recordSeq >= 9){
-		_recordSeq = 0;
+	if(++_recordSeq > MAX_FILE_COUNT){
+		_recordSeq = 1;
 	}
 	return [NSTemporaryDirectory() stringByAppendingPathComponent:name];
 }
@@ -108,7 +109,7 @@
 				});
 			}
 	
-			if(_reader.file.total > MAX_FILE_SWAP_SIZE){
+			if(_reader.file.total > MAX_SWAP_FILE_SIZE){
 				log_debug(@"swapping...");
 				_swapping = YES;
 				
@@ -177,8 +178,11 @@
 //		int idc = p[4] & 0x60;
 //		int first_mb = p[5] & 0x80;
 //		log_debug(@"type: %d, idc: %d, first_mb: %d, %d bytes", type, idc, first_mb, (int)nalu.length);
+//		log_debug(@"%@", [NSData dataWithBytesNoCopy:(void *)nalu.bytes length:16 freeWhenDone:NO]);
 
 		// TODO: maybe we should not assume that first_mb is always true
+
+		// TODO: frame reordering
 	
 		double pts = 0;
 		double duration = 0;
