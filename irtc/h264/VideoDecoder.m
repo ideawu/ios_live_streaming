@@ -75,7 +75,7 @@
 	}
 
 	VTDecompressionOutputCallbackRecord callBackRecord;
-	callBackRecord.decompressionOutputCallback = onCodecCallback;
+	callBackRecord.decompressionOutputCallback = decompressCallback;
 	callBackRecord.decompressionOutputRefCon = (__bridge void *)self;
 
 	// you can set some desired attributes for the destination pixel buffer.  I didn't use this but you may
@@ -103,23 +103,24 @@
 }
 
 // VTDecompressionOutputCallback
-static void onCodecCallback(void *decompressionOutputRefCon,
+static void decompressCallback(void *decompressionOutputRefCon,
 							void *sourceFrameRefCon,
-							OSStatus status,
+							OSStatus err,
 							VTDecodeInfoFlags infoFlags,
 							CVImageBufferRef imageBuffer,
 							CMTime pts,
 							CMTime duration){
-	if(status != noErr){
-		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+	if(err != noErr){
+		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 		log_debug(@"Decompressed error: %@", error);
 		return;
 	}
-	VideoDecoder *decoder = (__bridge VideoDecoder *)decompressionOutputRefCon;
-	[decoder callbackImageBuffer:imageBuffer pts:CMTimeGetSeconds(pts) duration:CMTimeGetSeconds(duration)];
+	VideoDecoder *me = (__bridge VideoDecoder *)decompressionOutputRefCon;
+	[me onCodecCallback:imageBuffer pts:CMTimeGetSeconds(pts) duration:CMTimeGetSeconds(duration)];
 }
 
-- (void)callbackImageBuffer:(CVImageBufferRef)imageBuffer pts:(double)pts duration:(double)duration{
+- (void)onCodecCallback:(CVImageBufferRef)imageBuffer pts:(double)pts duration:(double)duration{
+	LOG_FIRST_RUN();
 	if(_callback){
 		_callback(imageBuffer, pts, duration);
 	}
@@ -134,6 +135,7 @@ static void onCodecCallback(void *decompressionOutputRefCon,
 }
 
 - (void)decode:(NSData *)frame pts:(double)pts duration:(double)duration{
+	LOG_FIRST_RUN();
 	// BOOL needNewSession = (VTDecompressionSessionCanAcceptFormatDescription(session, formatDesc2) == false);
 	CMSampleBufferRef sampleBuffer = [self createSampleBufferFromFrame:frame pts:pts duration:duration];
 	if(sampleBuffer){

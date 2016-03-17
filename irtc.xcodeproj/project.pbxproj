@@ -346,6 +346,17 @@
 			name = api;
 			sourceTree = "<group>";
 		};
+		0889D5971C9B06AB009A822B /* xibs */ = {
+			isa = PBXGroup;
+			children = (
+				0814205D1C8B2F9500A2B03E /* TestController.xib */,
+				31C168B71C9931EE001AFC70 /* TestFileVideoEncoder.xib */,
+				3187768F1C85AAF600FC417F /* PlayerController.xib */,
+				318776921C85AAF600FC417F /* RecorderController.xib */,
+			);
+			name = xibs;
+			sourceTree = "<group>";
+		};
 		3187767B1C85AABF00FC417F /* Test */ = {
 			isa = PBXGroup;
 			children = (
@@ -370,10 +381,7 @@
 				318776911C85AAF600FC417F /* RecorderController.m */,
 				3187768B1C85AAF600FC417F /* Http.h */,
 				3187768C1C85AAF600FC417F /* Http.m */,
-				0814205D1C8B2F9500A2B03E /* TestController.xib */,
-				31C168B71C9931EE001AFC70 /* TestFileVideoEncoder.xib */,
-				3187768F1C85AAF600FC417F /* PlayerController.xib */,
-				318776921C85AAF600FC417F /* RecorderController.xib */,
+				0889D5971C9B06AB009A822B /* xibs */,
 				3187767F1C85AABF00FC417F /* Supporting Files */,
 			);
 			path = Test;

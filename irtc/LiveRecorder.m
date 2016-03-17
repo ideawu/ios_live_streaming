@@ -6,6 +6,10 @@
 //  Copyright © 2016 ideawu. All rights reserved.
 //
 
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#endif
+
 #import "VideoClip.h"
 #import "LiveRecorder.h"
 #import "AudioEncoder.h"
@@ -64,8 +68,23 @@
 		[me onVideoCapturedSampleBuffer:sampleBuffer];
 	}];
 
-	_videoEncoder = [[MP4FileVideoEncoder alloc] init];
-//	_videoEncoder = [[VideoEncoder alloc] init];
+	BOOL use_file_encoder = NO;
+
+#if TARGET_OS_IPHONE
+	if([UIDevice currentDevice].systemVersion.floatValue < 8.0){
+		use_file_encoder = YES;
+	}
+#else
+	use_file_encoder = YES;
+#endif
+
+	if(use_file_encoder){
+		log_debug(@"use file encoder");
+		_videoEncoder = (VideoEncoder *)[[MP4FileVideoEncoder alloc] init];
+	}else{
+		log_debug(@"use hardware encoder");
+		_videoEncoder = [[VideoEncoder alloc] init];
+	}
 	if(_width > 0){
 		_videoEncoder.width = _width;
 	}

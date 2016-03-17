@@ -29,8 +29,13 @@ static void my_log(NSString *fmt, ...){
 #ifdef DEBUG
 #	define log_debug(fmt, args...) \
 		my_log((@"[DEBUG] %@(%d): " fmt), [@(__FILE__) lastPathComponent],  __LINE__, ##args)
-#else
-#	define log_trace(...)
+#	define LOG_FIRST_RUN() do{ \
+		static int i = 0; \
+		if(i == 0){ \
+			i = 1; \
+			log_debug(@"== FIRST_RUN == %s", __func__); \
+		} \
+	}while(0)
 #endif
 
 #define log_error(fmt, args...)	\

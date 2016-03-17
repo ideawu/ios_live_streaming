@@ -130,6 +130,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 }
 
 - (void)prepareFrames{
+	LOG_FIRST_RUN();
 	dispatch_async(_processQueue, ^{
 		VideoClip *clip = _items.firstObject;
 		if(!clip){
@@ -212,6 +213,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 }
 
 - (void)displayPixelBuffer:(CVPixelBufferRef)pixelBuffer{
+	LOG_FIRST_RUN();
 	CGImageRef image = [self pixelBufferToImageRef:pixelBuffer];
 	if(!image){
 		CFRelease(pixelBuffer);

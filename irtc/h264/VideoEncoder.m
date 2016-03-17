@@ -113,7 +113,7 @@
 static void compressCallback(
 					  void *outputCallbackRefCon,
 					  void *sourceFrameRefCon,
-					  OSStatus status,
+					  OSStatus err,
 					  VTEncodeInfoFlags infoFlags,
 					  CMSampleBufferRef sampleBuffer){
 //	char *src;
@@ -124,11 +124,17 @@ static void compressCallback(
 //	CMBlockBufferGetDataPointer(CMSampleBufferGetDataBuffer(sampleBuffer), 0, NULL, &dst_size, &dst);
 //	log_debug(@"compress %d => %d", (int)src_size, (int)dst_size);
 
-	VideoEncoder *me = (__bridge VideoEncoder *)outputCallbackRefCon;
-	[me onCodecCallback:sampleBuffer];
+	if(err != noErr){
+		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
+		log_debug(@"error: %@", error);
+	}else{
+		VideoEncoder *me = (__bridge VideoEncoder *)outputCallbackRefCon;
+		[me onCodecCallback:sampleBuffer];
+	}
 }
 
 - (void)onCodecCallback:(CMSampleBufferRef)sampleBuffer{
+	LOG_FIRST_RUN();
 	if(!sampleBuffer){
 		log_debug(@"sample buffer dropped");
 		return;
@@ -204,6 +210,7 @@ static void compressCallback(
 //}
 
 - (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer{
+	LOG_FIRST_RUN();
 	if(!_session){
 		[self createSessionFromSampleBuffer:sampleBuffer];
 	}

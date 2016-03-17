@@ -63,6 +63,7 @@
 }
 
 - (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer{
+	LOG_FIRST_RUN();
 	__weak typeof(self) me = self;
 	
 	double pts = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
@@ -166,6 +167,8 @@
 		if(!nalu){
 			break;
 		}
+		LOG_FIRST_RUN();
+
 		uint8_t *p = (uint8_t*)[nalu bytes];
 		int type = p[4] & 0x1f;
 		if(type == 6){ // ignore SEI
