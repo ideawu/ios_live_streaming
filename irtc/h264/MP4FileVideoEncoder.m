@@ -8,9 +8,8 @@
 
 #import "Mp4FileVideoEncoder.h"
 #import "MP4FileWriter.h"
-#import "mp4_reader.h"
 #import "MP4FileReader.h"
-
+#import "mp4_reader.h"
 
 @interface MP4FileVideoEncoder(){
 	MP4FileWriter *_headerWriter;

@@ -486,12 +486,12 @@
 		319207A41C854AA60017C818 /* irtc */ = {
 			isa = PBXGroup;
 			children = (
-				31C168991C92F538001AFC70 /* PrefixHeader.pch */,
 				0889D5921C99C305009A822B /* api */,
 				31E5BDEA1C8FD184007E0503 /* aac */,
 				3187770F1C89B21700FC417F /* h264 */,
 				31C1687E1C9151AC001AFC70 /* utils */,
 				31E5BDE01C8EE6F5007E0503 /* etc */,
+				31C168991C92F538001AFC70 /* PrefixHeader.pch */,
 			);
 			path = irtc;
 			sourceTree = "<group>";

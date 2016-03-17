@@ -58,8 +58,7 @@
 
 
 	while(1){
-		//NSString *input = [NSHomeDirectory() stringByAppendingFormat:@"/Downloads/sourcePCM.aif"];
-		NSString *input = [NSHomeDirectory() stringByAppendingFormat:@"/Downloads/m1.mp4"];
+		NSString *input = [NSHomeDirectory() stringByAppendingFormat:@"/Downloads/sourcePCM.aif"];
 		AudioReader *reader = [AudioReader readerWithFile:input];
 
 		CMSampleBufferRef sampleBuffer;
@@ -70,7 +69,7 @@
 			}
 			[encoder encodeSampleBuffer:sampleBuffer];
 			CFRelease(sampleBuffer);
-			usleep(200 * 1000);
+			usleep(20 * 1000);
 			//break;
 		}
 	}
