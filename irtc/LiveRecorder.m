@@ -64,8 +64,8 @@
 		[me onVideoCapturedSampleBuffer:sampleBuffer];
 	}];
 
-//	_videoEncoder = [[MP4FileVideoEncoder alloc] init];
-	_videoEncoder = [[VideoEncoder alloc] init];
+	_videoEncoder = [[MP4FileVideoEncoder alloc] init];
+//	_videoEncoder = [[VideoEncoder alloc] init];
 	if(_width > 0){
 		_videoEncoder.width = _width;
 	}

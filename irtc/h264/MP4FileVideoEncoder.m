@@ -14,11 +14,12 @@
 @interface MP4FileVideoEncoder(){
 	MP4FileWriter *_headerWriter;
 	MP4FileWriter *_writer;
-
 	MP4FileReader *_reader;
 	
-	int _recordSeq;
 	void (^_callback)(NSData *frame, double pts, double duration);
+
+	int _recordSeq;
+	NSMutableArray *_times;
 }
 @end
 
@@ -29,6 +30,7 @@
 	self = [super init];
 	_width = 480;
 	_height = 640;
+	_times = [[NSMutableArray alloc] init];
 	return self;
 }
 
@@ -53,6 +55,14 @@
 
 - (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer{
 	__weak typeof(self) me = self;
+	
+	double pts = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
+	double duration = CMTimeGetSeconds(CMSampleBufferGetDuration(sampleBuffer));
+	NSArray *arr = @[@(pts), @(duration)];
+
+	@synchronized(_times){
+		[_times addObject:arr];
+	}
 
 //	CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
 //	log_debug(@"width: %d, height: %d, %d bytes",
@@ -61,7 +71,7 @@
 //			  (int)CVPixelBufferGetDataSize(imageBuffer)
 //			  );
 
-	if(!_headerWriter){
+	if(!_headerWriter && !_sps){
 		NSString* path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"params.mp4"];
 		_headerWriter = [MP4FileWriter videoForPath:path Height:_height andWidth:_width bitrate:0];
 		if([_headerWriter encodeSampleBuffer:sampleBuffer]){
@@ -77,10 +87,8 @@
 	}
 	[_writer encodeSampleBuffer:sampleBuffer];
 	
-	@synchronized(self){
-		if(_sps){
-			[self onFileUpdate];
-		}
+	if(_sps){
+		[self onFileUpdate];
 	}
 }
 
@@ -102,7 +110,8 @@
 		log_error(@"failed to parse sps and pps!");
 		return;
 	}
-	NSLog(@"sps: %@, pps: %@", _sps, _pps);
+	//NSLog(@"sps: %@, pps: %@", _sps, _pps);
+	_headerWriter = nil;
 }
 
 - (void)onFileUpdate{
@@ -115,7 +124,31 @@
 		if(!nalu){
 			break;
 		}
-		log_debug(@"nalu len: %d", (int)nalu.length);
+		uint8_t *p = (uint8_t*)[nalu bytes];
+		int idc = p[4] & 0x60;
+		int type = p[4] & 0x1f;
+		int first_mb = p[5] & 0x80;
+		if(type == 6){ // ignore SEI
+			continue;
+		}
+		log_debug(@"type: %d, idc: %d, first_mb: %d, %d bytes", type, idc, first_mb, (int)nalu.length);
+
+		// TODO: maybe we should not assume that first_mb is always true
+	
+		double pts = 0;
+		double duration = 0;
+		@synchronized(_times){
+			if(_times.count > 0){
+				NSArray *arr = [_times firstObject];
+				[_times removeObjectAtIndex:0];
+				pts = [arr[0] doubleValue];
+				duration = [arr[1] doubleValue];
+			}
+		}
+
+		if(_callback){
+			_callback(nalu, pts, duration);
+		}
 	}
 }
 

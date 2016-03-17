@@ -100,9 +100,9 @@ static UInt8 start_code[4] = {0, 0, 0, 1};
 	_nextFrameIndex ++;
 	*pts = _nextFramePTS;
 	
-	uint8_t *pNal = (uint8_t*)[frame bytes];
-	int idc = pNal[4] & 0x60;
-	int type = pNal[4] & 0x1f;
+	uint8_t *p = (uint8_t*)[frame bytes];
+	int idc = p[4] & 0x60;
+	int type = p[4] & 0x1f;
 	if (idc == 0 && type == 6) { // SEI
 		//
 	}else{

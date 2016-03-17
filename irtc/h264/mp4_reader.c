@@ -6,7 +6,7 @@
 
 #undef log_debug
 
-#if 0
+#if 1
 #define log_debug(fmt, args...)
 #define log_atom(a)
 #else
