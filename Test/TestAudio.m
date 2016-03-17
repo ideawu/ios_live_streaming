@@ -71,7 +71,7 @@
 			}
 			[encoder encodeSampleBuffer:sampleBuffer];
 			CFRelease(sampleBuffer);
-			usleep(20 * 1000);
+			usleep(220 * 1000);
 			//break;
 		}
 	}

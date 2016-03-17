@@ -8,7 +8,7 @@
 
 #import "AudioPlayer.h"
 #import <AudioToolbox/AudioToolbox.h>
-#import "AudioBufferQueue.h"
+#import "LockingQueue.h"
 
 typedef enum{
 	PlayerStateNone,
@@ -17,18 +17,24 @@ typedef enum{
 	PlayerStatePlaying,
 }PlayerState;
 
+#define kMaxBuffers  6
+
 // AudioQueueSetParameter ( queue, kAudioQueueParam_Volume, gain )
 
 @interface AudioPlayer(){
 	BOOL _inited;
 	PlayerState _state;
-	AudioBufferQueue *_buffers;
 	AudioQueueBufferRef _silence;
 	int _count;
+	double _bitrate;
+	
+	LockingQueue *_freeBuffers;
 }
 @property AudioQueueRef queue;
 @property AudioStreamBasicDescription format;
 @property AudioStreamPacketDescription aspd;
+@property (nonatomic) double bufferDuration;
+@property (nonatomic) double maxBufferingTime;
 @end
 
 
@@ -48,12 +54,10 @@ typedef enum{
 - (id)init{
 	self = [super init];
 
-	_count = 0;
+	_maxBufferingTime = 0.2;
 
 	_inited = NO;
 	_state = PlayerStateNone;
-
-	_buffers = nil;
 
 	_format.mFormatID = kAudioFormatLinearPCM;
 	_format.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked | kAudioFormatFlagIsBigEndian;
@@ -85,7 +89,6 @@ typedef enum{
 	@synchronized(self){
 		if(_queue){
 			AudioQueueDispose(_queue, YES);
-			_buffers = nil;
 			_queue = NULL;
 		}
 	}
@@ -120,6 +123,14 @@ static NSString *formatIDtoString(int fID){
 		[self stop];
 	}
 	
+	if(_format.mBitsPerChannel > 0){
+		_bitrate = _format.mSampleRate * _format.mChannelsPerFrame * _format.mBitsPerChannel;
+	}else{
+		_bitrate = _format.mSampleRate * _format.mChannelsPerFrame * 16;
+	}
+	_count = 0;
+	_bufferDuration = 0;
+	
 	[self printFormat:_format name:@""];
 
 	OSStatus err;
@@ -134,9 +145,15 @@ static NSString *formatIDtoString(int fID){
 	}
 
 
-	int bufferSize = [self computeRecordBufferSize:&_format duration:0.2];
-	log_debug(@"bufferSize: %d", bufferSize);
-	_buffers = [[AudioBufferQueue alloc] initWithAudioQueue:_queue bufferSize:bufferSize];
+	int bufferSize = [self computeRecordBufferSize:&_format duration:_maxBufferingTime];
+	log_debug(@"bufferSize: %d, bitrate: %f, duration: %f", bufferSize, _bitrate, bufferSize/(_bitrate/8));
+	
+	_freeBuffers = [[LockingQueue alloc] initWithCapacity:kMaxBuffers];
+	for(int i=0; i<kMaxBuffers; i++){
+		AudioQueueBufferRef buffer;
+		AudioQueueAllocateBufferWithPacketDescriptions(_queue, bufferSize, 32, &buffer);
+		[_freeBuffers push:[NSValue valueWithPointer:buffer]];
+	}
 
 	err = AudioQueueAddPropertyListener(_queue, kAudioQueueProperty_IsRunning,
 										isRunningProc, (__bridge void *)(self));
@@ -181,23 +198,25 @@ static NSString *formatIDtoString(int fID){
 }
 
 - (void)onCallback:(AudioQueueBufferRef)buffer{
+	double duration = buffer->mAudioDataByteSize / (_bitrate/8);
+
 	buffer->mAudioDataByteSize = 0;
 	buffer->mPacketDescriptionCount = 0;
-	[_buffers pushFreeBuffer];
+	[_freeBuffers push:[NSValue valueWithPointer:buffer]];
 
 	@synchronized(self){
 		_count --;
-		log_debug(@"callback %d", _count);
+		_bufferDuration -= duration;
+		log_debug(@"callback, buffers: %d, duration: %f", _count, _bufferDuration);
 
-		if(_count == 0 && _buffers.readyCount == 0){
+		if(_bufferDuration < 0.005){
+			_bufferDuration = 0; // 消除浮点运算误差
+			
 			_state = PlayerStatePause;
 			NSLog(@"AQ pause");
 			AudioQueuePause(_queue);
-
 			// 对于 AAC 不能调用 stop 只能 pause
-//			_state = PlayerStateStop;
-//			NSLog(@"AQ stop");
-//			AudioQueueStop(_queue, NO); // 不能在 callback 中调用 stop
+			//AudioQueueStop(_queue, NO); // 不能在 callback 中调用 stop
 		}
 	}
 }
@@ -230,35 +249,34 @@ static void isRunningProc (void *                     inUserData,
 	}
 }
 
-- (void)enqueueBuffer{
-	AudioQueueBufferRef audio_buf;
-	audio_buf = [_buffers popReadyBuffer];
+- (void)enqueueBuffer:(AudioQueueBufferRef)buffer{
+	double duration = buffer->mAudioDataByteSize / (_bitrate/8);
 
 	@synchronized(self){
 		OSStatus err;
 		if(_state == PlayerStateNone || _state == PlayerStatePlaying || _state == PlayerStatePause){
-			log_debug(@"enqueue %d bytes, descs: %d", (int)audio_buf->mAudioDataByteSize, (int)audio_buf->mPacketDescriptionCount);
-
 			err = AudioQueueEnqueueBuffer(_queue,
-										  audio_buf,
-										  audio_buf->mPacketDescriptionCount,
-										  audio_buf->mPacketDescriptions);
-			_count ++;
+										  buffer,
+										  buffer->mPacketDescriptionCount,
+										  buffer->mPacketDescriptions);
 			if(err){
 				NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 				NSLog(@"AudioQueueEnqueueBuffer error: %d %@", (int)err, [error description]);
 				return;
 			}
+			_count ++;
+			_bufferDuration += duration;
+			log_debug(@"enqueue, buffers: %d, duration: %f", _count, _bufferDuration);
 		}
 
-		if((_state == PlayerStateNone || _state == PlayerStatePause) && _count >= 1){
+		if((_state == PlayerStateNone || _state == PlayerStatePause) && _bufferDuration > _maxBufferingTime){
 			_state = PlayerStatePlaying;
 			err = AudioQueueStart(_queue, NULL);
 			if(err){
 				NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 				NSLog(@"%d error %@", __LINE__, error);
 			}else{
-				NSLog(@"AQ started");
+				NSLog(@"AQ started, buffers: %d, duration: %f", _count, _bufferDuration);
 			}
 		}
 	}
@@ -273,25 +291,14 @@ static void isRunningProc (void *                     inUserData,
 		}
 	}
 
-	double duration;
-	double bitrate;
-	if(_format.mBitsPerChannel > 0){
-		bitrate = _format.mSampleRate * _format.mChannelsPerFrame * _format.mBitsPerChannel;
-	}else{
-		bitrate = 64000.0;
-	}
-	double buffering_time = 0.05;
-
 	AudioQueueBufferRef buffer;
-	buffer = [_buffers getFreeBuffer];
+	buffer = (AudioQueueBufferRef)([_freeBuffers.front pointerValue]);
 
 	if(buffer->mAudioDataByteSize + data.length > buffer->mAudioDataBytesCapacity){
-		[_buffers popFreeBuffer];
-		[_buffers pushReadyBuffer:buffer];
-		[self enqueueBuffer];
+		[self enqueueBuffer:buffer];
+		[_freeBuffers pop];
+		buffer = (AudioQueueBufferRef)([_freeBuffers.front pointerValue]);
 	}
-
-	buffer = [_buffers getFreeBuffer];
 
 	int offset = buffer->mAudioDataByteSize;
 	buffer->mPacketDescriptions[buffer->mPacketDescriptionCount].mStartOffset = offset;
@@ -300,11 +307,10 @@ static void isRunningProc (void *                     inUserData,
 	buffer->mAudioDataByteSize += data.length;
 	buffer->mPacketDescriptionCount ++;
 
-	duration = buffer->mAudioDataByteSize / (bitrate/8);
-	if(duration >= buffering_time || buffer->mAudioDataByteSize == buffer->mAudioDataBytesCapacity){
-		[_buffers popFreeBuffer];
-		[_buffers pushReadyBuffer:buffer];
-		[self enqueueBuffer];
+	double duration = buffer->mAudioDataByteSize / (_bitrate/8);
+	if(duration >= _maxBufferingTime/2 || buffer->mAudioDataByteSize == buffer->mAudioDataBytesCapacity){
+		[self enqueueBuffer:buffer];
+		[_freeBuffers pop];
 	}
 }
 

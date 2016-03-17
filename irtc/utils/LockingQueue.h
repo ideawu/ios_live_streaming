@@ -10,7 +10,11 @@
 
 @interface LockingQueue : NSObject
 
+@property (readonly) NSUInteger capacity;
+
 //- (NSUInteger)count;
+
+- (id)initWithCapacity:(NSUInteger)maxItems;
 
 /**
  push one to the back
@@ -19,7 +23,7 @@
 /**
  block until there is one in front, pop it out
  */
-- (id)pop:(id)item;
+- (id)pop;
 /**
  block until there is one in front, obtain it, but not pop it out
  */

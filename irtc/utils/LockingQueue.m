@@ -11,15 +11,20 @@
 @interface LockingQueue(){
 	NSMutableArray *_items;
 	NSCondition *_condition;
-	NSUInteger _maxItems;
 }
 @end
 
 @implementation LockingQueue
 
-- (id)initWithCapacity:(NSUInteger)maxItems{
+- (id)init{
 	self = [super init];
-	_maxItems = maxItems;
+	_capacity = 128;
+	return self;
+}
+
+- (id)initWithCapacity:(NSUInteger)capacity{
+	self = [super init];
+	_capacity = capacity;
 	_items = [[NSMutableArray alloc] init];
 	_condition = [[NSCondition alloc] init];
 	return self;
@@ -33,10 +38,10 @@
 	return ret;
 }
 
-- (id)push:(id)item{
+- (void)push:(id)item{
 	[_condition lock];
 	{
-		while(_items.count == _maxItems){
+		while(_items.count == _capacity){
 			[_condition wait];
 		}
 		[_items addObject:item];
@@ -45,7 +50,7 @@
 	[_condition unlock];
 }
 
-- (id)pop:(id)item{
+- (id)pop{
 	id ret;
 	[_condition lock];
 	{
