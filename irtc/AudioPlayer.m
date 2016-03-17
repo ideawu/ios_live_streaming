@@ -142,7 +142,7 @@ static NSString *formatIDtoString(int fID){
 										isRunningProc, (__bridge void *)(self));
 	if(err){
 		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
-		log_debug("%@", error);
+		log_debug(@"%@", error);
 	}
 
 	NSLog(@"AQ setup");

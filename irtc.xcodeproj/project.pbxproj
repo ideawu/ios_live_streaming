@@ -86,16 +86,17 @@
 		31C168A21C97EA49001AFC70 /* LiveCapture.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168A11C97EA49001AFC70 /* LiveCapture.m */; };
 		31C168A31C97ECCD001AFC70 /* LiveCapture.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168A11C97EA49001AFC70 /* LiveCapture.m */; };
 		31C168A41C97F6AC001AFC70 /* MovieCaptureFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C1689E1C97E966001AFC70 /* MovieCaptureFile.m */; };
-		31C168AB1C9917DC001AFC70 /* mp4_reader.c in Sources */ = {isa = PBXBuildFile; fileRef = 31C168A91C9917DC001AFC70 /* mp4_reader.c */; };
 		31C168AE1C991875001AFC70 /* MP4FileVideoEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168AD1C991875001AFC70 /* MP4FileVideoEncoder.m */; };
 		31C168B11C9919C7001AFC70 /* MP4FileWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168B01C9919C7001AFC70 /* MP4FileWriter.m */; };
 		31C168B21C991AC5001AFC70 /* MP4FileWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168B01C9919C7001AFC70 /* MP4FileWriter.m */; };
 		31C168B31C991AC8001AFC70 /* MP4FileVideoEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168AD1C991875001AFC70 /* MP4FileVideoEncoder.m */; };
-		31C168B41C991AD5001AFC70 /* mp4_reader.c in Sources */ = {isa = PBXBuildFile; fileRef = 31C168A91C9917DC001AFC70 /* mp4_reader.c */; };
 		31C168B81C9931EE001AFC70 /* TestFileVideoEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168B61C9931EE001AFC70 /* TestFileVideoEncoder.m */; };
 		31C168B91C9931EE001AFC70 /* TestFileVideoEncoder.xib in Resources */ = {isa = PBXBuildFile; fileRef = 31C168B71C9931EE001AFC70 /* TestFileVideoEncoder.xib */; };
 		31C168BC1C995791001AFC70 /* FileReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168BB1C995791001AFC70 /* FileReader.m */; };
 		31C168BD1C99654D001AFC70 /* FileReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168BB1C995791001AFC70 /* FileReader.m */; };
+		31C168BE1C9A5107001AFC70 /* mp4_reader.c in Sources */ = {isa = PBXBuildFile; fileRef = 31C168A91C9917DC001AFC70 /* mp4_reader.c */; };
+		31C168BF1C9A5107001AFC70 /* mp4_reader.c in Sources */ = {isa = PBXBuildFile; fileRef = 31C168A91C9917DC001AFC70 /* mp4_reader.c */; };
+		31C168C21C9A5BB1001AFC70 /* TestMP4FileReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 31C168C11C9A5BB1001AFC70 /* TestMP4FileReader.m */; };
 		31E5BDE31C8EE6F5007E0503 /* AAPLEAGLLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 31E5BDE21C8EE6F5007E0503 /* AAPLEAGLLayer.m */; };
 		31E5BDE81C8FC6DE007E0503 /* VideoClip.m in Sources */ = {isa = PBXBuildFile; fileRef = 31E5BDE71C8FC6DE007E0503 /* VideoClip.m */; };
 		31E5BDE91C8FC6F7007E0503 /* VideoClip.m in Sources */ = {isa = PBXBuildFile; fileRef = 31E5BDE71C8FC6DE007E0503 /* VideoClip.m */; };
@@ -235,6 +236,8 @@
 		31C168B71C9931EE001AFC70 /* TestFileVideoEncoder.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TestFileVideoEncoder.xib; sourceTree = "<group>"; };
 		31C168BA1C995791001AFC70 /* FileReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileReader.h; sourceTree = "<group>"; };
 		31C168BB1C995791001AFC70 /* FileReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileReader.m; sourceTree = "<group>"; };
+		31C168C01C9A5BB1001AFC70 /* TestMP4FileReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestMP4FileReader.h; sourceTree = "<group>"; };
+		31C168C11C9A5BB1001AFC70 /* TestMP4FileReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestMP4FileReader.m; sourceTree = "<group>"; };
 		31E5BDE11C8EE6F5007E0503 /* AAPLEAGLLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLEAGLLayer.h; sourceTree = "<group>"; };
 		31E5BDE21C8EE6F5007E0503 /* AAPLEAGLLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAPLEAGLLayer.m; sourceTree = "<group>"; };
 		31E5BDE41C8EF884007E0503 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
@@ -357,10 +360,12 @@
 				0889D58C1C956F70009A822B /* TestAudio.m */,
 				31C1689A1C97BE7B001AFC70 /* TestRecorder.h */,
 				31C1689B1C97BE7B001AFC70 /* TestRecorder.m */,
-				0814205B1C8B2F9500A2B03E /* TestController.h */,
-				0814205C1C8B2F9500A2B03E /* TestController.m */,
+				31C168C01C9A5BB1001AFC70 /* TestMP4FileReader.h */,
+				31C168C11C9A5BB1001AFC70 /* TestMP4FileReader.m */,
 				31C168B51C9931EE001AFC70 /* TestFileVideoEncoder.h */,
 				31C168B61C9931EE001AFC70 /* TestFileVideoEncoder.m */,
+				0814205B1C8B2F9500A2B03E /* TestController.h */,
+				0814205C1C8B2F9500A2B03E /* TestController.m */,
 				3187768D1C85AAF600FC417F /* PlayerController.h */,
 				3187768E1C85AAF600FC417F /* PlayerController.m */,
 				318776901C85AAF600FC417F /* RecorderController.h */,
@@ -698,6 +703,7 @@
 				0889D5791C946CCB009A822B /* LiveStream.m in Sources */,
 				31C168891C917A56001AFC70 /* AudioPlayer.m in Sources */,
 				31C1689C1C97BE7B001AFC70 /* TestRecorder.m in Sources */,
+				31C168BE1C9A5107001AFC70 /* mp4_reader.c in Sources */,
 				0889D5961C99D2A0009A822B /* MP4FileReader.m in Sources */,
 				31E5BDEE1C8FD1E1007E0503 /* AudioEncoder.m in Sources */,
 				31E5BDE91C8FC6F7007E0503 /* VideoClip.m in Sources */,
@@ -711,11 +717,11 @@
 				31C168821C9161AF001AFC70 /* AudioReader.m in Sources */,
 				31C168B31C991AC8001AFC70 /* MP4FileVideoEncoder.m in Sources */,
 				31C168911C927A19001AFC70 /* AACCodec.m in Sources */,
-				31C168B41C991AD5001AFC70 /* mp4_reader.c in Sources */,
 				31C168B21C991AC5001AFC70 /* MP4FileWriter.m in Sources */,
 				318776811C85AABF00FC417F /* main.m in Sources */,
 				0889D5911C95745E009A822B /* VideoEncoder.m in Sources */,
 				3187767E1C85AABF00FC417F /* AppDelegate.m in Sources */,
+				31C168C21C9A5BB1001AFC70 /* TestMP4FileReader.m in Sources */,
 				31E5BDF21C8FDF32007E0503 /* LiveRecorder.m in Sources */,
 				31C1688D1C919810001AFC70 /* AudioDecoder.m in Sources */,
 				081420641C8DCE9700A2B03E /* PlayerController.m in Sources */,
@@ -749,7 +755,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				31C168AB1C9917DC001AFC70 /* mp4_reader.c in Sources */,
 				3187774A1C8DA78800FC417F /* VideoDecoder.m in Sources */,
 				31C168BC1C995791001AFC70 /* FileReader.m in Sources */,
 				31C1689F1C97E966001AFC70 /* MovieCaptureFile.m in Sources */,
@@ -761,6 +766,7 @@
 				31C168AE1C991875001AFC70 /* MP4FileVideoEncoder.m in Sources */,
 				31C168851C916469001AFC70 /* LiveStream.m in Sources */,
 				3187773D1C8D60B900FC417F /* VideoPlayerState.m in Sources */,
+				31C168BF1C9A5107001AFC70 /* mp4_reader.c in Sources */,
 				31C168A21C97EA49001AFC70 /* LiveCapture.m in Sources */,
 				319207A81C854AA60017C818 /* irtc.m in Sources */,
 				0814208A1C934F9F00A2B03E /* AudioRecorder.m in Sources */,

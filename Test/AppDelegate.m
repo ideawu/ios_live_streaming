@@ -11,6 +11,7 @@
 #import "RecorderController.h"
 #import "TestController.h"
 #import "TestFileVideoEncoder.h"
+#import "TestMP4FileReader.h"
 
 @interface AppDelegate (){
 	NSWindowController *_test;
@@ -26,7 +27,7 @@
 	NSLog(@"NSTemporaryDirectory: %@", NSTemporaryDirectory());
 	
 	int count = 0;
-	int flag = 3;
+	int flag = 4;
 	
 	if(flag == count++){
 //		_test = [[PlayerController alloc] initWithWindowNibName:@"PlayerController"];
@@ -41,6 +42,10 @@
 	}
 	if(flag == count++){
 		_test = [[TestFileVideoEncoder alloc] initWithWindowNibName:@"TestFileVideoEncoder"];
+	}
+	if(flag == count++){
+		id t = [[TestMP4FileReader alloc] init];
+		t = nil;
 	}
 	
 	[_test showWindow:self];

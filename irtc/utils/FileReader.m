@@ -11,20 +11,20 @@
 
 @interface FileReader(){
 }
-@property (nonatomic) NSString *file;
+@property (nonatomic) NSString *path;
 @property (nonatomic) FILE *fp;
 @end
 
 @implementation FileReader
 
-+ (FileReader *)readerWithFile:(NSString *)file{
-	FILE *fp = fopen(file.UTF8String, "rb");
++ (FileReader *)readerAtPath:(NSString *)path{
+	FILE *fp = fopen(path.UTF8String, "rb");
 	if(!fp){
 		return nil;
 	}
 	FileReader *ret = [[FileReader alloc] init];
 	ret.fp = fp;
-	ret.file = file;
+	ret.path = path;
 	[ret refresh];
 	return ret;
 }

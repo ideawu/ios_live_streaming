@@ -14,7 +14,9 @@
 @property (readonly) int64_t offset;
 @property (readonly) int64_t available;
 
-+ (FileReader *)readerWithFile:(NSString *)file;
+@property (readonly) NSString *path;
+
++ (FileReader *)readerAtPath:(NSString *)path;
 
 - (void)refresh;
 - (void)seekTo:(long)offset;

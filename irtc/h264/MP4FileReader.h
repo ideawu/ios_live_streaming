@@ -10,6 +10,10 @@
 
 @interface MP4FileReader : NSObject
 
-+ (MP4FileReader *)readerWithFile:(NSString *)file;
++ (MP4FileReader *)readerAtPath:(NSString *)path;
+
+- (void)refresh;
+- (void)reloadMDATLength;
+- (NSData *)nextNALU;
 
 @end

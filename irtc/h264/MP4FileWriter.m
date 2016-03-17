@@ -18,7 +18,7 @@
 }
 
 
-- (void) initPath:(NSString*)path Height:(int) height andWidth:(int) width{
+- (void)initPath:(NSString*)path Height:(int) height andWidth:(int) width{
     self.path = path;
 
     [[NSFileManager defaultManager] removeItemAtPath:self.path error:nil];
@@ -57,28 +57,22 @@
     [_writer addInput:_writerInput];
 }
 
-- (void) finishWithCompletionHandler:(void (^)(void))handler
-{
+- (void) finishWithCompletionHandler:(void (^)(void))handler{
     [_writer finishWritingWithCompletionHandler: handler];
 }
 
-- (BOOL) encodeFrame:(CMSampleBufferRef) sampleBuffer
-{
-    if (CMSampleBufferDataIsReady(sampleBuffer))
-    {
-        if (_writer.status == AVAssetWriterStatusUnknown)
-        {
+- (BOOL)encodeSampleBuffer:(CMSampleBufferRef) sampleBuffer{
+    if (CMSampleBufferDataIsReady(sampleBuffer)){
+        if (_writer.status == AVAssetWriterStatusUnknown){
             CMTime startTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
             [_writer startWriting];
             [_writer startSessionAtSourceTime:startTime];
         }
-        if (_writer.status == AVAssetWriterStatusFailed)
-        {
+        if (_writer.status == AVAssetWriterStatusFailed){
             NSLog(@"writer error %@", _writer.error.localizedDescription);
             return NO;
         }
-        if (_writerInput.readyForMoreMediaData == YES)
-        {
+        if (_writerInput.readyForMoreMediaData == YES){
             [_writerInput appendSampleBuffer:sampleBuffer];
             return YES;
         }

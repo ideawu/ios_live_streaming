@@ -18,11 +18,11 @@
 @property NSString* path;
 @property int bitrate;
 
-+ (MP4FileWriter*) videoForPath:(NSString*)path Height:(int)height andWidth:(int)width bitrate:(int)bitrate;
++ (MP4FileWriter*)videoForPath:(NSString*)path Height:(int)height andWidth:(int)width bitrate:(int)bitrate;
 
-- (void) initPath:(NSString*)path Height:(int) height andWidth:(int) width;
-- (void) finishWithCompletionHandler:(void (^)(void))handler;
-- (BOOL) encodeFrame:(CMSampleBufferRef) sampleBuffer;
+- (void)initPath:(NSString*)path Height:(int) height andWidth:(int) width;
+- (void)finishWithCompletionHandler:(void (^)(void))handler;
+- (BOOL)encodeSampleBuffer:(CMSampleBufferRef) sampleBuffer;
 
 
 @end

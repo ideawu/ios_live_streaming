@@ -110,11 +110,11 @@ int mp4_reader_next_atom(mp4_reader *mp4){
 	int len;
 	uint32_t length, type;
 	len = mp4->input_cb(mp4, &length, 4);
-	if(len <= 0){
+	if(len < 4){
 		return 0;
 	}
 	len = mp4->input_cb(mp4, &type, 4);
-	if(len <= 0){
+	if(len < 4){
 		return 0;
 	}
 
@@ -175,7 +175,7 @@ int mp4_reader_next_nalu(mp4_reader *mp4){
 	int len;
 	uint32_t length;
 	len = mp4->input_cb(mp4, &length, 4);
-	if(len <= 0){
+	if(len < 4){
 		return 0;
 	}
 	length = __builtin_bswap32(length);

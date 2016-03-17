@@ -84,7 +84,7 @@ typedef enum{
 	if(!_headerWriter){
 		NSString* path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"params.mp4"];
 		_headerWriter = [MP4FileWriter videoForPath:path Height:_height andWidth:_width bitrate:0];
-		if([_headerWriter encodeFrame:sampleBuffer]){
+		if([_headerWriter encodeSampleBuffer:sampleBuffer]){
 			[_headerWriter finishWithCompletionHandler:^{
 				[me parseHeaderFile];
 			}];
@@ -95,7 +95,7 @@ typedef enum{
 		NSString *path = [self nextFilename];
 		_writer = [MP4FileWriter videoForPath:path Height:_height andWidth:_width bitrate:0];
 	}
-	[_writer encodeFrame:sampleBuffer];
+	[_writer encodeSampleBuffer:sampleBuffer];
 	
 	@synchronized(self){
 		if(_sps){
@@ -137,7 +137,7 @@ typedef enum{
 	_mp4 = mp4_reader_init();
 	_mp4->user_data = (__bridge void *)(self);
 	_mp4->input_cb = my_mp4_input_cb;
-	_reader = [FileReader readerWithFile:_writer.path];
+	_reader = [FileReader readerAtPath:_writer.path];
 	log_debug(@"create mp4 reader for file: %@", _writer.path.lastPathComponent);
 }
 
