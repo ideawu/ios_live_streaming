@@ -11,7 +11,7 @@
 #import "MP4FileReader.h"
 #import "mp4_reader.h"
 
-#define MAX_FILE_SWAP_SIZE (5 * 1024 * 1024)
+#define MAX_FILE_SWAP_SIZE (1 * 1024 * 1024)
 
 @interface MP4FileVideoEncoder(){
 	MP4FileWriter *_headerWriter;
@@ -96,7 +96,7 @@
 			_writer = [MP4FileWriter videoForPath:path Height:_height andWidth:_width bitrate:0];
 		}
 		// 实验得知, AVFoundation 要写至少3个frame之后, 才flush到硬盘,
-		// 之后每写一个frame就flush一次.
+		// 之后每写一个frame就flush一次. 这3个frame导致的延时在 200ms 左右.
 		[_writer encodeSampleBuffer:sampleBuffer];
 		
 		if(!_swapping){
@@ -167,13 +167,13 @@
 			break;
 		}
 		uint8_t *p = (uint8_t*)[nalu bytes];
-		int idc = p[4] & 0x60;
 		int type = p[4] & 0x1f;
-		int first_mb = p[5] & 0x80;
 		if(type == 6){ // ignore SEI
 			continue;
 		}
-		log_debug(@"type: %d, idc: %d, first_mb: %d, %d bytes", type, idc, first_mb, (int)nalu.length);
+//		int idc = p[4] & 0x60;
+//		int first_mb = p[5] & 0x80;
+//		log_debug(@"type: %d, idc: %d, first_mb: %d, %d bytes", type, idc, first_mb, (int)nalu.length);
 
 		// TODO: maybe we should not assume that first_mb is always true
 	
