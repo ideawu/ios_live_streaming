@@ -181,11 +181,11 @@ static NSString *formatIDtoString(int fID){
 }
 
 - (void)onCallback:(AudioQueueBufferRef)buffer{
-	@synchronized(self){
-		buffer->mAudioDataByteSize = 0;
-		buffer->mPacketDescriptionCount = 0;
-		[_buffers pushFreeBuffer];
+	buffer->mAudioDataByteSize = 0;
+	buffer->mPacketDescriptionCount = 0;
+	[_buffers pushFreeBuffer];
 
+	@synchronized(self){
 		_count --;
 		log_debug(@"callback %d", _count);
 
@@ -231,12 +231,12 @@ static void isRunningProc (void *                     inUserData,
 }
 
 - (void)enqueueBuffer{
-	OSStatus err;
-	@synchronized(self){
-		if(_state == PlayerStateNone || _state == PlayerStatePlaying || _state == PlayerStatePause){
-			AudioQueueBufferRef audio_buf;
-			audio_buf = [_buffers popReadyBuffer];
+	AudioQueueBufferRef audio_buf;
+	audio_buf = [_buffers popReadyBuffer];
 
+	@synchronized(self){
+		OSStatus err;
+		if(_state == PlayerStateNone || _state == PlayerStatePlaying || _state == PlayerStatePause){
 			log_debug(@"enqueue %d bytes, descs: %d", (int)audio_buf->mAudioDataByteSize, (int)audio_buf->mPacketDescriptionCount);
 
 			err = AudioQueueEnqueueBuffer(_queue,
@@ -250,14 +250,7 @@ static void isRunningProc (void *                     inUserData,
 				return;
 			}
 		}
-	}
 
-	[self startIfNeeded];
-}
-
-- (void)startIfNeeded{
-	@synchronized(self){
-		OSStatus err;
 		if((_state == PlayerStateNone || _state == PlayerStatePause) && _count >= 1){
 			_state = PlayerStatePlaying;
 			err = AudioQueueStart(_queue, NULL);
@@ -279,42 +272,39 @@ static void isRunningProc (void *                     inUserData,
 			[self setupAQ];
 		}
 	}
-//	log_debug(@"");
 
-	@synchronized(self){
-		double duration;
-		double bitrate;
-		if(_format.mBitsPerChannel > 0){
-			bitrate = _format.mSampleRate * _format.mChannelsPerFrame * _format.mBitsPerChannel;
-		}else{
-			bitrate = 64000.0;
-		}
-		double buffering_time = 0.05;
+	double duration;
+	double bitrate;
+	if(_format.mBitsPerChannel > 0){
+		bitrate = _format.mSampleRate * _format.mChannelsPerFrame * _format.mBitsPerChannel;
+	}else{
+		bitrate = 64000.0;
+	}
+	double buffering_time = 0.05;
 
-		AudioQueueBufferRef buffer;
-		buffer = [_buffers getFreeBuffer];
+	AudioQueueBufferRef buffer;
+	buffer = [_buffers getFreeBuffer];
 
-		if(buffer->mAudioDataByteSize + data.length > buffer->mAudioDataBytesCapacity){
-			[_buffers popFreeBuffer];
-			[_buffers pushReadyBuffer:buffer];
-			[self enqueueBuffer];
-		}
+	if(buffer->mAudioDataByteSize + data.length > buffer->mAudioDataBytesCapacity){
+		[_buffers popFreeBuffer];
+		[_buffers pushReadyBuffer:buffer];
+		[self enqueueBuffer];
+	}
 
-		buffer = [_buffers getFreeBuffer];
+	buffer = [_buffers getFreeBuffer];
 
-		int offset = buffer->mAudioDataByteSize;
-		buffer->mPacketDescriptions[buffer->mPacketDescriptionCount].mStartOffset = offset;
-		buffer->mPacketDescriptions[buffer->mPacketDescriptionCount].mDataByteSize = (UInt32)data.length;
-		memcpy(buffer->mAudioData + offset, data.bytes, data.length);
-		buffer->mAudioDataByteSize += data.length;
-		buffer->mPacketDescriptionCount ++;
+	int offset = buffer->mAudioDataByteSize;
+	buffer->mPacketDescriptions[buffer->mPacketDescriptionCount].mStartOffset = offset;
+	buffer->mPacketDescriptions[buffer->mPacketDescriptionCount].mDataByteSize = (UInt32)data.length;
+	memcpy(buffer->mAudioData + offset, data.bytes, data.length);
+	buffer->mAudioDataByteSize += data.length;
+	buffer->mPacketDescriptionCount ++;
 
-		duration = buffer->mAudioDataByteSize / (bitrate/8);
-		if(duration >= buffering_time || buffer->mAudioDataByteSize == buffer->mAudioDataBytesCapacity){
-			[_buffers popFreeBuffer];
-			[_buffers pushReadyBuffer:buffer];
-			[self enqueueBuffer];
-		}
+	duration = buffer->mAudioDataByteSize / (bitrate/8);
+	if(duration >= buffering_time || buffer->mAudioDataByteSize == buffer->mAudioDataBytesCapacity){
+		[_buffers popFreeBuffer];
+		[_buffers pushReadyBuffer:buffer];
+		[self enqueueBuffer];
 	}
 }
 

@@ -21,14 +21,14 @@
 
 int main(int argc, const char * argv[]) {
 	int count = 0;
-	int flag = 0;
+	int flag = 1;
 
 	if(flag == count++){
 		return NSApplicationMain(argc, argv);
 	}
 	
 	if(flag == count++){
-		TestVideo *test = [[TestVideo alloc] init];
+		TestAudio *test = [[TestAudio alloc] init];
 		QUIT();
 	}
 	if(flag == count++){

@@ -58,7 +58,9 @@
 		_test = [[TestRecorder alloc] init];
 	}
 	
-	[_test showWindow:self];
+	if([_test isKindOfClass:[NSWindowController class]]){
+		[_test showWindow:self];
+	}
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
