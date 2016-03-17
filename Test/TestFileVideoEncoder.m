@@ -38,7 +38,7 @@
 		n ++;
 		[me onVideoCapturedSampleBuffer:sampleBuffer];
 		CFRelease(sampleBuffer);
-		usleep(30 * 1000);
+		usleep(100 * 1000);
 	}
 	log_debug(@"write %d frames", n);
 	

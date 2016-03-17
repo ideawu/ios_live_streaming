@@ -18,7 +18,7 @@
 }
 
 - (void)run{
-	NSString *file = [NSHomeDirectory() stringByAppendingFormat:@"/Downloads/params.mp4"];
+	NSString *file = [NSHomeDirectory() stringByAppendingFormat:@"/Downloads/m1.mp4"];
 	MP4FileReader *reader = [MP4FileReader readerAtPath:file];
 	while(1){
 		NSData *nalu = [reader nextNALU];
@@ -26,6 +26,7 @@
 			break;
 		}
 		log_debug(@"nalu len: %d", (int)nalu.length);
+		usleep(10 * 1000);
 	}
 }
 

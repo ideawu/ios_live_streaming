@@ -96,7 +96,6 @@ typedef enum{
 		if(mp4_reader_next_atom(_mp4)){
 			if(_mp4->atom->type == 'mdat'){
 				log_debug(@"found mdat");
-				log_debug(@"header");
 				_state = ReadStateNALUHeader;
 				// we will re-read mdat length after finish writting
 				_mdat_pos = _file.offset - 8;
@@ -120,7 +119,6 @@ typedef enum{
 			return NO;
 		}
 		if(mp4_reader_next_nalu(_mp4)){
-			log_debug(@"data");
 			_state = ReadStateNALUData;
 		}else{
 			log_debug(@"read mdat end");
@@ -130,10 +128,8 @@ typedef enum{
 		if(_file.available < _mp4->nalu->size){
 			return NO;
 		}
-		log_debug(@"ready");
 		_state = ReadStateNALUDataReady;
 	}else if(_state == ReadStateNALUDataReady){
-		log_debug(@"header");
 		_state = ReadStateNALUHeader;
 	}
 	return YES;
