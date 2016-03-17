@@ -30,16 +30,16 @@
 	[self shutdown];
 }
 
+- (void)start:(void (^)(NSData *frame, double pts, double duration))callback{
+	_callback = callback;
+}
+
 - (void)shutdown{
 	if(_session){
 		VTCompressionSessionInvalidate(_session);
 		CFRelease(_session);
 		_session = NULL;
 	}
-}
-
-- (void)start:(void (^)(NSData *frame, double pts, double duration))callback{
-	_callback = callback;
 }
 
 - (void)createSession{

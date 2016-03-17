@@ -13,15 +13,10 @@
 @property (nonatomic) int width;
 @property (nonatomic) int height;
 
-/**
- SPS without header
- */
 @property (nonatomic, readonly) NSData *sps;
-/**
- PPS without header
- */
 @property (nonatomic, readonly) NSData *pps;
 
+- (void)start:(void (^)(NSData *frame, double pts, double duration))callback;
 - (void)shutdown;
 
 - (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer;

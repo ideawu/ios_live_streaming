@@ -12,6 +12,7 @@
 #import "VideoEncoder.h"
 #import "VideoReader.h"
 #import "LiveCapture.h"
+#import "MP4FileVideoEncoder.h"
 
 @interface LiveRecorder(){
 	VideoClip *_videoClip;
@@ -63,6 +64,7 @@
 		[me onVideoCapturedSampleBuffer:sampleBuffer];
 	}];
 
+//	_videoEncoder = [[MP4FileVideoEncoder alloc] init];
 	_videoEncoder = [[VideoEncoder alloc] init];
 	if(_width > 0){
 		_videoEncoder.width = _width;

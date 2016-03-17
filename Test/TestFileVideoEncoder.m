@@ -26,28 +26,28 @@
 	
 	_videoEncoder = [[MP4FileVideoEncoder alloc] init];
 
-	NSString *file = [NSHomeDirectory() stringByAppendingFormat:@"/Downloads/m1.mp4"];
-	VideoReader *reader = [[VideoReader alloc] initWithFile:file];
-	CMSampleBufferRef sampleBuffer;
-	int n = 0;
-	while(1){
-		sampleBuffer = [reader nextSampleBuffer];
-		if(!sampleBuffer){
-			break;
-		}
-		n ++;
-		[me onVideoCapturedSampleBuffer:sampleBuffer];
-		CFRelease(sampleBuffer);
-		usleep(100 * 1000);
-	}
-	log_debug(@"write %d frames", n);
-	
-	[_videoEncoder shutdown];
-
-//	_capture = [[LiveCapture alloc] init];
-//	[_capture setupVideo:^(CMSampleBufferRef sampleBuffer) {
+//	NSString *file = [NSHomeDirectory() stringByAppendingFormat:@"/Downloads/m1.mp4"];
+//	VideoReader *reader = [[VideoReader alloc] initWithFile:file];
+//	CMSampleBufferRef sampleBuffer;
+//	int n = 0;
+//	while(1){
+//		sampleBuffer = [reader nextSampleBuffer];
+//		if(!sampleBuffer){
+//			break;
+//		}
+//		n ++;
 //		[me onVideoCapturedSampleBuffer:sampleBuffer];
-//	}];
+//		CFRelease(sampleBuffer);
+//		usleep(100 * 1000);
+//	}
+//	log_debug(@"write %d frames", n);
+//	
+//	[_videoEncoder shutdown];
+
+	_capture = [[LiveCapture alloc] init];
+	[_capture setupVideo:^(CMSampleBufferRef sampleBuffer) {
+		[me onVideoCapturedSampleBuffer:sampleBuffer];
+	}];
 	
 	[_capture start];
 }

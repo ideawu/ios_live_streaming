@@ -29,7 +29,7 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 	NSLog(@"NSTemporaryDirectory: %@", NSTemporaryDirectory());
 	
-	int flag = 6;
+	int flag = 8;
 	
 	if(flag == 1){
 //		_test = [[PlayerController alloc] initWithWindowNibName:@"PlayerController"];

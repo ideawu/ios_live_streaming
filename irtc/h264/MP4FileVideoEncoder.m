@@ -18,6 +18,7 @@
 	MP4FileReader *_reader;
 	
 	int _recordSeq;
+	void (^_callback)(NSData *frame, double pts, double duration);
 }
 @end
 
@@ -31,13 +32,16 @@
 	return self;
 }
 
+- (void)start:(void (^)(NSData *frame, double pts, double duration))callback{
+	_callback = callback;
+}
+
 - (void)shutdown{
 	[_writer finishWithCompletionHandler:^{
 		log_debug(@"finish completion");
 		[self finishParse];
 	}];
 }
-
 
 - (NSString *)nextFilename{
 	NSString *name = [NSString stringWithFormat:@"m%03d.mp4", _recordSeq];
