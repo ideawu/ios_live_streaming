@@ -13,9 +13,9 @@
 /**
  total bytes of this file
  */
-@property (readonly) int64_t total;
-@property (readonly) int64_t offset;
-@property (readonly) int64_t available;
+@property (readonly) long total;
+@property (readonly) long offset;
+@property (readonly) long available;
 
 @property (readonly) NSString *path;
 

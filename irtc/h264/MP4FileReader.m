@@ -21,7 +21,7 @@ typedef enum{
 @interface MP4FileReader(){
 	mp4_reader *_mp4;
 	ReadState _state;
-	int64_t _mdat_pos;
+	long _mdat_pos;
 }
 @property (nonatomic) FileReader *file;
 @end

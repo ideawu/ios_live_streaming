@@ -40,7 +40,7 @@
 - (void)refresh{
 	struct stat st;
 	fstat(fileno(_fp), &st);
-	_total = st.st_size;
+	_total = (long)st.st_size;
 	_available = _total - _offset;
 }
 

@@ -40,6 +40,7 @@
 	_items = [[NSMutableArray alloc] init];
 	_frames = [[NSMutableArray alloc] init];
 	_state = [[VideoPlayerState alloc] init];
+	_processQueue = dispatch_queue_create("player queue", DISPATCH_QUEUE_SERIAL);
 	return self;
 }
 
@@ -58,9 +59,7 @@
 }
 
 - (void)play{
-	if(!_processQueue){
-		_processQueue = dispatch_queue_create("player queue", DISPATCH_QUEUE_SERIAL);
-
+	if(!_decoder){
 		_decoder = [[VideoDecoder alloc] init];
 		__weak typeof(self) me = self;
 		[_decoder start:^(CVImageBufferRef imageBuffer, double pts, double duration) {
@@ -75,7 +74,6 @@
 }
 
 - (void)pause{
-	
 }
 
 #pragma mark - CADisplayLink/CVDisplayLinkRef Callback

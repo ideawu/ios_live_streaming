@@ -11,10 +11,12 @@
 #import "LiveRecorder.h"
 #import "IKit/IKit.h"
 #import "IObj/Http.h"
+#import "VideoPlayer.h"
 
 @interface ViewController (){
 	NSMutableArray *_chunks;
 	BOOL _uploading;
+	VideoPlayer *_player;
 }
 
 @property LiveRecorder *recorder;
@@ -75,24 +77,37 @@
 	[self loadIp];
 	
 	_recorder = [[LiveRecorder alloc] init];
-	_recorder.clipDuration = 0.3;
+	_recorder.clipDuration = 0.2;
 	//_recorder.width = 640;
 
-	_videoLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:_recorder.session];
+	//_player = [[VideoPlayer alloc] init];
+
+	if(_player){
+		_videoLayer = [[AVCaptureVideoPreviewLayer alloc] init];
+		_player.layer = _videoLayer;
+		[_player play];
+	}else{
+		_videoLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:_recorder.session];
+	}
 	_videoLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
 	_videoLayer.frame = self.videoView.bounds;
 	_videoLayer.bounds = self.videoView.bounds;
 	
 	[_videoView.layer addSublayer:_videoLayer];
-	
+
 	__weak typeof(self) me = self;
 	[_recorder setupVideo:^(VideoClip *clip) {
 		NSData *data = clip.data;
 		NSLog(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, key_frame: %@",
 			  clip.frameCount, clip.startTime, clip.endTime, clip.duration, (int)data.length,
 			  clip.hasKeyFrame?@"yes":@"no");
-		
-		[me onChunkReady:data];
+		if(_player){
+			VideoClip *c = [[VideoClip alloc] init];
+			[c parseData:data];
+			[_player addClip:c];
+		}else{
+			[me onChunkReady:data];
+		}
 	}];
 //	[_recorder setupAudio:^(NSData *data, double pts, double duration) {
 //		NSLog(@"%d bytes, %f %f", (int)data.length, pts, duration);

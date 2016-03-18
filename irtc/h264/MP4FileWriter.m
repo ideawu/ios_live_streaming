@@ -84,7 +84,7 @@
             [_writerInput appendSampleBuffer:sampleBuffer];
             return YES;
         }
-    }
+	}
     return NO;
 }
 

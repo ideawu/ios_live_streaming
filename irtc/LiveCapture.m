@@ -18,6 +18,8 @@
 
 	void (^_audioCallback)(CMSampleBufferRef sampleBuffer);
 	void (^_videoCallback)(CMSampleBufferRef sampleBuffer);
+
+	double _lastVideoPTS;
 }
 @property (nonatomic) AVCaptureDevice *audioDevice;
 @property (nonatomic) AVCaptureDevice *videoDevice;
@@ -27,6 +29,7 @@
 
 - (id)init{
 	self = [super init];
+	_lastVideoPTS = 0;
 	_captureQueue = nil;
 	_session = [[AVCaptureSession alloc] init];
 	[_session setSessionPreset:AVCaptureSessionPreset640x480];
@@ -105,7 +108,7 @@
 		log_error(@"init video device failed!");
 		return;
 	}
-	
+
 	[_session beginConfiguration];
 	[_session addOutput:_videoDataOutput];
 	[_session addInput:_videoInput];
@@ -142,9 +145,36 @@
 		}
 	}
 	if(captureOutput == _videoDataOutput){
-		if(_videoCallback){
-			_videoCallback(sampleBuffer);
+		double pts = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
+		double duration = CMTimeGetSeconds(CMSampleBufferGetDuration(sampleBuffer));
+
+		// iOS 7.0
+		if(isnan(duration)){
+			if(_lastVideoPTS != 0){
+				duration = pts - _lastVideoPTS;
+				//log_debug(@"pts: %f, duration: %f", pts, duration);
+
+				CMSampleTimingInfo time;
+				time.presentationTimeStamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+				time.duration = CMTimeMakeWithSeconds(duration, 10000000);
+
+				CMSampleBufferRef newSampleBuffer;
+				CMSampleBufferCreateCopyWithNewTiming(kCFAllocatorDefault,
+													  sampleBuffer,
+													  1,
+													  &time,
+													  &newSampleBuffer);
+				if(_videoCallback){
+					_videoCallback(newSampleBuffer);
+				}
+				CFRelease(newSampleBuffer);
+			}
+		}else{
+			if(_videoCallback){
+				_videoCallback(sampleBuffer);
+			}
 		}
+		_lastVideoPTS = pts;
 	}
 }
 
