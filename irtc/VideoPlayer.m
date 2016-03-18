@@ -71,7 +71,7 @@
 	}
 	[self startDisplayLink];
 	log_debug(@"starting...");
-	[_state pause];
+	[_state start];
 }
 
 - (void)pause{
@@ -174,21 +174,26 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 				[self prepareFrames];
 			}
 		}
-		if(_frames.count >= 5){
-			if(!_state.isPlaying){
-				NSLog(@"resume");
-				[_state resume];
-			}
-		}
-
+		
 		// 更新时钟
 		[_state tick:tick];
 
+		if(_frames.count >= 5){
+			if(_state.isStarting){
+				log_debug(@"started at %f", _state.time);
+				[_state play];
+			}
+			if(_state.isPaused){
+				NSLog(@"resume at %f", _state.time);
+				[_state play];
+			}
+		}
 		if(!_state.isReadyForNextFrame){
 			return;
 		}
+		
 		if(_frames.count == 0){
-			NSLog(@"buffering...");
+			NSLog(@"pause at %f", _state.time);
 			[_state pause];
 			return;
 		}
@@ -203,8 +208,8 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 			NSLog(@"reset state");
 			[_state reset];
 		}
-		log_debug(@"  time: %.3f expect: %.3f, delay: %+.3f, duration: %.3f",
-			  _state.time, _state.nextFrameTime, _state.delay, _state.frameDuration);
+//		log_debug(@"  time: %.3f expect: %.3f, delay: %+.3f, duration: %.3f",
+//			  _state.time, _state.nextFrameTime, _state.delay, _state.frameDuration);
 
 		[_state displayFramePTS:pts];
 		[self displayPixelBuffer:imageBuffer];

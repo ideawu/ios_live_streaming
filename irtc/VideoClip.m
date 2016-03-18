@@ -199,14 +199,14 @@ static UInt8 start_code[4] = {0, 0, 0, 1};
 		uint32_t len = (buf[0]<<24) + (buf[1]<<16) + (buf[2]<<8) + buf[3];
 		UInt8 first_mb = buf[5] & 0x80;
 		int type = buf[4] & 0x1f;
-		if(first_mb == 0x80){ // the first slice/nalu of a frame
+		if(first_mb == 0x80 || type == 7 || type == 8){ // the first slice/nalu of a frame
 			if(frame.length > 0){
 				[self appendFrame:frame pts:0];
+				frame = [[NSMutableData alloc] init];
 			}
-			frame = [[NSMutableData alloc] init];
 		}
 		[frame appendBytes:buf length:4 + len];
-
+		// in case SPS is not the first frame in stream
 		if(type == 7 || type == 8){
 			[self appendFrame:frame pts:0];
 			frame = [[NSMutableData alloc] init];

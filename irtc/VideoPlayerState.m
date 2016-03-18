@@ -69,11 +69,23 @@ typedef enum{
 	return _state == PlayerStatePlaying;
 }
 
+- (BOOL)isStarting{
+	return _state == PlayerStateStarting;
+}
+
+- (BOOL)isPaused{
+	return _state == PlayerStatePaused;
+}
+
+- (void)start{
+	_state = PlayerStateStarting;
+}
+
 - (void)pause{
 	_state = PlayerStatePaused;
 }
 
-- (void)resume{
+- (void)play{
 	if(_state == PlayerStatePaused || _state == PlayerStateStarting){
 		_state = PlayerStatePlaying;
 	}

@@ -85,6 +85,7 @@
 										(id)kVTDecompressionPropertyKey_RealTime: @(YES),
 										};
 	NSDictionary *pixelBufferAttrs = @{
+									   (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
 									   (id)kCVPixelBufferOpenGLESCompatibilityKey: @(YES),
 									   };
 #else

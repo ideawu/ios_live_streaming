@@ -25,10 +25,13 @@
 - (void)reset;
 - (void)tick:(double)tick;
 
+- (BOOL)isStarting;
+- (BOOL)isPaused;
 - (BOOL)isPlaying;
 
+- (void)start;
 - (void)pause;
-- (void)resume;
+- (void)play;
 
 - (double)delay;
 - (double)nextFrameTime;

@@ -40,6 +40,10 @@
 	return self;
 }
 
+- (AVCaptureSession *)session{
+	return _capture.session;
+}
+
 - (void)start{
 	[_capture start];
 }
@@ -125,13 +129,13 @@
 		_videoClip.pps = _videoEncoder.pps;
 	}
 
-//	UInt8 *p = (UInt8 *)nalu.bytes;
-//	int type = p[4] & 0x1f;
+	UInt8 *p = (UInt8 *)frame.bytes;
+	int type = p[4] & 0x1f;
 //	NSLog(@"NALU Type \"%d\"", type);
 	
 	[_videoClip appendFrame:frame pts:pts];
 
-	if(_videoClip.duration >= _clipDuration){
+	if(_videoClip.duration >= _clipDuration && type == 1){
 		_videoCallback(_videoClip);
 		_videoClip = nil;
 	}
