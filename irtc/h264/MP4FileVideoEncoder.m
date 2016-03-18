@@ -42,16 +42,22 @@
 	return self;
 }
 
+- (void)dealloc{
+	[self shutdown];
+}
+
 - (void)start:(void (^)(NSData *frame, double pts, double duration))callback{
 	_callback = callback;
 }
 
 - (void)shutdown{
 	@synchronized(self){
-		[_writer finishWithCompletionHandler:^{
-			log_debug(@"finish completion");
-			[self finishParse];
-		}];
+		if(_writer){
+			[_writer finishWithCompletionHandler:^{
+				log_debug(@"finish completion");
+				[self finishParse];
+			}];
+		}
 	}
 }
 
@@ -103,7 +109,6 @@
 		
 		if(!_swapping){
 			if(_sps){
-				// TODO: 在单独线程读文件?
 				dispatch_async(_readQueue, ^{
 					[self onFileUpdate];
 				});

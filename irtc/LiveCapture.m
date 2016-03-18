@@ -70,6 +70,11 @@
 	_audioDataOutput.audioSettings = settings;
 #endif
 	
+	if(!_audioDataOutput || !_audioInput){
+		log_error(@"init audio device failed!");
+		return;
+	}
+	
 	[_session beginConfiguration];
 	[_session addOutput:_audioDataOutput];
 	[_session addInput:_audioInput];
@@ -95,6 +100,11 @@
 							   (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
 							   };
 	_videoDataOutput.videoSettings = settings;
+	
+	if(!_videoDataOutput || !_videoInput){
+		log_error(@"init video device failed!");
+		return;
+	}
 	
 	[_session beginConfiguration];
 	[_session addOutput:_videoDataOutput];
