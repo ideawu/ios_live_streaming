@@ -256,10 +256,9 @@ int mp4_file_parse_params(const char *filename, void **sps, int *sps_size, void 
 				log_debug("failed to read 'moov', request: %d, return: %d", size, len);
 				ret = -1;
 			}else{
-				//
 				parse_params(buf, size, sps, sps_size, pps, pps_size);
 				if(!sps_size || !pps_size){
-					return ret = -1;
+					ret = -1;
 				}
 			}
 			free(buf);
@@ -288,6 +287,7 @@ static uint16_t ptons(void *p){
 	return __builtin_bswap16(*(uint16_t *)p);
 }
 
+// the simple way
 static void parse_params(char *buf, int size, void **sps, int *sps_size, void **pps, int *pps_size){
 	char *p = buf;
 	char *end = buf + size;
