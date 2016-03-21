@@ -122,7 +122,7 @@
 - (void)setVideoOrientation:(AVCaptureVideoOrientation)orientation{
 	AVCaptureConnection *connection =[_videoDataOutput connectionWithMediaType:AVMediaTypeVideo];
 	if([connection videoOrientation ]) {
-		[connection setVideoOrientation:(AVCaptureVideoOrientation)orientation];
+		[connection setVideoOrientation:orientation];
 	}
 }
 

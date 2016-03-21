@@ -16,10 +16,6 @@
 #else
 	CVDisplayLinkRef _displayLink;
 #endif
-	double first_time;
-	double last_time_s;
-	double last_time_e;
-
 	NSMutableArray *_items;
 	NSMutableArray *_frames; // decompressed frames
 
