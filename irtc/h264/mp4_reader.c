@@ -78,7 +78,7 @@ void mp4_reader_free(mp4_reader *mp4){
 }
 
 mp4_reader* mp4_file_open(const char *filename){
-	FILE *fp = fopen(filename, "r");
+	FILE *fp = fopen(filename, "rb");
 	if(!fp) {
 		return NULL;
 	}
