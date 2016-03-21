@@ -70,8 +70,8 @@
 
 - (NSString *)nextFilename{
 	NSString *name = [NSString stringWithFormat:@"m%03d.mp4", _recordSeq];
-	if(++_recordSeq > MAX_FILE_COUNT){
-		_recordSeq = 1;
+	if(++_recordSeq >= MAX_FILE_COUNT){
+		_recordSeq = 0;
 	}
 	return [NSTemporaryDirectory() stringByAppendingPathComponent:name];
 }
