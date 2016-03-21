@@ -40,7 +40,7 @@
 - (NSData *)nextFrame:(double *)pts;
 
 /**
- 生成 Annex-B 格式的流
+ 生成 AVCC 格式的流
  */
 - (NSData *)data;
 - (void)parseData:(NSData *)data;
