@@ -30,11 +30,11 @@
 
 - (void)open{
 	NSError *error;
-	NSLog(@"open %@", _url);
+	log_debug(@"open %@", _url);
 	_asset = [AVURLAsset URLAssetWithURL:_url options:nil];
 	_assetReader = [[AVAssetReader alloc] initWithAsset:_asset error:&error];
 	if(error){
-		NSLog(@"error: %@", error);
+		log_debug(@"error: %@", error);
 		return;
 	}
 
@@ -82,7 +82,7 @@
 //- (CVPixelBufferRef)nextPixelBuffer{
 //	CMSampleBufferRef buffer = [_videoOutput copyNextSampleBuffer];
 //	if(!buffer){
-//		//NSLog(@"nil buffer");
+//		//log_debug(@"nil buffer");
 //		return nil;
 //	}
 //	// CVImageBufferRef 即是 CVPixelBufferRef

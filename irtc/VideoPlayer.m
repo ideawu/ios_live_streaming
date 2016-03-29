@@ -119,7 +119,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 	CFRetain(imageBuffer);
 	dispatch_async(_processQueue, ^{
 		[_frames addObject:@[(__bridge id)(imageBuffer), @(pts)]];
-		//NSLog(@"decompressed frames: %d", (int)_frames.count);
+		//log_debug(@"decompressed frames: %d", (int)_frames.count);
 	});
 }
 
@@ -157,7 +157,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 				log_debug(@"player init decoder sps and pps");
 				[_decoder setSps:clip.sps pps:clip.pps];
 			}else{
-				NSLog(@"not started, expecting sps and pps, drop clip");
+				log_debug(@"not started, expecting sps and pps, drop clip");
 				[_items removeObjectAtIndex:0];
 			}
 			continue;
@@ -178,7 +178,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 				[_state play];
 			}
 			if(_state.isPaused){
-				NSLog(@"resume at %f", _state.time);
+				log_debug(@"resume at %f", _state.time);
 				[_state play];
 			}
 		}
@@ -187,7 +187,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 		}
 		
 		if(_frames.count == 0){
-			NSLog(@"pause at %f", _state.time);
+			log_debug(@"pause at %f", _state.time);
 			[_state pause];
 			return;
 		}
@@ -199,7 +199,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 
 		// TODO: 如果太超前或者太落后, 需要重置 _state
 		if(ABS(pts - _state.pts) > 15){
-			NSLog(@"reset state");
+			log_debug(@"reset state");
 			[_state reset];
 		}
 //		log_debug(@"  time: %.3f expect: %.3f, delay: %+.3f, duration: %.3f",

@@ -44,12 +44,12 @@
 
 	[decoder start:^(NSData *pcm, double duration) {
 //		double pts = 0;
-//		NSLog(@"decoder %d bytes, %f %f", (int)pcm.length, pts, duration);
+//		log_debug(@"decoder %d bytes, %f %f", (int)pcm.length, pts, duration);
 		[audioPlayer appendData:pcm];
 	}];
 
 	[encoder start:^(NSData *aac, double pts, double duration) {
-		//NSLog(@"encoder %d bytes, %f %f", (int)aac.length, pts, duration);
+		//log_debug(@"encoder %d bytes, %f %f", (int)aac.length, pts, duration);
 		if(raw_format){
 			[decoder decode:aac];
 		}else{

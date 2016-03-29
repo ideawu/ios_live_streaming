@@ -18,7 +18,7 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-	NSLog(@"NSTemporaryDirectory: %@", NSTemporaryDirectory());
+	log_debug(@"NSTemporaryDirectory: %@", NSTemporaryDirectory());
 
 	self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 	nav = [[UINavigationController alloc] init];

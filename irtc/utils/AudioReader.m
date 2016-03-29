@@ -33,11 +33,11 @@
 
 - (void)open{
 	NSError *error;
-	NSLog(@"open %@", _url);
+	log_debug(@"open %@", _url);
 	_asset = [AVURLAsset URLAssetWithURL:_url options:nil];
 	_assetReader = [[AVAssetReader alloc] initWithAsset:_asset error:&error];
 	if(error){
-		NSLog(@"error: %@", error);
+		log_debug(@"error: %@", error);
 		return;
 	}
 	
@@ -82,7 +82,7 @@
 																  &blockBuffer
 																  );
 	if(err){
-		NSLog(@"%d error", __LINE__);
+		log_debug(@"%d error", __LINE__);
 	}
 	for (NSUInteger i = 0; i < audioBufferList.mNumberBuffers; i++) {
 		AudioBuffer audioBuffer = audioBufferList.mBuffers[i];

@@ -39,7 +39,7 @@ static size_t icomet_callback(char *ptr, size_t size, size_t nmemb, void *userda
 }
 
 - (void)doSub{
-	NSLog(@"connect to %@", _url);
+	log_debug(@"connect to %@", _url);
 	_curl = curl_easy_init();
 	curl_easy_setopt(_curl, CURLOPT_URL, _url.UTF8String);
 	curl_easy_setopt(_curl, CURLOPT_NOSIGNAL, 1L);
@@ -49,7 +49,7 @@ static size_t icomet_callback(char *ptr, size_t size, size_t nmemb, void *userda
 	curl_easy_perform(_curl);
 	curl_easy_cleanup(_curl);
 
-	NSLog(@"connection lost, will try to reconnect");
+	log_debug(@"connection lost, will try to reconnect");
 	[NSThread sleepForTimeInterval:2];
 	[self performSelectorInBackground:@selector(doSub) withObject:nil];
 }
@@ -83,7 +83,7 @@ static NSData *base64_decode(NSString *str){
 					_subCallback(content_data);
 				}
 			}else{
-				NSLog(@"bad content");
+				log_debug(@"bad content");
 			}
 		}
 	}
@@ -129,7 +129,7 @@ static NSString *base64_encode_data(NSData *data){
 	_uploading = YES;
 //	http_post_raw(url, params, ^(NSData *data) {
 //		NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-//		NSLog(@"uploaded, resp: %@", str);
+//		log_debug(@"uploaded, resp: %@", str);
 //		
 //		_uploading = NO;
 //		[_chunks removeObjectAtIndex:0];

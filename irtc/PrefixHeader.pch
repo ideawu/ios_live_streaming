@@ -26,9 +26,23 @@ static void my_log(NSString *fmt, ...){
 }
 #endif
 
+#define L_MYLOG(level, fmt, args...) \
+	my_log((level @" %@(%d): " fmt), [@(__FILE__) lastPathComponent],  __LINE__, ##args)
+
 #ifdef DEBUG
-#	define log_debug(fmt, args...) \
-		my_log((@"[DEBUG] %@(%d): " fmt), [@(__FILE__) lastPathComponent],  __LINE__, ##args)
+#	define VERSION  VER_NUM "(for development only)"
+#	define log_trace(...) L_MYLOG(@"[TRACE]", __VA_ARGS__)
+#	define log_debug(...) L_MYLOG(@"[DEBUG]", __VA_ARGS__)
+#else
+#	define VERSION  VER_NUM "(for production)"
+#	define log_trace(...)
+#	define log_debug(...)
+#endif
+
+#define log_info(...)  L_MYLOG(@"[INFO] ", __VA_ARGS__)
+#define log_error(...) L_MYLOG(@"[ERROR]", __VA_ARGS__)
+
+#ifdef DEBUG
 #	define LOG_FIRST_RUN() do{ \
 		static int i = 0; \
 		if(i == 0){ \
@@ -37,9 +51,5 @@ static void my_log(NSString *fmt, ...){
 		} \
 	}while(0)
 #endif
-
-#define log_error(fmt, args...)	\
-	my_log((@"[ERROR] %@(%d): " fmt), [@(__FILE__) lastPathComponent],  __LINE__, ##args)
-
 
 #endif /* PrefixHeader_pch */

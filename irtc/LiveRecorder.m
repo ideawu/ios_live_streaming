@@ -122,7 +122,7 @@
 }
 
 - (void)onVideoEncodedFrame:(NSData *)frame pts:(double)pts duration:(double)duration{
-//	NSLog(@"pts: %.3f", pts);
+//	log_debug(@"pts: %.3f", pts);
 	if(!_videoClip){
 		_videoClip = [[VideoClip alloc] init];
 		_videoClip.sps = _videoEncoder.sps;
@@ -131,7 +131,7 @@
 
 	UInt8 *p = (UInt8 *)frame.bytes;
 	int type = p[4] & 0x1f;
-//	NSLog(@"NALU Type \"%d\"", type);
+//	log_debug(@"NALU Type \"%d\"", type);
 	
 	[_videoClip appendFrame:frame pts:pts];
 

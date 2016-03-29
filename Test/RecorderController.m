@@ -52,7 +52,7 @@ typedef enum{
 
 - (IBAction)start:(id)sender {
 	if(_status == RecordStart){
-		NSLog(@"already started");
+		log_debug(@"already started");
 		return;
 	}
 	_status = RecordStart;
@@ -70,7 +70,7 @@ typedef enum{
 	__weak typeof(self) me = self;
 	[_recorder start:^(VideoClip *clip) {
 		NSData *data = clip.data;
-		NSLog(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, key_frame: %@",
+		log_debug(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, key_frame: %@",
 			  clip.frameCount, clip.startTime, clip.endTime, clip.duration, (int)data.length,
 			  clip.hasKeyFrame?@"yes":@"no");
 		
@@ -117,7 +117,7 @@ static NSString *base64_encode_data(NSData *data){
 		_uploading = YES;
 		http_post_raw(url, params, ^(NSData *data) {
 			NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-			NSLog(@"uploaded, resp: %@", str);
+			log_debug(@"uploaded, resp: %@", str);
 			
 			_uploading = NO;
 			[_chunks removeObjectAtIndex:0];

@@ -140,7 +140,7 @@ static NSString *formatIDtoString(int fID){
 							  0, &_queue);
 	if(err){
 		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
-		NSLog(@"line: %d, error: %@", __LINE__, error);
+		log_debug(@"line: %d, error: %@", __LINE__, error);
 		return;
 	}
 
@@ -162,7 +162,7 @@ static NSString *formatIDtoString(int fID){
 		log_debug(@"%@", error);
 	}
 
-	NSLog(@"AQ setup");
+	log_debug(@"AQ setup");
 }
 
 - (int)computeRecordBufferSize:(AudioStreamBasicDescription *)format duration:(float)seconds{
@@ -213,7 +213,7 @@ static NSString *formatIDtoString(int fID){
 			_bufferDuration = 0; // 消除浮点运算误差
 			
 			_state = PlayerStatePause;
-			NSLog(@"AQ pause");
+			log_debug(@"AQ pause");
 			AudioQueuePause(_queue);
 			// 对于 AAC 不能调用 stop 只能 pause
 			//AudioQueueStop(_queue, NO); // 不能在 callback 中调用 stop
@@ -236,7 +236,7 @@ static void isRunningProc (void *                     inUserData,
 		OSStatus err = AudioQueueGetProperty(_queue, kAudioQueueProperty_IsRunning, &isRunning, &size);
 		if(err){
 			NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
-			NSLog(@"AudioQueueEnqueueBuffer error: %d %@", (int)err, [error description]);
+			log_debug(@"AudioQueueEnqueueBuffer error: %d %@", (int)err, [error description]);
 			return;
 		}
 
@@ -261,7 +261,7 @@ static void isRunningProc (void *                     inUserData,
 										  buffer->mPacketDescriptions);
 			if(err){
 				NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
-				NSLog(@"AudioQueueEnqueueBuffer error: %d %@", (int)err, [error description]);
+				log_debug(@"AudioQueueEnqueueBuffer error: %d %@", (int)err, [error description]);
 				return;
 			}
 			_count ++;
@@ -274,9 +274,9 @@ static void isRunningProc (void *                     inUserData,
 			err = AudioQueueStart(_queue, NULL);
 			if(err){
 				NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
-				NSLog(@"%d error %@", __LINE__, error);
+				log_debug(@"%d error %@", __LINE__, error);
 			}else{
-				NSLog(@"AQ started, buffers: %d, duration: %f", _count, _bufferDuration);
+				log_debug(@"AQ started, buffers: %d, duration: %f", _count, _bufferDuration);
 			}
 		}
 	}

@@ -100,7 +100,7 @@
 	NSError *error = nil;
 	if (status != kCMBlockBufferNoErr) {
 		error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-		NSLog(@"kCMBlockBuffer error: %@", error);
+		log_debug(@"kCMBlockBuffer error: %@", error);
 		return nil;
 	}
 	return [NSData dataWithBytes:pcm length:size];

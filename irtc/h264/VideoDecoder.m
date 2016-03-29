@@ -64,7 +64,7 @@
 																 (const uint8_t *const*)arr,
 																 sizes, 4,
 																 &_formatDesc);
-	if(err != noErr) NSLog(@"Create Format Description ERROR: %d", (int)err);
+	if(err != noErr) log_debug(@"Create Format Description ERROR: %d", (int)err);
 	
 	[self createSession];
 }
@@ -99,7 +99,7 @@
 													(__bridge CFDictionaryRef)(decoderParameters),
 													(__bridge CFDictionaryRef)(pixelBufferAttrs),
 													&callBackRecord, &_session);
-	if(status != noErr) NSLog(@"\t\t VTD ERROR type: %d", (int)status);
+	if(status != noErr) log_debug(@"\t\t VTD ERROR type: %d", (int)status);
 	log_debug(@"decode session created");
 }
 
@@ -144,7 +144,7 @@ static void decompressCallback(void *decompressionOutputRefCon,
 		//VTDecodeFrameFlags flags = kVTDecodeFrame_EnableAsynchronousDecompression;
 		VTDecodeFrameFlags flags = 0;
 		VTDecodeInfoFlags flagOut;
-		//NSLog(@"sampleBuffer: %d", (int)CFGetRetainCount(sampleBuffer));
+		//log_debug(@"sampleBuffer: %d", (int)CFGetRetainCount(sampleBuffer));
 		// decode 接受的1帧, 可以分隔多个NALU, AVCC 格式
 		VTDecompressionSessionDecodeFrame(_session, sampleBuffer, flags, NULL, &flagOut);
 		CFRelease(sampleBuffer);

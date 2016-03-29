@@ -44,7 +44,7 @@
 	
 	[_writer finishWritingWithCompletionHandler:^{
 		if(_writer.status != AVAssetWriterStatusCompleted){
-			NSLog(@"asset writer failed: %@", _writer.outputURL.lastPathComponent);
+			log_debug(@"asset writer failed: %@", _writer.outputURL.lastPathComponent);
 			return;
 		}
 		log_debug(@"writed to %@", _filename);
@@ -111,19 +111,19 @@
 			  );
 
 	if (_writer.status == AVAssetWriterStatusUnknown){
-		NSLog(@"start %@", _writer.outputURL.lastPathComponent);
+		log_debug(@"start %@", _writer.outputURL.lastPathComponent);
 		if(![_writer startWriting]){
-			NSLog(@"start writer failed: %@", _writer.error.description);
+			log_debug(@"start writer failed: %@", _writer.error.description);
 		}
 		[_writer startSessionAtSourceTime:CMTimeMakeWithSeconds(time, 1)];
 	}
 	if (_writer.status == AVAssetWriterStatusFailed){
-		NSLog(@"writer error %@", _writer.error.localizedDescription);
+		log_debug(@"writer error %@", _writer.error.localizedDescription);
 		// TODO: set status
 	}else if(_videoInput.readyForMoreMediaData == YES){
 		[_videoInput appendSampleBuffer:sampleBuffer];
 	}else{
-		NSLog(@"!readyForMoreMediaData %d", (int)_writer.status);
+		log_debug(@"!readyForMoreMediaData %d", (int)_writer.status);
 	}
 }
 

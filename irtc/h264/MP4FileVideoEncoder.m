@@ -244,7 +244,7 @@
 		log_error(@"failed to parse sps and pps!");
 		return;
 	}
-	//NSLog(@"sps: %@, pps: %@", _sps, _pps);
+	//log_debug(@"sps: %@, pps: %@", _sps, _pps);
 	_headerWriter = nil;
 }
 

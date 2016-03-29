@@ -13,10 +13,10 @@
 #import "MovieCaptureFile.h"
 
 #define QUIT() do{ \
-		NSLog(@"sleep"); \
+		log_debug(@"sleep"); \
 		sleep(15); \
 		test = nil; \
-		NSLog(@"quit"); \
+		log_debug(@"quit"); \
 	}while(0)
 
 int main(int argc, const char * argv[]) {
@@ -44,7 +44,7 @@ int main(int argc, const char * argv[]) {
 		sleep(5);
 		[movie stop];
 		sleep(2);
-		NSLog(@"quit");
+		log_debug(@"quit");
 	}
 	
 	return 0;

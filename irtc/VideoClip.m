@@ -64,7 +64,7 @@ static UInt8 start_code[4] = {0, 0, 0, 1};
 - (void)appendFrame:(NSData *)frame pts:(double)pts{
 	unsigned char* p = (unsigned char*)[frame bytes];
 	int type = p[4] & 0x1f;
-	//NSLog(@"add frame type: %d, pts: %f", type, pts);
+	//log_debug(@"add frame type: %d, pts: %f", type, pts);
 	if (type == 5){
 		_hasKeyFrame = YES;
 		_frameCount ++;
@@ -77,7 +77,7 @@ static UInt8 start_code[4] = {0, 0, 0, 1};
 		_pps = [frame subdataWithRange:NSMakeRange(4, frame.length - 4)];
 		return;
 	}else{
-		NSLog(@"unknown nal_type: %d", type);
+		log_debug(@"unknown nal_type: %d", type);
 		return;
 	}
 	
@@ -188,7 +188,7 @@ static UInt8 start_code[4] = {0, 0, 0, 1};
 	double stime = [ps[1] doubleValue];
 	double etime = [ps[2] doubleValue];
 	//int frameCount = [ps[3] intValue];
-	//NSLog(@"parsed stime: %.3f, etime: %.3f, duration: %.3f, frames: %d", stime, etime, (etime-stime), frameCount);
+	//log_debug(@"parsed stime: %.3f, etime: %.3f, duration: %.3f, frames: %d", stime, etime, (etime-stime), frameCount);
 
 	UInt8 *buf = (UInt8 *)data.bytes + metadata.length;
 	size_t size = data.length - metadata.length;

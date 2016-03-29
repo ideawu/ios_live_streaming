@@ -56,7 +56,7 @@
 	
 	[_recorder setupVideo:^(VideoClip *clip){
 		NSData *data = clip.data;
-		NSLog(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, key_frame: %@",
+		log_debug(@"%2d frames[%.3f ~ %.3f], duration: %.3f, %5d bytes, key_frame: %@",
 			  clip.frameCount, clip.startTime, clip.endTime, clip.duration, (int)data.length,
 			  clip.hasKeyFrame?@"yes":@"no");
 		
@@ -81,10 +81,10 @@
 	//	[_recorder setupAudio:^(NSData *data, double pts, double duration) {
 	//		int i = [me incr];
 	//		if(i > 130 && i < 350){
-	//			//NSLog(@"return %d", i);
+	//			//log_debug(@"return %d", i);
 	//			return;
 	//		}
-	//		NSLog(@"%d bytes, %f %f", (int)data.length, pts, duration);
+	//		log_debug(@"%d bytes, %f %f", (int)data.length, pts, duration);
 	//		if(raw_format){
 	//			[_audioDecoder decode:data];
 	//		}else{

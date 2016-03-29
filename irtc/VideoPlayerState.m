@@ -119,7 +119,7 @@ typedef enum{
 	}
 	double maxAhead = -MIN(0.01, _frameDuration/4);
 	double delay = self.delay;
-	//NSLog(@"  time: %.3f expect: %.3f, delay: %+.3f, frameDuration: %.3f",
+	//log_debug(@"  time: %.3f expect: %.3f, delay: %+.3f, frameDuration: %.3f",
 	//		time, self.nextFrameTime, delay, _frameDuration);
 	if(delay >= 0){
 		return YES;

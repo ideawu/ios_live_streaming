@@ -27,7 +27,7 @@
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-	NSLog(@"NSTemporaryDirectory: %@", NSTemporaryDirectory());
+	log_debug(@"NSTemporaryDirectory: %@", NSTemporaryDirectory());
 	
 	int flag = 3;
 	
