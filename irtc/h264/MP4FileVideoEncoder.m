@@ -6,7 +6,7 @@
 //  Copyright © 2016 ideawu. All rights reserved.
 //
 
-#import "Mp4FileVideoEncoder.h"
+#import "MP4FileVideoEncoder.h"
 #import "MP4FileWriter.h"
 #import "MP4FileReader.h"
 #import "mp4_reader.h"
@@ -232,16 +232,18 @@
 	
 	const char *filename = _headerWriter.path.UTF8String;
 	mp4_file_parse_params(filename, &sps, &sps_size, &pps, &pps_size);
-	
+
 	if(sps){
 		_sps = [NSData dataWithBytesNoCopy:sps length:sps_size freeWhenDone:YES];
+		free(sps);
 	}
 	if(pps){
 		_pps = [NSData dataWithBytesNoCopy:pps length:pps_size freeWhenDone:YES];
+		free(pps);
 	}
 	
 	if(!_sps || !_pps){
-		log_error(@"failed to parse sps and pps!");
+		log_error(@"failed to parse sps and pps of %s!", filename);
 		return;
 	}
 	//log_debug(@"sps: %@, pps: %@", _sps, _pps);

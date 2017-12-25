@@ -32,8 +32,8 @@
 	int flag = 3;
 	
 	if(flag == 1){
-//		_test = [[PlayerController alloc] initWithWindowNibName:@"PlayerController"];
-//		[_test showWindow:self];
+		_test = [[PlayerController alloc] initWithWindowNibName:@"PlayerController"];
+		[_test showWindow:self];
 	}
 	if(flag == 2){
 //		_test = [[RecorderController alloc] initWithWindowNibName:@"RecorderController"];

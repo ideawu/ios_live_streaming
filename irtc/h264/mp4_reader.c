@@ -6,7 +6,7 @@
 
 #undef log_debug
 
-#if 1
+#if 0
 #define log_debug(fmt, args...)
 #define log_atom(a)
 #else
@@ -329,9 +329,10 @@ static void parse_params(char *buf, int size, void **sps, int *sps_size, void **
 void read_mp4(const char *filename);
 
 int main(int argc, char **argv){
-	read_mp4("../../Downloads/m1.mp4");
-	read_mp4("../../Downloads/params.mp4");
-	read_mp4("../../Downloads/capture.mp4");
+	for(int i=1; i<argc; i++){
+		const char *file = argv[i];
+		read_mp4(file);
+	}
 	return 0;
 }
 

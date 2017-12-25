@@ -34,7 +34,7 @@ mp4_reader* mp4_file_open(const char *filename);
  */
 int mp4_file_parse_params(const char *filename, void **sps, int *sps_size, void **pps, int *pps_size);
 
-mp4_reader* mp4_reader_init();
+mp4_reader* mp4_reader_init(void);
 void mp4_reader_free(mp4_reader *mp4);
 /**
  0: no atom

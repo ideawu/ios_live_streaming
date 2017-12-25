@@ -79,7 +79,8 @@
 		use_file_encoder = YES;
 	}
 #else
-	use_file_encoder = YES;
+	// not working on macOS 10.13.1
+//	use_file_encoder = YES;
 #endif
 
 	if(use_file_encoder){
