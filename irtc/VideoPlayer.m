@@ -226,19 +226,20 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 }
 
 // CVImageBufferRef 即是 CVPixelBufferRef
-- (CGImageRef)pixelBufferToImageRef:(CVImageBufferRef)imageBuffer{
-	CVPixelBufferLockBaseAddress(imageBuffer, 0);
-	uint8_t *baseAddress = (uint8_t *)CVPixelBufferGetBaseAddress(imageBuffer);
-	size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
-	size_t width = CVPixelBufferGetWidth(imageBuffer);
-	size_t height = CVPixelBufferGetHeight(imageBuffer);
+- (CGImageRef)pixelBufferToImageRef:(CVPixelBufferRef)pixelBuffer{
+	CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+	uint8_t *baseAddress = (uint8_t *)CVPixelBufferGetBaseAddress(pixelBuffer);
+	CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+	size_t bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
+	size_t width = CVPixelBufferGetWidth(pixelBuffer);
+	size_t height = CVPixelBufferGetHeight(pixelBuffer);
 
 	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
 	CGContextRef context = CGBitmapContextCreate(baseAddress,
 												 width, height,
 												 8, bytesPerRow,
 												 colorSpace,
-												 kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst
+												 kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host
 												 );
 	CGImageRef image = NULL;
 	if(context){
@@ -247,6 +248,36 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 	CGContextRelease(context);
 	CGColorSpaceRelease(colorSpace);
 	return image;
+}
+
+- (CVPixelBufferRef)imageRefToPixelBuffer:(CGImageRef)image{
+	CVPixelBufferRef pixelBuffer = NULL;
+	
+	size_t bytesPerRow = CGImageGetBytesPerRow(image);
+	size_t width = CGImageGetWidth(image);
+	size_t height = CGImageGetHeight(image);
+
+	CVPixelBufferCreate(NULL, width, height, kCVPixelFormatType_32BGRA, NULL, &pixelBuffer);
+	CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+	uint8_t *baseAddress = (uint8_t *)CVPixelBufferGetBaseAddress(pixelBuffer);
+	CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+
+	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+	CGContextRef context = CGBitmapContextCreate(baseAddress,
+												 width, height,
+												 8, bytesPerRow,
+												 colorSpace,
+												 kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host
+												 );
+	// flip
+	// CGContextTranslateCTM(context, 0.0, height);
+	// CGContextScaleCTM(context, 1.0, -1.0);
+	CGContextDrawImage(context, CGRectMake(0, 0, width, height, image);
+
+	CGColorSpaceRelease(colorSpace);
+	CGContextRelease(context);
+	
+	return pixelBuffer;
 }
 
 @end
