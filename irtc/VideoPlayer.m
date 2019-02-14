@@ -272,7 +272,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 	// flip
 	// CGContextTranslateCTM(context, 0.0, height);
 	// CGContextScaleCTM(context, 1.0, -1.0);
-	CGContextDrawImage(context, CGRectMake(0, 0, width, height, image);
+	CGContextDrawImage(context, CGRectMake(0, 0, width, height), image);
 
 	CGColorSpaceRelease(colorSpace);
 	CGContextRelease(context);
