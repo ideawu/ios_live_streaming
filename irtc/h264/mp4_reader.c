@@ -130,6 +130,12 @@ int mp4_reader_next_atom(mp4_reader *mp4){
 	// special atom length
 	if(atom->length == 0){
 		atom->size = INFINIT_SIZE;
+	}else if(atom->length == 1){
+		uint64_t largesize;
+		mp4->input_cb(mp4, &largesize, 8);
+		largesize = __builtin_bswap64(largesize);
+		atom->length = (uint32_t)largesize;
+		atom->size = atom->length - 16;
 	}else{
 		atom->size = length - 8;
 	}
